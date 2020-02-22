@@ -204,15 +204,11 @@ def upgrade (upgrade_orders, entities):
 ## COMBATS ##
 
 def cruiser_attack (attack_orders, board, entities):
-
-    # Attention ! coordinates en y puis x !
-
-    # A modifier
-    """ attacks the other entities depending on the energy dedicated to the attack
+    """ attacks the other entities as oredered by a player
 
     Parameters
     ----------
-    attack_orders : 
+    attack_orders : list of oreders for the attacks for a player (list of str)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict) 
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -223,7 +219,7 @@ def cruiser_attack (attack_orders, board, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Mathis Huet (v.1 22/02/2020)
     """
 
 def get_distance (coordinates_1, coordinates_2):
