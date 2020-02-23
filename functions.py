@@ -3,20 +3,6 @@
 from colored import *
 import random
 
-# Les upgrades sont générales ou pas ?
-
-# Attention ! coordinates en y puis x !!!!!!
-
-# J'ai rajouté le type à energy dans entities
-
-# On doit gérer le cas dans lequel une équipe voudrait contrôler une entité adverse ?
-
-# J'ai rajouté team en paramètre à qlq fonctions
-
-# Au début les hubs commencent avec full energy ?
-
-# Un joueur peut faire autant d'upgrades qu'il le souhaite MAIS une unité ne peut avoir qu'un seul oredre par tour ???
-
 ## MISE EN PLACE ##
 
 def game (file_path, player_1, player_2):
@@ -32,6 +18,10 @@ def game (file_path, player_1, player_2):
     ----
     The 4 types of player are : 'human', 'IA', 'distant_human', and 'distant_IA' if the player is respectively\
          a human, an IA, a human but on an other computer, and an IA but on another computer
+    
+    Version
+    -------
+    specification : Mathis Huet (v.1 22-02-2020)
     """
 
 def create_data_structures (file_path):
@@ -104,6 +94,10 @@ def sort_order (order):
     attack_orders : orders of attack of the player (list of str)
     movement_orders : orders of deplacement of the player (list of str)
     energy_transfer_orders : orders of energy transfer of the player (list of str)
+    
+    Version
+    -------
+    specification : Mathis Huet (v.1 22-02-2020)
     """
 
 def get_IA_orders (board, entities):
@@ -219,16 +213,7 @@ def remove_destroyed_entities (entities):
     -------
     specification : Mathis Huet (v.1 20/02/2020)
     """
-
-    for entity in entities:
-        if entities[entity]['type'] != 'energy':
-            structure_points = entities[entity]['structure_points']
-            if structure_points <= 0:
-                if entities[entity]['type'] == 'hub':
-                # une équipe a gagné
-            else:
-                del entities[entity]
-
+    
 ## DÉPLACEMENTS ##
 
 def movement (movement_orders, board, entities):
