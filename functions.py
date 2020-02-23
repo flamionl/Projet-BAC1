@@ -74,14 +74,12 @@ def actualise_board (board, entities):
     """
 
 def display_board (board, entities):
-
-    # A modifier
-    """ Actualise the board with entities dictionnary and displays the board game in the terminal
+    """ Displays the board's game in the terminal
 
     Parameters
     ----------
-    board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
-    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    board : dictionary that contains coordinates as a key, and all the entities on these coordinates as a value (dict)
+    entities : dictionnary that contains entities as key, and a dictionary of his characteristics as a value (dict)
 
     Prints
     ------
@@ -89,38 +87,8 @@ def display_board (board, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Flamion Louis (v.1 23/02/2020)
     """
-
-    case = '▒'
-    rond = '☬'
-    éclair = '●'
-    lines = 20
-    columns = 30
-    plateau = case * 30+"\n"
-
-    for line in range(1,lines-1) :
-        #Création de la ligne
-        plateau+= case
-        for column in range(1,columns-1) :
-        #Création des colonnes pour chaque lignes
-            #Création du damier
-            if (column +line) % 2 == 0  :
-                plateau+=fg('#ff0000')
-                plateau+=bg('#000000')
-                plateau+= rond
-                plateau+=attr('reset')
-                
-            else :
-                plateau+=fg('#ff0000')
-                plateau+=bg('#ffffff')
-                plateau+=éclair
-                plateau+=attr('reset')
-                
-        plateau+=case+'\n'
-    plateau+=case * 30
-    print(plateau)
-
 ## ORDRES ##
 
 def sort_order (order):
