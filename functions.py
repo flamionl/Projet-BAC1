@@ -176,7 +176,7 @@ def cruiser_attack (attack_orders, board, entities):
 
     Parameters
     ----------
-    attack_orders : list of oreders for the attacks for a player (list of str)
+    attack_orders : list of orders for the attacks for a player (list of str)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict) 
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -277,13 +277,11 @@ def energy_absorption (energy_transfer_orders, coordinates, entities):
     """
 
 def energy_transfer (energy_transfer_orders, entities):
-    # A modifier
-    """ transfers energy from an entity to an other one
+    """ Transfers energy from a tanker to a cruiser or a hub
 
     Parameters
     ----------
-    transmitter_name : name of the entity which transmits the energy (str)
-    receiver_name : name of the entity which receives the transmitted energy (str)
+    energy_transfer_order : list that contains the name of the tanker and the entity that the player wants to refuel (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -292,7 +290,7 @@ def energy_transfer (energy_transfer_orders, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Flamion Louis (v.1 23/02/2020)
     """
 
 ## FIN DE TOUR ##
