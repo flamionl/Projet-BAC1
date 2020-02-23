@@ -127,13 +127,12 @@ def get_IA_orders (board, entities):
 ## CRÉATION D'UNITÉS ##
 
 def create_vessel (creation_orders, player, entities):
-    # A modifier
-    """ Creates a vessel (cruiser or tanker)
+    """Creates a vessel (cruiser or tanker)
 
     Parameters
     ----------
-    vessel_name : name of the vessel (str)
-    team : name of the team (str)
+    creation_orders : list of the orders of the creations for the player (list of str)
+    player : the name of the player (str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -142,18 +141,17 @@ def create_vessel (creation_orders, player, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 21/02/2020)
+    specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     """
 
 ## UPGRADES ##
 
 def upgrade (upgrade_orders, entities):
-    # A modifier
-    """ Checks if there is enough energy in the hub. Upgrades the entity if there is enough. Prints a message if there is not enough.
+    """Checks if there is enough energy in the hub. Upgrades the entity if there is enough. Prints a message if there is not enough.
 
     Parameters
     ----------
-    entity_name : name of the entity to upgrade (str)
+    upgrade_orders : list of the orders of the upgrades for the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -166,7 +164,7 @@ def upgrade (upgrade_orders, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 21/02/2020)
+    specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     """
 
 ## COMBATS ##
