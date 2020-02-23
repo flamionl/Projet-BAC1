@@ -73,13 +73,12 @@ def actualise_board (board, entities):
     specification : Mathis Huet (v.1 21/02/2020)
     """
 
-def display_board (board, entities):
+def display_board (board):
     """ Displays the board's game in the terminal
 
     Parameters
     ----------
     board : dictionary that contains coordinates as a key, and all the entities on these coordinates as a value (dict)
-    entities : dictionnary that contains entities as key, and a dictionary of his characteristics as a value (dict)
 
     Prints
     ------
