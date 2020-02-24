@@ -216,12 +216,12 @@ def remove_destroyed_entities (entities):
     
 ## DÉPLACEMENTS ##
 
-def movement (orders, board, entities):
+def movement (movement_orders, board, entities):
     """ moves an entity by consequences of the orders given by player or an IA
 
     Parameters
     ----------
-    orders : check if there's a mouvement's order given by the player or IA (str) 
+    movement_orders : check if there's a mouvement's order given by the player or IA (str) 
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -237,7 +237,7 @@ def movement (orders, board, entities):
 
 ## TRANSFERTS D'ÉNERGIE ##
 
-def energy_absorption (orders, coordinates, entities):
+def energy_absorption (energy_transfer_orders, coordinates, entities):
     """ Absorbs the energy of an energy peak, and removes the peak from the map
 
     Parameters
