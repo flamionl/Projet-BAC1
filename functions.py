@@ -40,11 +40,7 @@ def create_data_structures (file_path):
     -------
     specification : Mathis Huet (v.1 19/02/2020)
     """
-    board = {}
-
-    for x in range (1, nb_columns + 1):
-        for y in range (1, nb_lines + 1):
-            board[(x, y)] = []
+    
 
 def actualise_board (board, entities):
     """ Actualises the information of entities dictionary in the board dictionary
