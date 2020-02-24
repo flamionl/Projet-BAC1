@@ -216,14 +216,12 @@ def remove_destroyed_entities (entities):
     
 ## DÉPLACEMENTS ##
 
-def movement (movement_orders, board, entities):
-    # A modifier
-    """ moves an entity
+def movement (orders, board, entities):
+    """ moves an entity by consequences of the orders given by player or an IA
 
     Parameters
     ----------
-    vessel_name : name of the vessel (cruiser or tanker) to move (str)
-    coordinates : tuple of integers containing x coordinates before the comma and y coordinates after the comma (tuple)
+    orders : check if there's a mouvement's order given by the player or IA (str) 
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -234,18 +232,17 @@ def movement (movement_orders, board, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Gerry Longfils (v.1 24/02/2020)
     """
 
 ## TRANSFERTS D'ÉNERGIE ##
 
-def energy_absorption (energy_transfer_orders, coordinates, entities):
-    # A modifier
+def energy_absorption (orders, coordinates, entities):
     """ Absorbs the energy of an energy peak, and removes the peak from the map
 
     Parameters
     ----------
-    tanker_name : name of the tanker (str)
+    orders : receive the orders given by a player or an IA and check if he wants to take the energy peak (str)
     coordinates : coordinates of the the entity where the tanker picks up the energy (tuple of integers)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -255,7 +252,7 @@ def energy_absorption (energy_transfer_orders, coordinates, entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Gerry Longfils (v.1 24/02/2020)
     """
 
 def energy_transfer (energy_transfer_orders, entities):
