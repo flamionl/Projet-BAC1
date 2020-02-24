@@ -21,7 +21,7 @@ def game (file_path, player_1, player_2):
     
     Version
     -------
-    specification : Mathis Huet (v.1 22-02-2020)
+    specification : Amaury Van Pevenaeyge (v.1 22-02-2020)
     """
 
 def create_data_structures (file_path):
@@ -38,7 +38,7 @@ def create_data_structures (file_path):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Amaury Van Pevenaeyge (v.1 19/02/2020)
     """
     
 
@@ -72,7 +72,7 @@ def display_board (board):
 
     Version
     -------
-    specification : Flamion Louis (v.1 23/02/2020)
+    specification : Louis Flamion (v.1 23/02/2020)
     """
 ## ORDRES ##
 
@@ -207,7 +207,7 @@ def remove_destroyed_entities (entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 20/02/2020)
+    specification : Gerry Longfils (v.1 20/02/2020)
     """
     
 ## DÉPLACEMENTS ##
@@ -238,7 +238,7 @@ def energy_absorption (energy_transfer_orders, coordinates, entities):
 
     Parameters
     ----------
-    orders : receive the orders given by a player or an IA and check if he wants to take the energy peak (str)
+    energy_transfer_orders : receive the orders given by a player or an IA and check if he wants to take the energy peak (str)
     coordinates : coordinates of the the entity where the tanker picks up the energy (tuple of integers)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -265,7 +265,7 @@ def energy_transfer (energy_transfer_orders, entities):
 
     Version
     -------
-    specification : Flamion Louis (v.1 23/02/2020)
+    specification : Louis Flamion (v.1 23/02/2020)
     """
 
 ## FIN DE TOUR ##
@@ -283,5 +283,5 @@ def hubs_regeneration (entities):
 
     Version
     -------
-    specification : Mathis Huet (v.1 19/02/2020)
+    specification : Gerry Longfils (v.1 19/02/2020)
     """
