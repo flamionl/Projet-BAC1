@@ -16,8 +16,8 @@ def game (file_path, player_1, player_2):
 
     Note
     ----
-    The 4 types of player are : 'human', 'IA', 'distant_human', and 'distant_IA' if the player is respectively\
-         a human, an IA, a human but on an other computer, and an IA but on another computer
+    The 3 types of player are : 'human', 'IA', and 'distant_player' if the player is respectively\
+         a human playing on the local computer, an IA on the local computer, and a player (human or IA) on an other computer
     
     Version
     -------
