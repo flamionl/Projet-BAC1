@@ -49,11 +49,16 @@ for line in range(1,lines+1) :
                 for entity in board[(line,column)] :
                     if entities[entity]['type'] == 'cruiser' :
                         plateau += bg('#CB2525')
+                        #Looking to the entitiy's team to attribute the right color
+                        if entities[entity]['team'] == 'blue' :
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
                         plateau += cruiser
                         plateau += attr('reset')
                     
         else :
-            #If entities's list is empty
+            #If entities's list is empty                    
             if board[(line,column)]  == [] :
                 plateau += bg('#25CB2B')
                 plateau += case
@@ -64,6 +69,11 @@ for line in range(1,lines+1) :
                     #If the entity is a cruiser
                     if entities[entity]['type'] == 'cruiser' :
                         plateau += bg('#25CB2B')
+                        #Looking to the entitiy's team to attribute the right color
+                        if entities[entity]['team'] == 'blue' :
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
                         plateau += cruiser
                         plateau += attr('reset')
     plateau+=case+'\n'
