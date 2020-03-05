@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from colored import *
 import random
 
@@ -11,6 +12,8 @@ for x in range(1,lines+1) :
     for y in range(1,columns+1) :
         board[(x,y)] = []
 board[(2,1)].append('cruiser_1')
+board[(1,2)].append('hub_1')
+board[(5,3)].append('energy_1')
 entities = {
 'cruiser_1': {'coordinates' : (0,0), 'type' : 'cruiser', 'team' : 'blue', 'structure_points' : 12, 
              'available_energy' : 240, 'moving_cost': 10, 'fire_range': 1},
@@ -26,7 +29,7 @@ hub ='♜'
 tanker = '☢️'
 case = '▒'
 cruiser = '☬'
-éclair = '●'
+eclair = '●'
 
 #Top border creation    
 plateau = case * (columns+2)+"\n"
@@ -39,43 +42,64 @@ for line in range(1,lines+1) :
     #Columns creation for every lines
         #Création du damier
         if (column +line) % 2 == 0  :
+            plateau += bg('#CB2525') #Sets the color of the case/entity on red
             #If entities's list is empty
             if board[(line,column)]  == [] :
-                plateau += bg('#CB2525')
-                plateau += case
-                plateau += attr('reset')
+                plateau += case      #Put a case
             #If entities's list is not empty
             else :
-                for entity in board[(line,column)] :
+                for entity in board[(line,column)] : #Search for entity's type and print them on the board
                     if entities[entity]['type'] == 'cruiser' :
-                        plateau += bg('#CB2525')
-                        #Looking to the entitiy's team to attribute the right color
-                        if entities[entity]['team'] == 'blue' :
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
                             plateau+=fg('#0033FF')
                         else :
                             plateau+=fg('#FF0000')
                         plateau += cruiser
-                        plateau += attr('reset')
-                    
+                    elif entities[entity]['type'] == 'tanker' :
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
+                        plateau += tanker
+                    elif entities[entity]['type'] == 'hub' :
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
+                        plateau += hub
+                    elif entities[entity]['type'] == 'energy' :
+                        plateau += eclair   
+            plateau += attr('reset')   
         else :
-            #If entities's list is empty                    
+            plateau += bg('#25CB2B') #Sets the color of the case/entity on green
+            #If entities's list is empty
             if board[(line,column)]  == [] :
-                plateau += bg('#25CB2B')
                 plateau += case
-                plateau += attr('reset')
             #If entities's list is not empty
             else :
-                for entity in board[(line,column)] :
-                    #If the entity is a cruiser
-                    if entities[entity]['type'] == 'cruiser' :
-                        plateau += bg('#25CB2B')
-                        #Looking to the entitiy's team to attribute the right color
-                        if entities[entity]['team'] == 'blue' :
+                for entity in board[(line,column)] : #Search for entity's type and print them on the board
+                    if entities[entity]['type'] == 'cruiser' : #If the entity is a cruiser
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
                             plateau+=fg('#0033FF')
                         else :
                             plateau+=fg('#FF0000')
                         plateau += cruiser
-                        plateau += attr('reset')
+                    elif entities[entity]['type'] == 'tanker' : #If the entity is a tanker
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
+                        plateau += tanker
+                    elif entities[entity]['type'] == 'hub' : #If the entity is a hub
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
+                        plateau += hub
+                    elif entities[entity]['type'] == 'energy' : #If the entity is an energy
+                        plateau += eclair
+            plateau += attr('reset')
+                        
     plateau+=case+'\n'
     plateau += attr('reset')
 
