@@ -42,9 +42,10 @@ for line in range(1,lines+1) :
     #Columns creation for every lines
         #Création du damier
         if (column +line) % 2 == 0  :
-            plateau += bg('#CB2525') #Sets the color of the case/entity on red
+            plateau += bg('#F76262') #Sets the color of the case/entity on red
             #If entities's list is empty
             if board[(line,column)]  == [] :
+                plateau+=fg('#F76262')
                 plateau += case      #Put a case
             #If entities's list is not empty
             else :
@@ -68,12 +69,25 @@ for line in range(1,lines+1) :
                             plateau+=fg('#FF0000')
                         plateau += hub
                     elif entities[entity]['type'] == 'energy' :
-                        plateau += eclair   
+                        attr('reset')
+                        plateau+=bg('#F76262')                     
+                        #check the good colored
+                        if entities[entity]['value']<=100 :
+                            plateau+= fg('#008000')
+                        if entities[entity]['value']<=75 :
+                            plateau+= fg('#FF4500')
+                        if entities[entity]['value']<=50 :
+                            plateau+= fg('#efd807')
+                        if entities[entity]['value']<=25 :
+                            plateau+= fg('#bb0b0b')
+                        plateau += eclair
+                        plateau += attr('reset')
             plateau += attr('reset')   
         else :
             plateau += bg('#25CB2B') #Sets the color of the case/entity on green
             #If entities's list is empty
             if board[(line,column)]  == [] :
+                plateau += fg('#25CB2B')
                 plateau += case
             #If entities's list is not empty
             else :
@@ -97,7 +111,18 @@ for line in range(1,lines+1) :
                             plateau+=fg('#FF0000')
                         plateau += hub
                     elif entities[entity]['type'] == 'energy' : #If the entity is an energy
+                                                
+                        #check the good colored
+                        if entities[entity]['value']<=100 :
+                            plateau+= fg('#008000')
+                        if entities[entity]['value']<=75 :
+                            plateau+= fg('#FF4500')
+                        if entities[entity]['value']<=50 :
+                            plateau+= fg('#efd807')
+                        if entities[entity]['value']<=25 :
+                            plateau+= fg('#bb0b0b')
                         plateau += eclair
+                        plateau += attr('reset')
             plateau += attr('reset')
                         
     plateau+=case+'\n'
