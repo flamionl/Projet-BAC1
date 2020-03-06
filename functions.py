@@ -49,6 +49,9 @@ def actualise_board (board, entities):
     ----------
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    Note
+    ----
+    For a good render use the Monospace Bold policy
 
     Returns
     -------
