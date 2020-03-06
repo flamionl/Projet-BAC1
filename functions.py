@@ -98,6 +98,39 @@ def sort_order (order):
     -------
     specification : Mathis Huet (v.1 22-02-2020)
     """
+    
+    # Creating all the lists
+    creation_orders = []
+    upgrade_orders = []
+    attack_orders = []
+    movement_orders = []
+    energy_transfer_orders = []
+
+    # Separating all the orders and putting them in a list
+    orders_list = orders.split()
+
+    # Sorting every order in the correct list
+    for order in orders_list:
+
+        if 'upgrade:' in order:
+            upgrade_orders.append(order)
+        elif '*' in order:
+            attack_orders.append(order)
+        elif '@' in order:
+            movement_orders.append(order)
+        elif '<' in order or '>' in order:
+            energy_transfer_orders.append(order)
+        elif ':' in order:
+            creation_orders.append(order)
+    
+    # Adding the name of the team at the end of each list (identification convention)
+    upgrade_orders.append(team)
+    attack_orders.append(team)
+    movement_orders.append(team)
+    energy_transfer_orders.append(team)
+    creation_orders.append(team)
+            
+    return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_transfer_orders
 
 def get_IA_orders (board, entities):
     """ Generates the orders of the IA
