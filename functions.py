@@ -79,12 +79,13 @@ def display_board (board):
     """
 ## ORDRES ##
 
-def sort_order (order):
+def sort_orders (orders, team):
     """ Sorts the order of a player depending on the type of these orders
 
     Parameters
     ----------
-    order : order from the player (str)
+    orders : orders from the player (str)
+    team : name of the team (str)
 
     Returns
     -------
@@ -96,7 +97,8 @@ def sort_order (order):
     
     Version
     -------
-    specification : Mathis Huet (v.1 22-02-2020)
+    specification : Mathis Huet (v.2 06-03-2020)
+
     """
     
     # Creating all the lists
@@ -123,13 +125,11 @@ def sort_order (order):
         elif ':' in order:
             creation_orders.append(order)
     
-    # Adding the name of the team at the end of each list (identification convention)
-    upgrade_orders.append(team)
-    attack_orders.append(team)
-    movement_orders.append(team)
-    energy_transfer_orders.append(team)
-    creation_orders.append(team)
-            
+    # Adding the name of the team at the end of each non-empty list
+    for List in [creation_orders, upgrade_orders, attack_orders, movement_orders, energy_transfer_orders]:
+        if List != []:
+            List.append(team)
+        
     return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_transfer_orders
 
 def get_IA_orders (board, entities):
