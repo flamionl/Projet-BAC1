@@ -39,8 +39,53 @@ def create_data_structures (file_path):
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 19/02/2020)
+    implementation : Mathis Huet & Amaury Van Pevenaeyge (v.1 07/03/2020)
     """
+
+    # Creating the base of the two data structures
+    board = {}
+    entities = {}
+
+    # Reading the file
+    fh = open(file_path, 'r')
+    board_info = fh.readlines()
+    fh.close()
+
+    # Deleting all the \n
+    element_id = 0
+    for line in board_info:
+        board_info[element_id] = line[0:-1]
+        element_id += 1
+
+    # Creating all the coordinates in the board
+    nb_lines, nb_columns = board_info[1].split()
+    nb_lines = int(nb_lines)
+    nb_columns = int(nb_columns)
+
+    for y in range (1, nb_lines + 1):
+        for x in range(1, nb_columns + 1):
+            board[y, x] = []
     
+    # Creating the hubs in entities dict
+    hub_blue = board_info[3].split()
+    hub_red = board_info[4].split()
+
+    entities['hub_blue'] = {'coordinates': (int(hub_blue[0]),int(hub_blue[1])), 'type': 'hub', 'team': 'blue', 'structure_points': 1500, 
+                            'available_energy': int(hub_blue[2]), 'regeneration_rate': int(hub_blue[3])}
+    entities['hub_red'] = {'coordinates': (int(hub_red[0]),int(hub_red[1])), 'type': 'hub', 'team': 'red', 'structure_points': 1500, 
+                            'available_energy': int(hub_red[2]), 'regeneration_rate': int(hub_red[3])}
+    
+    # Creating the peaks in entities dict
+    peak_id = 1
+    for line in board_info[6:-1]:
+        peak_info = line.split()
+        entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'energy' : int(peak_info[2])}
+        peak_id += 1
+    
+    # actualising the board_dict with the information of entities dict
+    board = actualise_board(board, entities)
+
+    return board, entities
 
 def actualise_board (board, entities):
     """ Actualises the information of entities dictionary in the board dictionary
@@ -49,9 +94,6 @@ def actualise_board (board, entities):
     ----------
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    Note
-    ----
-    For a good render use the Monospace Bold policy
 
     Returns
     -------
@@ -62,6 +104,16 @@ def actualise_board (board, entities):
     specification : Mathis Huet (v.1 21/02/2020)
     """
 
+    # Emptying the board
+    for coordinates in board:
+        board[coordinates] = []
+
+    # Refilling the board with all the information from entities dict
+    for entity in entities:
+        board[entities[entity]['coordinates']].append(entity)
+    
+    return board
+
 def display_board (board):
     """ Displays the board's game in the terminal
 
@@ -69,9 +121,9 @@ def display_board (board):
     ----------
     board : dictionary that contains coordinates as a key, and all the entities on these coordinates as a value (dict)
 
-    Prints
-    ------
-    board_game : the board game
+    Note
+    ----
+    For a better result, use the Monospace Bold policy
 
     Version
     -------
@@ -100,7 +152,7 @@ def sort_orders (orders, team):
     specification : Mathis Huet (v.2 06-03-2020)
 
     """
-    
+
     # Creating all the lists
     creation_orders = []
     upgrade_orders = []
