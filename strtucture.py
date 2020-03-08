@@ -10,8 +10,8 @@ entities = {
                'available_energy' : 622, 'regeneration_rate' : 25},
 'tanker_1' : {'coordinates' : (0,2), 'type' : 'tanker', 'team' : 'red', 'storage_capacity': 600, 
                 'available_energy': 300, 'structure_points': 50},
-'energy_1' : {'coordinates' : (0,1, 'type' : 'energy', 'value' : 25},
-'energy_2' : {'coordinates' : (0,2), 'type' : 'energy', 'value' : 40}
+'peak_1' : {'coordinates' : (0,1), 'type' : 'peak', 'value' : 25},
+'peak_2' : {'coordinates' : (0,2), 'type' : 'peak', 'value' : 40}
 }
 
      # Scenario : moving a cruiser
