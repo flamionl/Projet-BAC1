@@ -62,7 +62,6 @@ for line in range(1,lines+1) : #Line creation
                     if entities[entity]['type'] == 'hub' :
                         plateau += hub
                 else :                                      #Looking to the energy's value to attribute the right color
-                    plateau += energy
                     if entities[entity]['value']<=100 : 
                         plateau+= fg('#008000')
                     if entities[entity]['value']<=75 :
@@ -71,6 +70,7 @@ for line in range(1,lines+1) : #Line creation
                         plateau+= fg('#efd807')
                     if entities[entity]['value']<=25 :
                         plateau+= fg('#bb0b0b')
+                    plateau += energy
                 plateau += attr('reset')                    
     plateau += attr('reset')
     plateau+=case+'\n'
