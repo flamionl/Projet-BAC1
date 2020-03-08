@@ -149,7 +149,8 @@ def sort_orders (orders, team):
     
     Version
     -------
-    specification : Mathis Huet (v.2 06-03-2020)
+    specification : Mathis Huet (v.2 06/03/2020)
+    implementation : Mathis Huet (v.1 07/03/2020)
 
     """
 
@@ -283,7 +284,7 @@ def get_distance (coordinates_1, coordinates_2):
     """
 
 def remove_destroyed_entities (entities):
-    """ Removes all the entities which have structure points under or equal to 0
+    """ Removes all the entities which have structure points under or equal to 0 in the entities dict
 
     Parameters
     ----------
@@ -296,7 +297,24 @@ def remove_destroyed_entities (entities):
     Version
     -------
     specification : Gerry Longfils (v.1 20/02/2020)
+    implementation : Mathis Huet (v.1 08/03/2020)
     """
+    entities_to_remove = []
+
+    for entity in entities:
+        if entities[entity]['type'] != 'peak':
+            structure_points = entities[entity]['structure_points']
+            if structure_points <= 0:
+                if entities[entity]['type'] == 'hub':
+                        # une équipe a gagné
+                        print('WIN')
+                else:
+                        entities_to_remove.append(entity)
+    
+    for entity in entities_to_remove:
+        del entities[entity]
+    
+    return entities
     
 ## DÉPLACEMENTS ##
 
