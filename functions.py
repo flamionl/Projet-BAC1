@@ -269,6 +269,7 @@ def create_vessel (creation_orders, player, entities):
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
+    implementation :  Amaury Van Pevenaeyge (v.1 09-03-20)
     """
     for order in creation_orders:
 
