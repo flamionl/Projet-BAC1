@@ -200,13 +200,13 @@ def sort_orders (orders, team):
     upgrade_orders : orders of upgrade of the player (list of str)
     attack_orders : orders of attack of the player (list of str)
     movement_orders : orders of deplacement of the player (list of str)
-    energy_transfer_orders : orders of energy transfer of the player (list of str)
+    energy_absorption_orders : orders of energy absorption of the player (list of str)
+    energy_giving_orders : orders of energy giving od the player (list od str)
     
     Version
     -------
     specification : Mathis Huet (v.2 06/03/2020)
-    implementation : Mathis Huet (v.1 07/03/2020)
-
+    implementation : Mathis Huet (v.2 09/03/2020)
     """
 
     # Creating all the lists
@@ -214,7 +214,8 @@ def sort_orders (orders, team):
     upgrade_orders = []
     attack_orders = []
     movement_orders = []
-    energy_transfer_orders = []
+    energy_absorption_orders = []
+    energy_giving_orders = []
 
     # Separating all the orders and putting them in a list
     orders_list = orders.split()
@@ -228,17 +229,19 @@ def sort_orders (orders, team):
             attack_orders.append(order)
         elif '@' in order:
             movement_orders.append(order)
-        elif '<' in order or '>' in order:
-            energy_transfer_orders.append(order)
+        elif '<' in order:
+            energy_absorption_orders.append(order)
+        elif '>' in order:
+            energy_giving_orders.append(order)
         elif ':' in order:
             creation_orders.append(order)
     
     # Adding the name of the team at the end of each non-empty list
-    for List in [creation_orders, upgrade_orders, attack_orders, movement_orders, energy_transfer_orders]:
+    for List in [creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders]:
         if List != []:
             List.append(team)
         
-    return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_transfer_orders
+    return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders
 
 def get_IA_orders (board, entities):
     """ Generates the orders of the IA
@@ -288,7 +291,7 @@ def create_vessel (creation_orders, entities):
                 coordinates_hub_blue = entities[entity]['coordinates']
 
             elif entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'red':
-                coordinates_hub_red = entities[enity]['coordinates']
+                coordinates_hub_red = entities[entity]['coordinates']
 
         if vessel_type == 'tanker':
             
@@ -428,7 +431,7 @@ def movement (movement_orders, board, entities):
 ## TRANSFERTS D'ÉNERGIE ##
 
 def energy_absorption (energy_transfer_orders, coordinates, entities):
-    """ Absorbs the energy of an energy peak, and removes the peak from the map
+    """ Absorbs the energy of an entity, and if it is a peak, removes it from the map
 
     Parameters
     ----------
@@ -445,7 +448,7 @@ def energy_absorption (energy_transfer_orders, coordinates, entities):
     specification : Gerry Longfils (v.1 24/02/2020)
     """
 
-def energy_transfer (energy_transfer_orders, entities):
+def energy_giving (energy_transfer_orders, entities):
     """ Transfers energy from a tanker to a cruiser or a hub
 
     Parameters
