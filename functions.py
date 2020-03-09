@@ -221,6 +221,23 @@ def create_vessel (creation_orders, player, entities):
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     """
+    for order in creation_orders:
+
+    order = str.split(':', 3)
+    vessel_name = order[0]
+    vessel_type = order[1]
+    team = order[2]
+
+        if vessel_type == 'tanker':
+
+            entities[vessel_name] = {'coordinates': (0,0), 'type': 'tanker', 'team': team, 'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
+
+        else:
+
+            entities[vessel_name] = {'coordinates': (0,0), 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
+                                    'fire_range': 1}
+
+    return entities
 
 ## UPGRADES ##
 
