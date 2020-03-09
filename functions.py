@@ -181,8 +181,8 @@ def display_board (board, entities, nb_columns, nb_lines):
                             plateau+= fg('#bb0b0b')
                         plateau += energy
                     plateau += attr('reset')                    
-    plateau += attr('reset')
-    plateau += case+'\n'
+        plateau += attr('reset')
+        plateau += case+'\n'
     print(plateau)
 ## ORDRES ##
 
@@ -261,13 +261,16 @@ def get_IA_orders (board, entities):
 
 def create_vessel (creation_orders, entities):
     """Creates a vessel (cruiser or tanker)
+
     Parameters
     ----------
     creation_orders : list of the orders of the creations for the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
@@ -280,13 +283,29 @@ def create_vessel (creation_orders, entities):
         vessel_type = order[1]
         team = order[2]
 
+        for entity in entities:
+            if entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'blue':
+                coordinates_hub_blue = entities[entity]['coordinates']
+
+            elif entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'red':
+                coordinates_hub_red = entities[enity]['coordinates']
+
         if vessel_type == 'tanker':
+            
+            if team == 'blue':
+                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team, 
+                                            'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
+            else:
+                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team, 
+                                            'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
 
-            entities[vessel_name] = {'coordinates': (0,0), 'type': 'tanker', 'team': team, 'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
+        elif vessel_type == 'cruiser':
 
-        else:
-
-            entities[vessel_name] = {'coordinates': (0,0), 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
+            if team == 'blue':
+                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
+                                        'fire_range': 1}
+            else:
+                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
                                         'fire_range': 1}
 
     return entities
@@ -461,5 +480,6 @@ def hubs_regeneration (entities):
     specification : Gerry Longfils (v.1 19/02/2020)
     """
 
-nb_columns, nb_lines, board, entities = create_data_structures('/home/mat2905h/Bureau/map.equ')
-display_board(board, entities, nb_columns, nb_lines)    
+nb_columns, nb_lines, board, entities = create_data_structures('/home/mat2905h/Bureau/map1.equ')
+
+display_board(board, entities, nb_columns, nb_lines)
