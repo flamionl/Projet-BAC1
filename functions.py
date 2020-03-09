@@ -87,7 +87,7 @@ def create_data_structures (file_path):
     # actualising the board_dict with the information of entities dict
     board = actualise_board(board, entities)
 
-    return nb_columns, nb_lines, board, entities
+    return board, entities, nb_columns, nb_lines
 
 def actualise_board (board, entities):
     """ Actualises the information of entities dictionary in the board dictionary
@@ -430,14 +430,14 @@ def movement (movement_orders, board, entities):
 
 ## TRANSFERTS D'ÉNERGIE ##
 
-def energy_absorption (energy_transfer_orders, coordinates, entities):
-    """ Absorbs the energy of an entity, and if it is a peak, removes it from the map
+def energy_absorption (energy_absorption_orders, entities, board):
+    """ Absorbs the energy of an entity, and if it is a peak, removes it from the map if its energy goes under 0
 
     Parameters
     ----------
-    energy_transfer_orders : receive the orders given by a player or an IA and check if he wants to take the energy peak (str)
-    coordinates : coordinates of the the entity where the tanker picks up the energy (tuple of integers)
+    energy_absorption_orders : orders of energy absorption of the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
 
     Returns
     -------
@@ -448,13 +448,59 @@ def energy_absorption (energy_transfer_orders, coordinates, entities):
     specification : Gerry Longfils (v.1 24/02/2020)
     """
 
-def energy_giving (energy_transfer_orders, entities):
+    # Getting back the name of the team
+    team = energy_absorption_orders[-1]
+    del energy_absorption_orders[-1]
+
+    for order in energy_absorption_orders:
+
+        # Treating the order
+        order = order.split(':')
+        vessel_name = order[0]
+        coordinates = order[1]
+        coordinates = (int(coordinates[1]), int(coordinates[3]))
+
+        # Checking what is on the coordinates
+        entities_on_case = board[coordinates]
+        nb_potential_absorbed_entities = 0
+        for entity in entities_on_case:
+
+            # Getting back the name of the absorbed entity
+            absorbed_entity = entity
+
+            # Checking if the type of the entities is convenient
+            if entities[absorbed_entity]['type'] == 'hub' or entities[absorbed_entity]['type'] == 'peak':
+                nb_potential_absorbed_entities += 1
+
+        # Checking the team and the number of "absorbable" entities on the coordinates
+        if nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
+            
+            # Computing the amount of energy that will be transfered
+            absorbed_energy = max(entities[absorbed_entity]['available_energy'], entities[vessel_name]['storage_capacity'] - entities[vessel_name]['available_energy'])
+
+            #Transfering the energy
+            if entities[absorbed_entity]['type'] == 'hub':
+                if entities[absorbed_entity]['team'] == team:
+                    entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
+                    entities[vessel_name]['available_energy'] = entities[vessel_name]['available_energy'] + absorbed_energy
+
+            elif entities[absorbed_entity]['type'] == 'peak':
+                entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
+                entities[vessel_name]['available_energy'] = entities[vessel_name]['available_energy'] + absorbed_energy
+
+                if entities[absorbed_entity]['available_energy'] <= 0:
+                    del entities[absorbed_entity]
+    
+    return entities
+
+def energy_giving (energy_giving_orders, entities, board):
     """ Transfers energy from a tanker to a cruiser or a hub
 
     Parameters
     ----------
-    energy_transfer_order : list that contains the name of the tanker and the entity that the player wants to refuel (list of str)
+    energy_giving_orders : orders of energy giving od the player (list od str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
 
     Returns
     -------
@@ -482,3 +528,13 @@ def hubs_regeneration (entities):
     -------
     specification : Gerry Longfils (v.1 19/02/2020)
     """
+
+board, entities, nb_columns, nb_lines = create_data_structures('/home/mat2905h/Bureau/map1.equ')
+entities['tanker_1'] = {'coordinates' : (1,3), 'type' : 'tanker', 'team' : 'red', 'storage_capacity': 600, 
+                'available_energy': 300, 'structure_points': 50}
+board = actualise_board(board, entities)
+display_board(board, entities, nb_columns, nb_lines)
+
+entities = energy_absorption(['tanker_1:<1-2', 'blue'], entities, board)
+
+print(entities)
