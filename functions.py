@@ -479,7 +479,3 @@ def hubs_regeneration (entities):
     -------
     specification : Gerry Longfils (v.1 19/02/2020)
     """
-
-nb_columns, nb_lines, board, entities = create_data_structures('/home/mat2905h/Bureau/map1.equ')
-
-display_board(board, entities, nb_columns, nb_lines)
