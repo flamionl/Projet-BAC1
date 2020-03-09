@@ -253,30 +253,26 @@ def get_IA_orders (board, entities):
 
 ## CRÉATION D'UNITÉS ##
 
-def create_vessel (creation_orders, player, entities):
+def create_vessel (creation_orders, entities):
     """Creates a vessel (cruiser or tanker)
-
     Parameters
     ----------
     creation_orders : list of the orders of the creations for the player (list of str)
-    player : the name of the player (str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
-    implementation :  Amaury Van Pevenaeyge (v.1 09-03-20)
     """
+
     for order in creation_orders:
 
-    order = str.split(':', 3)
-    vessel_name = order[0]
-    vessel_type = order[1]
-    team = order[2]
+        order = str.split(':', 3)
+        vessel_name = order[0]
+        vessel_type = order[1]
+        team = order[2]
 
         if vessel_type == 'tanker':
 
