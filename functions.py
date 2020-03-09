@@ -35,6 +35,8 @@ def create_data_structures (file_path):
     -------
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    nb_columns : number of columns of the board game (int)
+    nb_lines : number of lines of the board game (int)
 
     Version
     -------
@@ -64,7 +66,7 @@ def create_data_structures (file_path):
 
     for y in range (1, nb_lines + 1):
         for x in range(1, nb_columns + 1):
-            board[y, x] = []
+            board[(y, x)] = []
     
     # Creating the hubs in entities dict
     hub_blue = board_info[3].split()
@@ -79,13 +81,13 @@ def create_data_structures (file_path):
     peak_id = 1
     for line in board_info[6:-1]:
         peak_info = line.split()
-        entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'energy' : int(peak_info[2])}
+        entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'available_energy' : int(peak_info[2])}
         peak_id += 1
     
     # actualising the board_dict with the information of entities dict
     board = actualise_board(board, entities)
 
-    return board, entities
+    return nb_columns, nb_lines, board, entities
 
 def actualise_board (board, entities):
     """ Actualises the information of entities dictionary in the board dictionary
@@ -115,12 +117,15 @@ def actualise_board (board, entities):
     
     return board
 
-def display_board (board):
+def display_board (board, entities, nb_columns, nb_lines):
     """ Displays the board's game in the terminal
 
     Parameters
     ----------
     board : dictionary that contains coordinates as a key, and all the entities on these coordinates as a value (dict)
+    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    nb_columns : number of columns of the board game (int)
+    nb_lines : number of lines of the board game (int)
 
     Note
     ----
@@ -138,46 +143,47 @@ def display_board (board):
     red_color = '#F76262'
     green_color = '#25CB2B'
 
-    plateau = case * (columns+2)+"\n" #Top border creation    
+    plateau = case * (nb_columns + 2)+"\n" #Top border creation    
 
-    for line in range(1,lines+1) : #Line creation
-    plateau+= case
-    for column in range(1,columns+1) :    #Columns creation for every lines
-        if (column +line) % 2 == 0  :  #Création du damier
-            background_color = red_color #Sets the background color on red
-            plateau += bg(background_color)
-        else :
-            background_color = green_color #Sets the background color on green
-            plateau += bg(background_color)
-        if board[(line,column)]  == [] : #If entities's list is empty
-            plateau+=fg(background_color)
-            plateau += case      #Put a case
-        else :
-            for entity in board[(line,column)] : #Search for entity's type and print them on the board
-                if entities[entity]['type'] != 'energy' :
-                    if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
-                        plateau+=fg('#0033FF')
-                    else :
-                        plateau+=fg('#FF0000')
-                    if entities[entity]['type'] == 'cruiser' :
-                        plateau += cruiser
-                    if entities[entity]['type'] == 'tanker' :
-                        plateau += tanker
-                    if entities[entity]['type'] == 'hub' :
-                        plateau += hub
-                else :                                      #Looking to the energy's value to attribute the right color
-                    if entities[entity]['value']<=100 : 
-                        plateau+= fg('#008000')
-                    if entities[entity]['value']<=75 :
-                        plateau+= fg('#FF4500')
-                    if entities[entity]['value']<=50 :
-                        plateau+= fg('#efd807')
-                    if entities[entity]['value']<=25 :
-                        plateau+= fg('#bb0b0b')
-                    plateau += energy
-                plateau += attr('reset')                    
+    for line in range(1,nb_lines + 1) : #Line creation
+        plateau += case
+        for column in range(1,nb_columns + 1) :    #Columns creation for every lines
+            if (column + line) % 2 == 0  :  #Création du damier
+                background_color = red_color #Sets the background color on red
+                plateau += bg(background_color)
+            else :
+                background_color = green_color #Sets the background color on green
+                plateau += bg(background_color)
+            if board[(line,column)]  == [] : #If entities's list is empty
+                plateau += fg(background_color)
+                plateau += case      #Put a case
+            else :
+                for entity in board[(line, column)] : #Search for entity's type and print them on the board
+                    if entities[entity]['type'] != 'peak' :
+                        if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
+                            plateau+=fg('#0033FF')
+                        else :
+                            plateau+=fg('#FF0000')
+                        if entities[entity]['type'] == 'cruiser' :
+                            plateau += cruiser
+                        if entities[entity]['type'] == 'tanker' :
+                            plateau += tanker
+                        if entities[entity]['type'] == 'hub' :
+                            plateau += hub
+                    else :                                      #Looking to the energy's value to attribute the right color
+                        if entities[entity]['available_energy']<=100 : 
+                            plateau+= fg('#008000')
+                        if entities[entity]['available_energy']<=75 :
+                            plateau+= fg('#FF4500')
+                        if entities[entity]['available_energy']<=50 :
+                            plateau+= fg('#efd807')
+                        if entities[entity]['available_energy']<=25 :
+                            plateau+= fg('#bb0b0b')
+                        plateau += energy
+                    plateau += attr('reset')                    
     plateau += attr('reset')
-    plateau+=case+'\n'
+    plateau += case+'\n'
+    print(plateau)
 ## ORDRES ##
 
 def sort_orders (orders, team):
@@ -273,10 +279,10 @@ def create_vessel (creation_orders, player, entities):
     """
     for order in creation_orders:
 
-    order = str.split(':', 3)
-    vessel_name = order[0]
-    vessel_type = order[1]
-    team = order[2]
+        order = str.split(':', 3)
+        vessel_name = order[0]
+        vessel_type = order[1]
+        team = order[2]
 
         if vessel_type == 'tanker':
 
@@ -285,7 +291,7 @@ def create_vessel (creation_orders, player, entities):
         else:
 
             entities[vessel_name] = {'coordinates': (0,0), 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
-                                    'fire_range': 1}
+                                        'fire_range': 1}
 
     return entities
 
@@ -458,3 +464,6 @@ def hubs_regeneration (entities):
     -------
     specification : Gerry Longfils (v.1 19/02/2020)
     """
+
+nb_columns, nb_lines, board, entities = create_data_structures('/home/mat2905h/Bureau/map.equ')
+display_board(board, entities, nb_columns, nb_lines)    
