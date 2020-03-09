@@ -129,6 +129,54 @@ def display_board (board):
     -------
     specification : Louis Flamion (v.1 23/02/2020)
     """
+    hub ='♜'
+    tanker = '☬'
+    case = '▒'
+    cruiser = '▲'
+    energy = '●'
+    red_color = '#F76262'
+    green_color = '#25CB2B'
+
+    plateau = case * (columns+2)+"\n" #Top border creation    
+
+    for line in range(1,lines+1) : #Line creation
+    plateau+= case
+    for column in range(1,columns+1) :    #Columns creation for every lines
+        if (column +line) % 2 == 0  :  #Création du damier
+            background_color = red_color #Sets the background color on red
+            plateau += bg(background_color)
+        else :
+            background_color = green_color #Sets the background color on green
+            plateau += bg(background_color)
+        if board[(line,column)]  == [] : #If entities's list is empty
+            plateau+=fg(background_color)
+            plateau += case      #Put a case
+        else :
+            for entity in board[(line,column)] : #Search for entity's type and print them on the board
+                if entities[entity]['type'] != 'energy' :
+                    if entities[entity]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
+                        plateau+=fg('#0033FF')
+                    else :
+                        plateau+=fg('#FF0000')
+                    if entities[entity]['type'] == 'cruiser' :
+                        plateau += cruiser
+                    if entities[entity]['type'] == 'tanker' :
+                        plateau += tanker
+                    if entities[entity]['type'] == 'hub' :
+                        plateau += hub
+                else :                                      #Looking to the energy's value to attribute the right color
+                    if entities[entity]['value']<=100 : 
+                        plateau+= fg('#008000')
+                    if entities[entity]['value']<=75 :
+                        plateau+= fg('#FF4500')
+                    if entities[entity]['value']<=50 :
+                        plateau+= fg('#efd807')
+                    if entities[entity]['value']<=25 :
+                        plateau+= fg('#bb0b0b')
+                    plateau += energy
+                plateau += attr('reset')                    
+    plateau += attr('reset')
+    plateau+=case+'\n'
 ## ORDRES ##
 
 def sort_orders (orders, team):
