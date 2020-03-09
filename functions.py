@@ -102,6 +102,7 @@ def actualise_board (board, entities):
     Version
     -------
     specification : Mathis Huet (v.1 21/02/2020)
+    implementation : Mathis Huet (v.1 08/03/2020)
     """
 
     # Emptying the board
