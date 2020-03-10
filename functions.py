@@ -448,6 +448,9 @@ def energy_absorption (energy_absorption_orders, entities, board):
     specification : Gerry Longfils (v.1 24/02/2020)
     """
 
+    ###### Il manque juste le calcul de portée pour savoir si le vaisseau est assez proche que pour absorber l'énergie
+    ###### Faudra juste modifier un peu quand on aura la fonction get_distance
+
     # Getting back the name of the team
     team = energy_absorption_orders[-1]
     del energy_absorption_orders[-1]
@@ -476,9 +479,9 @@ def energy_absorption (energy_absorption_orders, entities, board):
         if nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
             
             # Computing the amount of energy that will be transfered
-            absorbed_energy = max(entities[absorbed_entity]['available_energy'], entities[vessel_name]['storage_capacity'] - entities[vessel_name]['available_energy'])
+            absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[vessel_name]['storage_capacity'] - entities[vessel_name]['available_energy'])
 
-            #Transfering the energy
+            #Transfering the energy depending on the type of the absorbed entity
             if entities[absorbed_entity]['type'] == 'hub':
                 if entities[absorbed_entity]['team'] == team:
                     entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
@@ -535,6 +538,10 @@ entities['tanker_1'] = {'coordinates' : (1,3), 'type' : 'tanker', 'team' : 'red'
 board = actualise_board(board, entities)
 display_board(board, entities, nb_columns, nb_lines)
 
-entities = energy_absorption(['tanker_1:<1-2', 'blue'], entities, board)
+entities = energy_absorption(['tanker_1:<1-4', 'red'], entities, board)
+
+board = actualise_board(board, entities)
 
 print(entities)
+
+display_board(board, entities, nb_columns, nb_lines)
