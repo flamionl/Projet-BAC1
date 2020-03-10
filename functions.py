@@ -463,7 +463,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
     ###### Il manque juste le calcul de portée pour savoir si le vaisseau est assez proche que pour absorber l'énergie
     ###### Faudra juste modifier un peu quand on aura la fonction get_distance
 
-    # Getting back the name of the team
+    # Getting back and deleting the name of the team from the list
     team = energy_absorption_orders[-1]
     del energy_absorption_orders[-1]
 
@@ -478,14 +478,13 @@ def energy_absorption (energy_absorption_orders, entities, board):
         # Checking what is on the coordinates
         entities_on_case = board[coordinates]
         nb_potential_absorbed_entities = 0
+
         for entity in entities_on_case:
 
-            # Getting back the name of the absorbed entity
-            absorbed_entity = entity
-
             # Checking if the type of the entities is convenient
-            if entities[absorbed_entity]['type'] == 'hub' or entities[absorbed_entity]['type'] == 'peak':
+            if entities[entity]['type'] == 'hub' or entities[entity]['type'] == 'peak':
                 nb_potential_absorbed_entities += 1
+                absorbed_entity = entity
 
         # Checking the team and the number of "absorbable" entities on the coordinates
         if nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
@@ -503,6 +502,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
                 entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
                 entities[vessel_name]['available_energy'] = entities[vessel_name]['available_energy'] + absorbed_energy
 
+                # Deleting the peak from the map if its energy is below 0
                 if entities[absorbed_entity]['available_energy'] <= 0:
                     del entities[absorbed_entity]
     
