@@ -278,36 +278,48 @@ def create_vessel (creation_orders, entities):
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     """
+    #Get the name of the team in the creation order list
+    team = creation_orders[-1]
 
-    for order in creation_orders:
+    #Split orders in two strings
+    for order in creation_orders[0:-1]:
 
-        order = str.split(':', 3)
+        order = order.split(':')
+        
         vessel_name = order[0]
         vessel_type = order[1]
-        team = order[2]
 
+        #Get the coordinates of the two hubs in the dictionary of the entities
         for entity in entities:
+
             if entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'blue':
+
                 coordinates_hub_blue = entities[entity]['coordinates']
 
             elif entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'red':
+
                 coordinates_hub_red = entities[entity]['coordinates']
 
+        #Add the vessel in the dictionary of entities according to their type and their team
         if vessel_type == 'tanker':
             
             if team == 'blue':
+
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team, 
                                             'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
-            else:
+            elif team == 'red':
+
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team, 
                                             'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
 
         elif vessel_type == 'cruiser':
 
             if team == 'blue':
+
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
                                         'fire_range': 1}
-            else:
+            elif team == 'red':
+
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
                                         'fire_range': 1}
 
