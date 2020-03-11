@@ -151,11 +151,11 @@ def display_board (board, entities, nb_columns, nb_lines):
     plateau = case * (nb_columns + 2)+"\n" 
 
     #Line creation
-    for line in range(1,lines+1) : 
-    plateau+= case
+    for line in range(1,nb_lines+1) : 
+        plateau+= case
 
     #Columns creation for every lines
-        for column in range(1,columns+1) : 
+        for column in range(1,nb_columns+1) : 
 
             #Checker board creatin   
             if (column +line) % 2 == 0  : 
@@ -189,12 +189,12 @@ def display_board (board, entities, nb_columns, nb_lines):
                         plateau += cruiser
                     elif entities[board[(line,column)][0]]['type'] == 'tanker' :
                         plateau += tanker
-                    else entities[board[(line,column)][0]]['type'] == 'hub' :
+                    elif entities[board[(line,column)][0]]['type'] == 'hub' :
                         plateau += hub
 
                     #Looks to the peak's available energy to print it with the right color
                 else :  
-                    if entities[board[(line,column)][0]]['available_energy']<=100 :    
+                    if entities[board[(line,column)][0]]['available_energy']>=100 :    
                         plateau+= fg('#008000')
                     elif entities[board[(line,column)][0]]['available_energy']<=75 :
                         plateau+= fg('#FF4500')
@@ -258,7 +258,12 @@ def display_board (board, entities, nb_columns, nb_lines):
 
         #Goes to the next line
         plateau+=case+'\n'
+    
+    #Bottom border creation
+
+    plateau+=case * (nb_columns+2)
     #Print the board
+
     print(plateau)
 ## ORDRES ##
 
@@ -443,7 +448,28 @@ def cruiser_attack (attack_orders, board, entities):
     Version
     -------
     specification : Mathis Huet (v.1 22/02/2020)
+    implementation : Louis Flamion (v.1 11/03/2020)
     """
+
+    #Getting info from the attack_order
+    splited_order = attack_order.split(':')
+    vessel_name = splited_order[0]
+    line = int(splited_order[1].split('-')[0][1:])
+    column = int(splited_order[1].split('-')[1].split('=')[0])
+    damages = int(splited_order[1].split('=')[1])
+
+    #Getting coordinates of the ship that is attacking
+    vessel_coordinates = entities[vessel_name]['coordinates']
+
+    #Checking if there is an entity on the case
+    if board[(line,column)] != [] :
+        
+        #Checking if the vessel is not too far from the case that he wants to attack
+        if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] :
+            for entity in board[(line,column)] :
+                entities[entity]['structure_points'] -= damages
+
+    return entities
 
 def get_distance (coordinates_1, coordinates_2):
     """ Computes the distance between 2 coordinates
@@ -460,7 +486,13 @@ def get_distance (coordinates_1, coordinates_2):
     Version
     -------
     specification : Mathis Huet (v.1 21/02/2020)
+    implementation : Louis Flamion (v.1 11/03/2020)
+    
     """
+    #Manthan's formule
+    distance = abs(coordinates_1[1]-coordinates_2[1]) + abs(coordinates_1[0]-coordinates_2[0]) 
+
+    return distance
 
 def remove_destroyed_entities (entities):
     """ Removes all the entities which have structure points under or equal to 0 in the entities dict
@@ -642,21 +674,7 @@ def hubs_regeneration (entities):
     specification : Gerry Longfils (v.1 19/02/2020)
     """
 
-<<<<<<< Updated upstream
-board, entities, nb_columns, nb_lines = create_data_structures('/home/mat2905h/Bureau/map1.equ')
-entities['tanker_1'] = {'coordinates' : (1,3), 'type' : 'tanker', 'team' : 'red', 'storage_capacity': 600, 
-                'available_energy': 300, 'structure_points': 50}
-board = actualise_board(board, entities)
-display_board(board, entities, nb_columns, nb_lines)
-
-entities = energy_absorption(['tanker_1:<1-4', 'red'], entities, board)
-
-board = actualise_board(board, entities)
-
-print(entities)
-
-display_board(board, entities, nb_columns, nb_lines)
-=======
-nb_columns, nb_lines, board, entities = create_data_structures('/home/louis/Documents/Projet-BAC1/map.equ')
-display_board(board, entities, nb_columns, nb_lines)    
->>>>>>> Stashed changes
+board, entities, nb_columns, nb_lines = create_data_structures('./map.equ')
+entities = create_vessel(['bravo:cruiser','red'],entities)
+board = actualise_board(board,entities)
+display_board(board,entities,nb_columns,nb_lines)
