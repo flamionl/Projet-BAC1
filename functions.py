@@ -136,87 +136,129 @@ def display_board (board, entities, nb_columns, nb_lines):
     specification : Louis Flamion (v.1 23/02/2020)
     implementation : Gerry Longfils and Louis Flamion (v.1 09/03/2020)
     """
+    #Emojis used 
     hub ='♜'
     tanker = '☬'
     case = '▒'
     cruiser = '▲'
     energy = '●'
+
+    #Color used to print the board
     red_color = '#F76262'
     green_color = '#25CB2B'
 
-    plateau = case * (nb_columns + 2)+"\n" #Top border creation    
+    #Top border creation  
+    plateau = case * (nb_columns + 2)+"\n" 
 
-    for line in range(1,lines+1) : #Line creation
+    #Line creation
+    for line in range(1,lines+1) : 
     plateau+= case
-    for column in range(1,columns+1) :    #Columns creation for every lines
-        if (column +line) % 2 == 0  :  #Création du damier
-            background_color = red_color #Sets the background color on red
-            plateau += bg(background_color)
-        else :
-            background_color = green_color #Sets the background color on green
-            plateau += bg(background_color)
-        if board[(line,column)]  == [] : #If entities's list is empty
-            plateau+=fg(background_color)
-            plateau += case      #Put a case
-        
-        elif len(board[line,column])==1:
-            if entities[board[(line,column)][0]]['type'] != 'energy' :
-                if entities[board[(line,column)][0]]['team'] == 'blue' : #Looking to the entitiy's team to attribute the right color
-                    plateau+=fg('#0033FF')
-                else :
-                    plateau+=fg('#FF0000')
-                if entities[board[(line,column)][0]]['type'] == 'cruiser':
-                    plateau += cruiser
-                elif entities[board[(line,column)][0]]['type'] == 'tanker' :
-                    plateau += tanker
-                else:
+
+    #Columns creation for every lines
+        for column in range(1,columns+1) : 
+
+            #Checker board creatin   
+            if (column +line) % 2 == 0  : 
+
+                #Sets the background color on red
+                background_color = red_color 
+                plateau += bg(background_color)
+            else :
+
+                #Sets the background color on green
+                background_color = green_color 
+                plateau += bg(background_color)
+
+                #If there isn't any entities on the case
+            if board[(line,column)]  == [] : 
+                plateau+=fg(background_color)
+                plateau += case      
+
+                #If there is one entity on the case
+            elif len(board[line,column])==1:
+                if entities[board[(line,column)][0]]['type'] != 'peak' :
+
+                    #Looking to the entitiy's team to attribute the right color
+                    if entities[board[(line,column)][0]]['team'] == 'blue' : 
+                        plateau+=fg('#0033FF')
+                    else :
+                        plateau+=fg('#FF0000')
+
+                    #Looking to the entity's type to print on the board
+                    if entities[board[(line,column)][0]]['type'] == 'cruiser':
+                        plateau += cruiser
+                    elif entities[board[(line,column)][0]]['type'] == 'tanker' :
+                        plateau += tanker
+                    else entities[board[(line,column)][0]]['type'] == 'hub' :
+                        plateau += hub
+
+                    #Looks to the peak's available energy to print it with the right color
+                else :  
+                    if entities[board[(line,column)][0]]['available_energy']<=100 :    
+                        plateau+= fg('#008000')
+                    elif entities[board[(line,column)][0]]['available_energy']<=75 :
+                        plateau+= fg('#FF4500')
+                    elif entities[board[(line,column)][0]]['available_energy']<=50 :
+                        plateau+= fg('#efd807')
+                    elif entities[board[(line,column)][0]]['available_energy']<=25 :
+                        plateau+= fg('#bb0b0b') 
+
+                    #Print an energy on the board
+                    plateau += energy
+
+                #If there is more than one entity on the case
+
+            else :
+                
+                #Initialising a list that contains the type of entities on the case
+                type_of_entities=[]
+
+                #Getting all entities type
+                for entity in board[(line,column)]:
+                    type_of_entities.append(entities[entity]['type'])
+                
+                #Looking for hub 
+                if 'hub' in type_of_entities:
+                    if entities[board[(line,column)][type_of_entities.index('hub')]]['team'] == 'blue':
+                        plateau+=fg('#0033FF')
+                    else:
+                        plateau+=fg('#FF0000')
                     plateau += hub
-            else :             #Looking to the energy's value to attribute the right color
-                if entities[board[(line,column)][0]]['value']<=100 : 
-                    plateau+= fg('#008000')
-                if entities[board[(line,column)][0]]['value']<=75 :
-                    plateau+= fg('#FF4500')
-                if entities[board[(line,column)][0]]['value']<=50 :
-                    plateau+= fg('#efd807')
-                if entities[board[(line,column)][0]]['value']<=25 :
-                    plateau+= fg('#bb0b0b')     
-         
-            plateau += energy
-        else :
-            liste_of_entities=[]
-            for x in board[line,column]:
-                liste_of_entities.append(entities[x]['type'])
-            
-            if 'hub' in liste_of_entities:
-                if entities[board[(line,column)][liste_of_entities.index('hub')]]['team'] == 'blue':
-                    plateau+=fg('#0033FF')
-                else:
-                    plateau+=fg('#FF0000')
-                plateau += hub
 
-            
-            elif 'cruiser' in liste_of_entities and (not 'hub' in liste_of_entities ) :
-                if entities[board[(line,column)][liste_of_entities.index('hub')]]['team'] == 'blue':
-                    plateau+=fg('#0033FF')
-                else:
-                    plateau+=fg('#FF0000')
-                plateau +=cruiser
-            
-            else:
-                if entities[board[(line,column)][liste_of_entities.index('hub')]]['team'] == 'blue':
-                    plateau+=fg('#0033FF')
-                else:
-                    plateau+=fg('#FF0000')
-                plateau+=tanker
+                #Looking for cruiser
+                elif 'cruiser' in type_of_entities :
+                    if entities[board[(line,column)][type_of_entities.index('cruiser')]]['team'] == 'blue':
+                        plateau+=fg('#0033FF')
+                    else:
+                        plateau+=fg('#FF0000')
+                    plateau +=cruiser
 
+                #Looking for tankers
+                elif 'tanker' in type_of_entities :
+                    if entities[board[(line,column)][liste_of_entities.index('tanker')]]['team'] == 'blue':
+                        plateau+=fg('#0033FF')
+                    else:
+                        plateau+=fg('#FF0000')
+                    plateau+=tanker
 
+                #Looking for peaks
+                else :
+                    if entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=100 :    
+                        plateau+= fg('#008000')
+                    elif entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=75 :
+                        plateau+= fg('#FF4500')
+                    elif entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=50 :
+                        plateau+= fg('#efd807')
+                    elif entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=25 :
+                        plateau+= fg('#bb0b0b') 
+                    plateau+=energy
 
-                    
+        #Reset colors                
+        plateau += attr('reset')
 
-                plateau += attr('reset')                    
-    plateau += attr('reset')
-    plateau+=case+'\n'
-
+        #Goes to the next line
+        plateau+=case+'\n'
+    #Print the board
     print(plateau)
 ## ORDRES ##
 
@@ -600,6 +642,7 @@ def hubs_regeneration (entities):
     specification : Gerry Longfils (v.1 19/02/2020)
     """
 
+<<<<<<< Updated upstream
 board, entities, nb_columns, nb_lines = create_data_structures('/home/mat2905h/Bureau/map1.equ')
 entities['tanker_1'] = {'coordinates' : (1,3), 'type' : 'tanker', 'team' : 'red', 'storage_capacity': 600, 
                 'available_energy': 300, 'structure_points': 50}
@@ -613,3 +656,7 @@ board = actualise_board(board, entities)
 print(entities)
 
 display_board(board, entities, nb_columns, nb_lines)
+=======
+nb_columns, nb_lines, board, entities = create_data_structures('/home/louis/Documents/Projet-BAC1/map.equ')
+display_board(board, entities, nb_columns, nb_lines)    
+>>>>>>> Stashed changes
