@@ -235,7 +235,7 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                 #Looking for tankers
                 elif 'tanker' in type_of_entities :
-                    if entities[board[(line,column)][liste_of_entities.index('tanker')]]['team'] == 'blue':
+                    if entities[board[(line,column)][type_of_entities.index('tanker')]]['team'] == 'blue':
                         plateau+=fg('#0033FF')
                     else:
                         plateau+=fg('#FF0000')
