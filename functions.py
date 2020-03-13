@@ -427,7 +427,94 @@ def upgrade (upgrade_orders, entities):
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
+    implementation : Gerry Longfils (v.1 12/03/2020)
     """
+
+    #variable for the increment
+    ranges=0
+    move=0
+    regeneration=0
+    storage=0
+
+    # list where the orders will be place 
+    list_orders=[]
+
+    #split the space
+    upgrade_orders=upgrade_orders[0].split()
+    for x in range(len(upgrade_orders)):
+        list_orders.append(upgrade_orders[x].split(':'))
+
+    #check what's the upgrade instruction to execute and increment the good variable 
+
+    
+    for count in range(len(list_orders)):
+        if list_orders[count][1]=='range':
+            ranges+=1
+        
+        elif list_orders[count][1]=='move':
+            move+=1
+        
+        elif list_orders[count][1]=='regeneration':
+            regeneration+=1
+        
+        elif list_orders[count][1]=='blue' or list_orders[count][1]=='red':
+            team=list_orders[count][1]
+
+        else:
+            storage+=1
+        
+
+
+    #make the upgrade
+    
+    check=list(entities.keys())
+    
+    for execute in range(storage):
+        for x in check:
+            if entities[x]['type']=='tanker' and entities[x]['team']==team:
+                if entities[x]['storage_capacity']<1200:
+                    entities[x]['available_energy']-=600
+                    if entities[x]['available_energy']>0:
+                       entities[x]['regeneration_rate']+=100
+                    else:
+                        print('error')
+                        entities[x]['available_energy']+=600
+    
+    
+    for execute in range(regeneration):
+        for x in check:
+            if entities[x]['type']=='hub' and entities[x]['team']==team :
+                if entities[x]['regeneration_rate']<50:
+                    entities[x]['available_energy']-=750
+                    if entities[x]['available_energy']>0:
+                       entities[x]['regeneration_rate']+=5
+                    else:
+                        print('error')
+                        entities[x]['available_energy']+=750
+
+    for execute in range(move):
+        for x in check:
+            if entities[x]['type']=='cruiser' and entities[x]['team']==team :
+                if entities[x]['moving_cost']>5:
+                    entities[x]['available_energy']-=400
+                    if entities[x]['available_energy']>0:
+                       entities[x]['moving_cost']-=1
+                    else:
+                        print('error')
+                        entities[x]['available_energy']+=400
+
+    for execute in range(ranges):
+        for x in check:
+            if entities[x]['type']=='cruiser' and entities[x]['team']==team:
+                if entities[x]['fire_range']<5:
+                    entities[x]['available_energy']-=400
+                    if entities[x]['available_energy']>0:
+                       entities[x]['regeneration_rate']+=1
+                    else:
+                        print('error')
+                        entities[x]['available_energy']+=400        
+    return entities
+    
 
 ## COMBATS ##
 
@@ -671,7 +758,20 @@ def hubs_regeneration (entities):
     Version
     -------
     specification : Gerry Longfils (v.1 19/02/2020)
+    implementation : Gerry Longfils (v.1 13/03/2020)
     """
+
+    #put each keys in a list 
+    check=list(entities.keys())
+
+    #Check if it's a hub then he regenerate it 
+    for x in check:
+        if entities[x]['type']=='hub':
+            if (entities[x]['available_energy']+entities[x]['regeneration_rate'])<1500:
+                entities[x]['available_energy']+=entities[x]['regeneration_rate']
+            
+        
+    return entities
 
 board, entities, nb_columns, nb_lines = create_data_structures('./map.equ')
 entities = create_vessel(['bravo:cruiser','red'],entities)
