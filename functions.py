@@ -678,9 +678,6 @@ def energy_absorption (energy_absorption_orders, entities, board):
     specification : Gerry Longfils (v.1 24/02/2020)
     """
 
-    ###### Il manque juste le calcul de portée pour savoir si le vaisseau est assez proche que pour absorber l'énergie
-    ###### Faudra juste modifier un peu quand on aura la fonction get_distance
-
     # Getting back and deleting the name of the team from the list
     team = energy_absorption_orders[-1]
     del energy_absorption_orders[-1]
@@ -707,7 +704,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
         distance = get_distance(entities[vessel_name]['coordinates'], entities[absorbed_entity]['coordinates'])
 
         # Checking the distance, the team and the number of "absorbable" entities on the coordinates
-        if distance == 1 and nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
+        if distance <= 1 and nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
             
             # Computing the amount of energy that will be transfered
             absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[vessel_name]['storage_capacity'] - entities[vessel_name]['available_energy'])
