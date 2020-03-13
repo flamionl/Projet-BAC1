@@ -575,7 +575,6 @@ def get_distance (coordinates_1, coordinates_2):
     -------
     specification : Mathis Huet (v.1 21/02/2020)
     implementation : Louis Flamion (v.1 11/03/2020)
-    
     """
     #Manthan's formule
     distance = abs(coordinates_1[1]-coordinates_2[1]) + abs(coordinates_1[0]-coordinates_2[0]) 
@@ -676,6 +675,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
     Version
     -------
     specification : Gerry Longfils (v.1 24/02/2020)
+    implementation : Mathis Huet (v.1 13/03/2020)
     """
 
     # Getting back and deleting the name of the team from the list
@@ -700,11 +700,12 @@ def energy_absorption (energy_absorption_orders, entities, board):
             if entities[entity]['type'] == 'hub' or entities[entity]['type'] == 'peak':
                 nb_potential_absorbed_entities += 1
                 absorbed_entity = entity
-        
-        distance = get_distance(entities[vessel_name]['coordinates'], entities[absorbed_entity]['coordinates'])
 
         # Checking the distance, the team and the number of "absorbable" entities on the coordinates
         if distance <= 1 and nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
+            
+            # Computing distance
+            distance = get_distance(entities[vessel_name]['coordinates'], entities[absorbed_entity]['coordinates'])
             
             # Computing the amount of energy that will be transfered
             absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[vessel_name]['storage_capacity'] - entities[vessel_name]['available_energy'])
@@ -773,8 +774,3 @@ def hubs_regeneration (entities):
             
         
     return entities
-
-board, entities, nb_columns, nb_lines = create_data_structures('./map.equ')
-entities = create_vessel(['bravo:cruiser','red'],entities)
-board = actualise_board(board,entities)
-display_board(board,entities,nb_columns,nb_lines)
