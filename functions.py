@@ -773,7 +773,7 @@ def energy_giving (energy_giving_orders, entities, board):
 
                     # Computing the amount of energy that will be given
                     given_energy = min(entities[vessel_giving]['storage_capacity'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
-                    print(given_energy)
+                    
                     #Transfering the energy depending on the type of the absorbed entity
                     if entities[vessel_receiving]['type'] == 'hub':
                         if entities[vessel_receiving]['team'] == team:
