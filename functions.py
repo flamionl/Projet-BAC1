@@ -243,13 +243,13 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                 #Looking for peaks
                 else :
-                    if entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=100 :    
+                    if entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=100 :    
                         plateau+= fg('#008000')
-                    elif entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=75 :
+                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=75 :
                         plateau+= fg('#FF4500')
-                    elif entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=50 :
+                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=50 :
                         plateau+= fg('#efd807')
-                    elif entities[board[(line,column)][liste_of_entities.index('peak')]]['available_energy']<=25 :
+                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=25 :
                         plateau+= fg('#bb0b0b') 
                     plateau+=energy
 
@@ -443,11 +443,10 @@ def cruiser_attack (attack_orders, board, entities):
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    board : updated dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
 
     Version
     -------
-    specification : Mathis Huet (v.1 22/02/2020)
+    specification : Louis Flamion (v.2 13/03/2020)
     implementation : Louis Flamion (v.1 11/03/2020)
     """
 
