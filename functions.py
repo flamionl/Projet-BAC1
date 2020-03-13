@@ -552,6 +552,8 @@ def cruiser_attack (attack_orders, board, entities):
         
         #Checking if the vessel is not too far from the case that he wants to attack
         if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] :
+
+            entities[vessel_name]['available_energy'] -= 10*damages
             for entity in board[(line,column)] :
                 entities[entity]['structure_points'] -= damages
 
