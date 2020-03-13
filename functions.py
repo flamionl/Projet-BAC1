@@ -387,22 +387,22 @@ def create_vessel (creation_orders, entities):
             if team == 'blue':
 
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team, 
-                                            'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
+                                            'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
             elif team == 'red':
 
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team, 
-                                            'storage_capacity': 600, 'available_energy': 300, 'structure_points': 50}
+                                            'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
 
         elif vessel_type == 'cruiser':
 
             if team == 'blue':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 12, 
-                                            'available_energy': 240, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
+                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 100, 
+                                            'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
             elif team == 'red':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 12, 
-                                            'available_energy': 240, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
+                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 100, 
+                                            'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
 
     return entities
 
