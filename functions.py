@@ -744,6 +744,43 @@ def energy_giving (energy_giving_orders, entities, board):
     specification : Louis Flamion (v.1 23/02/2020)
     """
 
+    #Getting back the name of the team
+    team = energy_giving_orders[-1]
+
+    for order in energy_giving_orders[0:-1]:
+
+        #Treating the order
+        order = order.split(':>')
+        vessel_giving = order[0]
+        vessel_receiving = order[1]
+
+        #Checking what is on the coordinates
+        coordinates_receiving = entities[vessel_receiving]['coordinates']
+        coordinates_giving = entities[vessel_giving]['coordinates']
+        distance = get_distance(coordinates_receiving, coordinates_giving)
+        if distance <= 1:
+
+            # Checking if the type of the entities is convenient
+            if entities[vessel_receiving]['type'] == 'hub' or entities[vessel_receiving]['type'] == 'cruiser':
+
+                if entities[vessel_giving]['type'] == 'tanker':
+
+                    # Computing the amount of energy that will be given
+                    given_energy = min(entities[vessel_giving]['storage_capacity'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
+                    print(given_energy)
+                    #Transfering the energy depending on the type of the absorbed entity
+                    if entities[vessel_receiving]['type'] == 'hub':
+                        if entities[vessel_receiving]['team'] == team:
+                            entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
+                            entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
+
+                    elif entities[vessel_receiving]['type'] == 'cruiser':
+                        if entities[vessel_receiving]['team'] == team:
+                            entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
+                            entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
+
+    return entities
+
 ## FIN DE TOUR ##
 
 def hubs_regeneration (entities):
