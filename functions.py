@@ -72,10 +72,10 @@ def create_data_structures (file_path):
     hub_blue = board_info[3].split()
     hub_red = board_info[4].split()
 
-    entities['hub_blue'] = {'coordinates': (int(hub_blue[0]),int(hub_blue[1])), 'type': 'hub', 'team': 'blue', 'structure_points': 1500, 
-                            'available_energy': int(hub_blue[2]), 'regeneration_rate': int(hub_blue[3])}
+    entities['hub_blue'] = {'coordinates': (int(hub_blue[0]),int(hub_blue[1])), 'type': 'hub', 'team': 'blue', 'structure_points': 2000,
+                             'storage_capacity' : 1500, 'available_energy': int(hub_blue[2]), 'regeneration_rate': int(hub_blue[3])}
     entities['hub_red'] = {'coordinates': (int(hub_red[0]),int(hub_red[1])), 'type': 'hub', 'team': 'red', 'structure_points': 1500, 
-                            'available_energy': int(hub_red[2]), 'regeneration_rate': int(hub_red[3])}
+                            'storage_capacity' : 1500, 'available_energy': int(hub_red[2]), 'regeneration_rate': int(hub_red[3])}
     
     # Creating the peaks in entities dict
     peak_id = 1
@@ -397,12 +397,12 @@ def create_vessel (creation_orders, entities):
 
             if team == 'blue':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
-                                        'fire_range': 1}
+                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 12, 
+                                            'available_energy': 240, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
             elif team == 'red':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 12, 'available_energy': 240, 'moving_cost': 10, 
-                                        'fire_range': 1}
+                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 12, 
+                                            'available_energy': 240, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
 
     return entities
 
@@ -538,7 +538,7 @@ def cruiser_attack (attack_orders, board, entities):
     """
 
     #Getting info from the attack_order
-    splited_order = attack_order.split(':')
+    splited_order = attack_orders.split(':')
     vessel_name = splited_order[0]
     line = int(splited_order[1].split('-')[0][1:])
     column = int(splited_order[1].split('-')[1].split('=')[0])
