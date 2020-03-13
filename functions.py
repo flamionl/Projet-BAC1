@@ -636,11 +636,13 @@ def movement (movement_orders, board, entities):
     implementation : Gerry Longfils (v.1 07/03/2020)
     """
     #check if there's a movement order
-    list_movement=movement_orders.split()
+    for x in range(len(movement_orders)):
+        list_movement=movement_orders[x].split(':')
+    print(list_movement)
     a=len(list_movement)
     for check_list in range(a):
         if list_movement[check_list][0]=='@':
-            p=check_list-2
+            p=check_list-1
             #delete old coordinates from board
             take=entities[list_movement[p]]['coordinates']
             board[take].remove(list_movement[p])
@@ -653,9 +655,13 @@ def movement (movement_orders, board, entities):
             entities[list_movement[p]] ['coordinates']=tuples
             #update board
             board[tuples].append(list_movement[p])
-           
-    
+
+ 
+            
+
+
     return entities,board
+
 
 ## TRANSFERTS D'ÉNERGIE ##
 
