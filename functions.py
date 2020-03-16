@@ -666,7 +666,7 @@ def movement (movement_orders, board, entities):
 ## TRANSFERTS D'ÉNERGIE ##
 
 def energy_absorption (energy_absorption_orders, entities, board):
-    """ Absorbs the energy of an entity, and if it is a peak, removes it from the map if its energy goes under 0
+    """ A tanker absorbs the energy of a peak or a hub, and if the energy of a peak goes under 0, removes it from the map
 
     Parameters
     ----------
@@ -681,8 +681,10 @@ def energy_absorption (energy_absorption_orders, entities, board):
     Version
     -------
     specification : Gerry Longfils (v.1 24/02/2020)
-    implementation : Mathis Huet (v.1 13/03/2020)
+    implementation : Mathis Huet (v.2 16/03/2020)
     """
+    ### L'ordre donne une coordonnée et la fonction absorbe l'énergie des premières entités qui ont le bon type s'il en existe plusieurs sur la case
+    ### Jusqu'à ce que la soute du tanker soit pleine ou que toutes les entités absorbables sur la case visée n'aient plus d'énergie
 
     # Getting back and deleting the name of the team from the list
     team = energy_absorption_orders[-1]
@@ -691,44 +693,45 @@ def energy_absorption (energy_absorption_orders, entities, board):
     for order in energy_absorption_orders:
 
         # Treating the order
-        order = order.split(':')
-        vessel_name = order[0]
+        order = order.split(':<')
+        tanker_name = order[0]
         coordinates = order[1]
-        coordinates = (int(coordinates[1]), int(coordinates[3]))
+        coord_list = coordinates.split('-')
+        y = int(coord_list[0])
+        x = int(coord_list[1])
+        coordinates = (y, x)
 
         # Checking what is on the coordinates
         entities_on_case = board[coordinates]
-        nb_potential_absorbed_entities = 0
 
         for entity in entities_on_case:
 
             # Checking if the type of the entities is convenient
-            if entities[entity]['type'] == 'hub' or entities[entity]['type'] == 'peak':
-                nb_potential_absorbed_entities += 1
+            if (entities[entity]['type'] == 'hub' or entities[entity]['type'] == 'peak') and entities[tanker_name]['type'] == 'tanker':
                 absorbed_entity = entity
 
-        # Checking the distance, the team and the number of "absorbable" entities on the coordinates
-        if distance <= 1 and nb_potential_absorbed_entities == 1 and entities[vessel_name]['type'] == 'tanker':
+                # Computing distance
+                distance = get_distance(entities[tanker_name]['coordinates'], entities[absorbed_entity]['coordinates'])
+
+                # Checking the distance
+                if distance <= 1:
             
-            # Computing distance
-            distance = get_distance(entities[vessel_name]['coordinates'], entities[absorbed_entity]['coordinates'])
-            
-            # Computing the amount of energy that will be transfered
-            absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[vessel_name]['storage_capacity'] - entities[vessel_name]['available_energy'])
+                    # Computing the amount of energy that will be transfered
+                    absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[tanker_name]['storage_capacity'] - entities[tanker_name]['available_energy'])
 
-            #Transfering the energy depending on the type of the absorbed entity
-            if entities[absorbed_entity]['type'] == 'hub':
-                if entities[absorbed_entity]['team'] == team:
-                    entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
-                    entities[vessel_name]['available_energy'] = entities[vessel_name]['available_energy'] + absorbed_energy
+                    #Transfering the energy depending on the type of the absorbed entity
+                    if entities[absorbed_entity]['type'] == 'hub':
+                        if entities[absorbed_entity]['team'] == team:
+                            entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
+                            entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
 
-            elif entities[absorbed_entity]['type'] == 'peak':
-                entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
-                entities[vessel_name]['available_energy'] = entities[vessel_name]['available_energy'] + absorbed_energy
+                    elif entities[absorbed_entity]['type'] == 'peak':
+                        entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
+                        entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
 
-                # Deleting the peak from the map if its energy is below 0
-                if entities[absorbed_entity]['available_energy'] <= 0:
-                    del entities[absorbed_entity]
+                        # Deleting the peak from the map if its energy is below 0
+                        if entities[absorbed_entity]['available_energy'] <= 0:
+                            del entities[absorbed_entity]
     
     return entities
 
