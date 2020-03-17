@@ -687,8 +687,9 @@ def energy_absorption (energy_absorption_orders, entities, board):
     ### Jusqu'à ce que la soute du tanker soit pleine ou que toutes les entités absorbables sur la case visée n'aient plus d'énergie
 
     # Getting back and deleting the name of the team from the list
-    team = energy_absorption_orders[-1]
-    del energy_absorption_orders[-1]
+    if energy_absorption_orders != []:
+        team = energy_absorption_orders[-1]
+        del energy_absorption_orders[-1]
 
     for order in energy_absorption_orders:
 
