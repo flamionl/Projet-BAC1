@@ -803,18 +803,3 @@ def hubs_regeneration (entities):
         if entities[x]['type']=='hub':
             if (entities[x]['available_energy']+entities[x]['regeneration_rate'])<1500:
                 entities[x]['available_energy']+=entities[x]['regeneration_rate']
-            
-        
-<<<<<<< Updated upstream
-    return entities
-
-board, entities, nb_columns, nb_lines = create_data_structures('./map.equ')
-creation_orders = ['alpha:tanker','red']
-entities = create_vessel(creation_orders,entities)
-movement_order = ['alpha:@5-8']
-entities = movement(movement_order,board,entities)
-board = actualise_board(board,entities)
-display_board(board,entities,nb_columns,nb_lines)
-=======
-    return entities
->>>>>>> Stashed changes
