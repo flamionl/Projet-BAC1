@@ -282,7 +282,7 @@ def sort_orders (orders, team):
     attack_orders : orders of attack of the player (list of str)
     movement_orders : orders of deplacement of the player (list of str)
     energy_absorption_orders : orders of energy absorption of the player (list of str)
-    energy_giving_orders : orders of energy giving od the player (list od str)
+    energy_giving_orders : orders of energy giving od the player (list of str)
     
     Version
     -------
@@ -348,7 +348,7 @@ def create_vessel (creation_orders, entities):
 
     Parameters
     ----------
-    creation_orders : list of the orders of the creations for the player (list of str)
+    creation_orders : orders of creation of the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -413,7 +413,7 @@ def upgrade (upgrade_orders, entities):
 
     Parameters
     ----------
-    upgrade_orders : list of the orders of the upgrades for the player (list of str)
+    upgrade_orders : orders of upgrade of the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -477,7 +477,6 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['available_energy']>0:
                        entities[x]['regeneration_rate']+=100
                     else:
-                        print('error')
                         entities[x]['available_energy']+=600
     
     
@@ -489,7 +488,6 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['available_energy']>0:
                        entities[x]['regeneration_rate']+=5
                     else:
-                        print('error')
                         entities[x]['available_energy']+=750
 
     for execute in range(move):
@@ -500,7 +498,6 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['available_energy']>0:
                        entities[x]['moving_cost']-=1
                     else:
-                        print('error')
                         entities[x]['available_energy']+=400
 
     for execute in range(ranges):
@@ -511,7 +508,6 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['available_energy']>0:
                        entities[x]['regeneration_rate']+=1
                     else:
-                        print('error')
                         entities[x]['available_energy']+=400        
     return entities
     
@@ -523,7 +519,7 @@ def cruiser_attack (attack_orders, board, entities):
 
     Parameters
     ----------
-    attack_orders : list of orders for the attacks for a player (list of str)
+    attack_orders : orders of attack of the player (list of str)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict) 
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -626,7 +622,7 @@ def movement (movement_orders, board, entities):
 
     Parameters
     ----------
-    movement_orders : check if there's a mouvement's order given by the player or IA (str) 
+    movement_orders : orders of deplacement of the player (list of str)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -740,7 +736,7 @@ def energy_giving (energy_giving_orders, entities, board):
 
     Parameters
     ----------
-    energy_giving_orders : orders of energy giving od the player (list od str)
+    energy_giving_orders : orders of energy giving od the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
 
