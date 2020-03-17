@@ -443,7 +443,6 @@ def upgrade (upgrade_orders, entities):
     upgrade_orders=upgrade_orders[0].split()
     for x in range(len(upgrade_orders)):
         list_orders.append(upgrade_orders[x].split(':'))
-        print(list_orders)
     #check what's the upgrade instruction to execute and increment the good variable 
 
     
@@ -641,7 +640,6 @@ def movement (movement_orders, board, entities):
     #check if there's a movement order
     for x in range(len(movement_orders)):
         list_movement=movement_orders[x].split(':')
-    print(list_movement)
     a=len(list_movement)
     for check_list in range(a):
         if list_movement[check_list][0]=='@':
@@ -815,3 +813,9 @@ def hubs_regeneration (entities):
     return entities
 
 board, entities, nb_columns, nb_lines = create_data_structures('./map.equ')
+creation_orders = ['alpha:tanker','red']
+entities = create_vessel(creation_orders,entities)
+movement_order = ['alpha:@5-8']
+entities = movement(movement_order,board,entities)
+board = actualise_board(board,entities)
+display_board(board,entities,nb_columns,nb_lines)
