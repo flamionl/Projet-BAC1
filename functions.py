@@ -777,16 +777,18 @@ def energy_giving (energy_giving_orders, entities, board):
                     # Computing the amount of energy that will be given
                     given_energy = min(entities[vessel_giving]['storage_capacity'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
                     
-                    #Transfering the energy depending on the type of the absorbed entity
-                    if entities[vessel_receiving]['type'] == 'hub':
-                        if entities[vessel_receiving]['team'] == team:
-                            entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
-                            entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
+                    if entities[vessel_giving]['available_energy'] - given_energy >= 0:
+                        
+                        #Transfering the energy depending on the type of the absorbed entity
+                        if entities[vessel_receiving]['type'] == 'hub':
+                            if entities[vessel_receiving]['team'] == team:
+                                entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
+                                entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
 
-                    elif entities[vessel_receiving]['type'] == 'cruiser':
-                        if entities[vessel_receiving]['team'] == team:
-                            entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
-                            entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
+                        elif entities[vessel_receiving]['type'] == 'cruiser':
+                            if entities[vessel_receiving]['team'] == team:
+                                entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
+                                entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
 
     return entities
 
