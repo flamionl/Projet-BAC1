@@ -681,12 +681,12 @@ def energy_absorption (energy_absorption_orders, entities, board):
     Version
     -------
     specification : Gerry Longfils (v.1 24/02/2020)
-    implementation : Mathis Huet (v.2 16/03/2020)
+    implementation : Mathis Huet (v.2 17/03/2020)
     """
     ### L'ordre donne une coordonnée et la fonction absorbe l'énergie des premières entités qui ont le bon type s'il en existe plusieurs sur la case
     ### Jusqu'à ce que la soute du tanker soit pleine ou que toutes les entités absorbables sur la case visée n'aient plus d'énergie
 
-    # Getting back and deleting the name of the team from the list
+    # Getting back and deleting the name of the team from the list if the list is not empty
     if energy_absorption_orders != []:
         team = energy_absorption_orders[-1]
         del energy_absorption_orders[-1]
@@ -706,10 +706,10 @@ def energy_absorption (energy_absorption_orders, entities, board):
         entities_on_case = board[coordinates]
 
         for entity in entities_on_case:
+            absorbed_entity = entity
 
             # Checking if the type of the entities is convenient
-            if (entities[entity]['type'] == 'hub' or entities[entity]['type'] == 'peak') and entities[tanker_name]['type'] == 'tanker':
-                absorbed_entity = entity
+            if ((entities[absorbed_entity]['type'] == 'hub' and entities[absorbed_entity]['team'] == team) or entities[absorbed_entity]['type'] == 'peak') and entities[tanker_name]['type'] == 'tanker':
 
                 # Computing distance
                 distance = get_distance(entities[tanker_name]['coordinates'], entities[absorbed_entity]['coordinates'])
@@ -720,19 +720,13 @@ def energy_absorption (energy_absorption_orders, entities, board):
                     # Computing the amount of energy that will be transfered
                     absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[tanker_name]['storage_capacity'] - entities[tanker_name]['available_energy'])
 
-                    #Transfering the energy depending on the type of the absorbed entity
-                    if entities[absorbed_entity]['type'] == 'hub':
-                        if entities[absorbed_entity]['team'] == team:
-                            entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
-                            entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
+                    #Transfering the energy
+                    entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
+                    entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
 
-                    elif entities[absorbed_entity]['type'] == 'peak':
-                        entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
-                        entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
-
-                        # Deleting the peak from the map if its energy is below 0
-                        if entities[absorbed_entity]['available_energy'] <= 0:
-                            del entities[absorbed_entity]
+                    # Deleting the peak from the map if its energy is below 0
+                    if entities[absorbed_entity]['type'] == 'peak'and entities[absorbed_entity]['available_energy'] <= 0:
+                        del entities[absorbed_entity]
     
     return entities
 
@@ -755,7 +749,8 @@ def energy_giving (energy_giving_orders, entities, board):
     """
 
     #Getting back the name of the team
-    team = energy_giving_orders[-1]
+    if energy_giving_orders != []:
+        team = energy_giving_orders[-1]
 
     for order in energy_giving_orders[0:-1]:
 
@@ -773,23 +768,14 @@ def energy_giving (energy_giving_orders, entities, board):
             # Checking if the type of the entities is convenient
             if entities[vessel_receiving]['type'] == 'hub' or entities[vessel_receiving]['type'] == 'cruiser':
 
-                if entities[vessel_giving]['type'] == 'tanker':
+                if entities[vessel_giving]['type'] == 'tanker' and entities[vessel_receiving]['team'] == team:
 
                     # Computing the amount of energy that will be given
-                    given_energy = min(entities[vessel_giving]['storage_capacity'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
-                    
-                    if entities[vessel_giving]['available_energy'] - given_energy >= 0:
+                    given_energy = min(entities[vessel_giving]['available_energy'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
                         
-                        #Transfering the energy depending on the type of the absorbed entity
-                        if entities[vessel_receiving]['type'] == 'hub':
-                            if entities[vessel_receiving]['team'] == team:
-                                entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
-                                entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
-
-                        elif entities[vessel_receiving]['type'] == 'cruiser':
-                            if entities[vessel_receiving]['team'] == team:
-                                entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
-                                entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
+                    #Transfering the energy
+                    entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
+                    entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
 
     return entities
 
