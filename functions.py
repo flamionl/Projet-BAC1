@@ -477,6 +477,20 @@ def upgrade (upgrade_orders, entities):
                 for entity in entities:
                     if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] < upper_limit:
                         entities[entity][characteristic_in_board] += upgrade_step
+
+        else:
+            storage+=1
+        
+    
+    
+
+    # hub regeneration update
+    for occurence in range(regeneration):
+        for good_entities in entities :
+            if entities[good_entities]['type']=='hub' and entities[good_entities]['team']==team:
+                if entities[good_entities]['available_energy']-750>0 and entities[good_entities]['regeneration_rate']<50:
+                    entities[good_entities]['regeneration_rate']+=5
+                    entities[good_entities]['available_energy']-=750
         
         elif characteristic == 'move':
             # Checking if there is enough available energy in the team's hub
@@ -488,6 +502,40 @@ def upgrade (upgrade_orders, entities):
                     if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] > under_limit:
                         entities[entity][characteristic_in_board] += upgrade_step
     
+
+    #movement cost update
+    for occurence in range(move):
+        for good_entities in entities :
+            if entities[good_entities]['type']=='cruiser' and entities[good_entities]['team']==team:
+                for is_hub in entities:
+                    if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team:
+                        if entities[is_hub]['available_energy']-500 >0 and entities[good_entities]['moving_cost']>5:
+                            entities[good_entities]['moving_cost']-=1
+                            entities[is_hub]['available_energy']-=500
+
+
+    #storage capacity of tanker update
+    for occurence in range(storage):
+        for good_entities in entities :
+            if entities[good_entities]['type']=='tanker' and entities[good_entities]['team']==team:
+                for is_hub in entities:
+                    if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team :
+                        if entities[is_hub]['available_energy']-600>0 and entities[good_entities]['storage_capacity']<1200:
+                            entities[good_entities]['storage_capacity']+=100
+                            entities[is_hub]['available_energy']-=600
+                        
+
+    #update fire range for cruiser 
+    for occurence in range(ranges):
+            for good_entities in entities :
+            if entities[good_entities]['type']=='cruiser' and entities[good_entities]['team']==team:
+                for is_hub in entities:
+                    if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team:
+                        if entities[is_hub]['available_energy']-500 >0 and entities[good_entities]['fire_range']<5:
+                            entities[good_entities]['fire_range']+=1
+                            entities[is_hub]['available_energy']-=400
+                        
+>>>>>>> Stashed changes
     return entities
 
 ## COMBATS ##
@@ -615,29 +663,26 @@ def movement (movement_orders, board, entities):
     """
     list_movement=[]
     
-    #split the information
+    #check if there's a movement order
     for x in range(len(movement_orders)):
         list_movement+=movement_orders[x].split(':')
     
     for check_list in range(len(list_movement)):
-        if list_movement[check_list][0]=='@':
+        if list_movement[check_list][0]=='@':            
             
-            #delete old coordinates from board
-            take=entities[list_movement[check_list-1]]['coordinates']
-            
-            
+     
+
             #update entities
             b=list_movement[check_list][1:]
             b=b.split('-')
             tuples=(int(b[0]),int(b[1]))
-            entities[list_movement[check_list-1]]['coordinates']=tuples
+            if tuples[0]-entities[list_movement[check_list-1]]['coordinates'][0]<2 and tuples[1]-entities[list_movement[check_list-1]]['coordinates'][1]<2:
+                entities[list_movement[check_list-1]]['coordinates']=tuples
+            
 
-        
-
-
- 
 
     return entities
+
 
 
 ## TRANSFERTS D'ÉNERGIE ##
