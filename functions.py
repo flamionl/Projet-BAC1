@@ -475,7 +475,7 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['storage_capacity']<1200:
                         entities[x]['available_energy']-=600
                         if entities[x]['available_energy']>0:
-                        entities[x]['regeneration_rate']+=100
+                            entities[x]['regeneration_rate']+=100
                         else:
                             entities[x]['available_energy']+=600
         
@@ -486,7 +486,7 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['regeneration_rate']<50:
                         entities[x]['available_energy']-=750
                         if entities[x]['available_energy']>0:
-                        entities[x]['regeneration_rate']+=5
+                            entities[x]['regeneration_rate']+=5
                         else:
                             entities[x]['available_energy']+=750
 
@@ -496,7 +496,7 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['moving_cost']>5:
                         entities[x]['available_energy']-=400
                         if entities[x]['available_energy']>0:
-                        entities[x]['moving_cost']-=1
+                            entities[x]['moving_cost']-=1
                         else:
                             entities[x]['available_energy']+=400
 
@@ -506,7 +506,7 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['fire_range']<5:
                         entities[x]['available_energy']-=400
                         if entities[x]['available_energy']>0:
-                        entities[x]['regeneration_rate']+=1
+                            entities[x]['regeneration_rate']+=1
                         else:
                             entities[x]['available_energy']+=400        
         return entities
