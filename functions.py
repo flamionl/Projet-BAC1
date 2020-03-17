@@ -420,9 +420,6 @@ def upgrade (upgrade_orders, entities):
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
-    Prints
-    ------
-    warning : if there is not enough energy in the hub for the upgrade
 
     Version
     -------
@@ -474,8 +471,7 @@ def upgrade (upgrade_orders, entities):
                 if entities[good_entities]['available_energy']-750>0 and entities[good_entities]['regeneration_rate']<50:
                     entities[good_entities]['regeneration_rate']+=5
                     entities[good_entities]['available_energy']-=750
-                else:
-                    print('not enough energy in the hub')
+        
     
     
     #movement cost update
@@ -485,10 +481,9 @@ def upgrade (upgrade_orders, entities):
                 for is_hub in check:
                     if entities[is_hub]['type']=='hub':
                         if entities[is_hub]['available_energy']-500>0 and entities[good_entities]['moving_cost']>5:
-                            entities[good_entities]['moving_cost']+=5
+                            entities[good_entities]['moving_cost']-=1
                             entities[is_hub]['available_energy']-=500
-                        else:
-                            print('not enough energy in the hub')
+
 
     #storage capacity of tanker update
     for occurence in range(storage):
@@ -499,8 +494,7 @@ def upgrade (upgrade_orders, entities):
                         if entities[is_hub]['available_energy']-600>0 and entities[good_entities]['storage_capacity']<1200:
                             entities[good_entities]['storage_capacity']+=100
                             entities[is_hub]['available_energy']-=600
-                        else:
-                            print('not enough energy in the hub')
+                        
 
     #update fire range for cruiser 
     for occurence in range(ranges):
@@ -511,8 +505,7 @@ def upgrade (upgrade_orders, entities):
                         if entities[is_hub]['available_energy']-500 >0 and entities[good_entities]['fire_range']<5:
                             entities[good_entities]['fire_range']+=1
                             entities[is_hub]['available_energy']-=400
-                        else:
-                            print('not enough energy in the hub')
+                        
     return entities
 
 ## COMBATS ##
@@ -626,7 +619,6 @@ def movement (movement_orders, board, entities):
     Parameters
     ----------
     movement_orders : orders of deplacement of the player (list of str)
-    board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -636,12 +628,12 @@ def movement (movement_orders, board, entities):
 
     Version
     -------
-    specification : Gerry Longfils (v.1 24/02/2020)
-    implementation : Gerry Longfils (v.1 07/03/2020)
+    specification : Gerry Longfils (v.2 17/03/2020)
+    implementation : Gerry Longfils (v.1 17/03/2020)
     """
     list_movement=[]
     
-    #check if there's a movement order
+    #split the information
     for x in range(len(movement_orders)):
         list_movement+=movement_orders[x].split(':')
     
@@ -650,7 +642,6 @@ def movement (movement_orders, board, entities):
             
             #delete old coordinates from board
             take=entities[list_movement[check_list-1]]['coordinates']
-            board[take].remove(list_movement[check_list-1])
             
             
             #update entities
@@ -658,13 +649,13 @@ def movement (movement_orders, board, entities):
             b=b.split('-')
             tuples=(int(b[0]),int(b[1]))
             entities[list_movement[check_list-1]]['coordinates']=tuples
-            
-            #update board
-            board[tuples].append(list_movement[check_list-1])
+
+        
+
 
  
 
-    return entities,board
+    return entities
 
 
 ## TRANSFERTS D'ÉNERGIE ##
