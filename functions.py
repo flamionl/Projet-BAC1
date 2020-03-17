@@ -794,12 +794,20 @@ def hubs_regeneration (entities):
     specification : Gerry Longfils (v.1 19/02/2020)
     implementation : Gerry Longfils (v.1 13/03/2020)
     """
+#Searching for hubs name in entities
+    for entity in entities :
+        if 'hub' in entity :
 
-    #put each keys in a list 
-    check=list(entities.keys())
+            #Getting the regen rate of the hub
+            regen_rate = entities[entity]['regeneration_rate']
 
-    #Check if it's a hub then he regenerate it 
-    for x in check:
-        if entities[x]['type']=='hub':
-            if (entities[x]['available_energy']+entities[x]['regeneration_rate'])<1500:
-                entities[x]['available_energy']+=entities[x]['regeneration_rate']
+            #Computing the amount of energy to add to the hub
+            entities[entity]['available_energy'] += (entities[entity]['available_energy']/100) * regen_rate
+
+            #Set energy to 1500 if there is more than 1500
+            if entities[entity]['available_energy'] > 1500 :
+                entities[entity]['available_energy'] = 1500
+
+            
+        
+    return entities
