@@ -429,13 +429,13 @@ def upgrade (upgrade_orders, entities):
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     implementation : Gerry Longfils (v.1 12/03/2020)
     """
-
     #variable for the increment
     ranges=0
     move=0
     regeneration=0
     storage=0
     team=''
+
     # list where the orders will be place 
     list_orders=[]
 
@@ -443,7 +443,7 @@ def upgrade (upgrade_orders, entities):
     upgrade_orders=upgrade_orders[0].split()
     for x in range(len(upgrade_orders)):
         list_orders.append(upgrade_orders[x].split(':'))
-
+        print(list_orders)
     #check what's the upgrade instruction to execute and increment the good variable 
 
     
@@ -468,25 +468,25 @@ def upgrade (upgrade_orders, entities):
     #make the upgrade
     
     check=list(entities.keys())
-    team!='':
+    if team!='':
         for execute in range(storage):
             for x in check:
                 if entities[x]['type']=='tanker' and entities[x]['team']==team:
                     if entities[x]['storage_capacity']<1200:
                         entities[x]['available_energy']-=600
                         if entities[x]['available_energy']>0:
-                           entities[x]['regeneration_rate']+=100
+                        entities[x]['regeneration_rate']+=100
                         else:
                             entities[x]['available_energy']+=600
-
-
+        
+        
         for execute in range(regeneration):
             for x in check:
                 if entities[x]['type']=='hub' and entities[x]['team']==team :
                     if entities[x]['regeneration_rate']<50:
                         entities[x]['available_energy']-=750
                         if entities[x]['available_energy']>0:
-                           entities[x]['regeneration_rate']+=5
+                        entities[x]['regeneration_rate']+=5
                         else:
                             entities[x]['available_energy']+=750
 
@@ -496,7 +496,7 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['moving_cost']>5:
                         entities[x]['available_energy']-=400
                         if entities[x]['available_energy']>0:
-                           entities[x]['moving_cost']-=1
+                        entities[x]['moving_cost']-=1
                         else:
                             entities[x]['available_energy']+=400
 
@@ -506,10 +506,11 @@ def upgrade (upgrade_orders, entities):
                     if entities[x]['fire_range']<5:
                         entities[x]['available_energy']-=400
                         if entities[x]['available_energy']>0:
-                           entities[x]['regeneration_rate']+=1
+                        entities[x]['regeneration_rate']+=1
                         else:
                             entities[x]['available_energy']+=400        
-    return entities
+        return entities
+
     
 
 ## COMBATS ##
