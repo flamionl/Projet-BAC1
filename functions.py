@@ -435,7 +435,7 @@ def upgrade (upgrade_orders, entities):
     move=0
     regeneration=0
     storage=0
-
+    team=''
     # list where the orders will be place 
     list_orders=[]
 
@@ -468,47 +468,47 @@ def upgrade (upgrade_orders, entities):
     #make the upgrade
     
     check=list(entities.keys())
-    
-    for execute in range(storage):
-        for x in check:
-            if entities[x]['type']=='tanker' and entities[x]['team']==team:
-                if entities[x]['storage_capacity']<1200:
-                    entities[x]['available_energy']-=600
-                    if entities[x]['available_energy']>0:
-                       entities[x]['regeneration_rate']+=100
-                    else:
-                        entities[x]['available_energy']+=600
-    
-    
-    for execute in range(regeneration):
-        for x in check:
-            if entities[x]['type']=='hub' and entities[x]['team']==team :
-                if entities[x]['regeneration_rate']<50:
-                    entities[x]['available_energy']-=750
-                    if entities[x]['available_energy']>0:
-                       entities[x]['regeneration_rate']+=5
-                    else:
-                        entities[x]['available_energy']+=750
+    team!='':
+        for execute in range(storage):
+            for x in check:
+                if entities[x]['type']=='tanker' and entities[x]['team']==team:
+                    if entities[x]['storage_capacity']<1200:
+                        entities[x]['available_energy']-=600
+                        if entities[x]['available_energy']>0:
+                           entities[x]['regeneration_rate']+=100
+                        else:
+                            entities[x]['available_energy']+=600
 
-    for execute in range(move):
-        for x in check:
-            if entities[x]['type']=='cruiser' and entities[x]['team']==team :
-                if entities[x]['moving_cost']>5:
-                    entities[x]['available_energy']-=400
-                    if entities[x]['available_energy']>0:
-                       entities[x]['moving_cost']-=1
-                    else:
-                        entities[x]['available_energy']+=400
 
-    for execute in range(ranges):
-        for x in check:
-            if entities[x]['type']=='cruiser' and entities[x]['team']==team:
-                if entities[x]['fire_range']<5:
-                    entities[x]['available_energy']-=400
-                    if entities[x]['available_energy']>0:
-                       entities[x]['regeneration_rate']+=1
-                    else:
-                        entities[x]['available_energy']+=400        
+        for execute in range(regeneration):
+            for x in check:
+                if entities[x]['type']=='hub' and entities[x]['team']==team :
+                    if entities[x]['regeneration_rate']<50:
+                        entities[x]['available_energy']-=750
+                        if entities[x]['available_energy']>0:
+                           entities[x]['regeneration_rate']+=5
+                        else:
+                            entities[x]['available_energy']+=750
+
+        for execute in range(move):
+            for x in check:
+                if entities[x]['type']=='cruiser' and entities[x]['team']==team :
+                    if entities[x]['moving_cost']>5:
+                        entities[x]['available_energy']-=400
+                        if entities[x]['available_energy']>0:
+                           entities[x]['moving_cost']-=1
+                        else:
+                            entities[x]['available_energy']+=400
+
+        for execute in range(ranges):
+            for x in check:
+                if entities[x]['type']=='cruiser' and entities[x]['team']==team:
+                    if entities[x]['fire_range']<5:
+                        entities[x]['available_energy']-=400
+                        if entities[x]['available_energy']>0:
+                           entities[x]['regeneration_rate']+=1
+                        else:
+                            entities[x]['available_energy']+=400        
     return entities
     
 
