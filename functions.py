@@ -24,7 +24,7 @@ def game (file_path, player_1, player_2):
     specification : Amaury Van Pevenaeyge (v.1 22-02-2020)
     """
 
-def create_data_structures (file_path):
+def create_data_structures(file_path):
     """ Decodes the file for the setup of the game, creates the board dictionary and entities dictionnary, and places the hubs and energy peaks
 
     Parameters
@@ -429,88 +429,91 @@ def upgrade (upgrade_orders, entities):
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     implementation : Gerry Longfils (v.1 12/03/2020)
     """
-    #variable for the increment
-    ranges = 0
-    move = 0
-    regeneration = 0
-    storage = 0
-    team = ''
-
-    # list where the orders will be place 
-    list_orders=[]
-
-    #split the space
-    upgrade_orders=upgrade_orders[0].split()
-    for x in range(len(upgrade_orders)):
-        list_orders.append(upgrade_orders[x].split(':'))
-    #check what's the upgrade instruction to execute and increment the good variable 
-
+   
     
-    for count in range(len(list_orders)):
-        if list_orders[count][1]=='range':
+    #variable for the increment
+    ranges=0
+    move=0
+    regeneration=0
+    storage=0
+    team=''
+
+    liste=[]
+
+    #split the ':' and del each key word 'upgrade
+    for index in range(len(upgrade_orders)):
+        liste+=upgrade_orders[index].split(':')
+
+    liste.remove('upgrade')
+
+    for count in range(len(liste)):
+        if liste[count]=='range':
             ranges+=1
         
-        elif list_orders[count][1]=='move':
+        elif liste[count]=='move':
             move+=1
         
-        elif list_orders[count][1]=='regeneration':
+        elif liste[count]=='regeneration':
             regeneration+=1
         
-        elif list_orders[count][1]=='blue' or list_orders[count][1]=='red':
-            team=list_orders[count][1]
+        elif liste[count]=='blue' or liste[count]=='red':
+            team=liste[count]
 
         else:
             storage+=1
         
-
-
-    #make the upgrade
     
+    #put all key values in a list
     check=list(entities.keys())
-    if team!='':
-        for execute in range(storage):
-            for x in check:
-                if entities[x]['type']=='tanker' and entities[x]['team']==team:
-                    if entities[x]['storage_capacity']<1200:
-                        entities[x]['available_energy']-=600
-                        if entities[x]['available_energy']>0:
-                            entities[x]['regeneration_rate']+=100
-                        else:
-                            entities[x]['available_energy']+=600
-        
-        
-        for execute in range(regeneration):
-            for x in check:
-                if entities[x]['type']=='hub' and entities[x]['team']==team :
-                    if entities[x]['regeneration_rate']<50:
-                        entities[x]['available_energy']-=750
-                        if entities[x]['available_energy']>0:
-                            entities[x]['regeneration_rate']+=5
-                        else:
-                            entities[x]['available_energy']+=750
-
-        for execute in range(move):
-            for x in check:
-                if entities[x]['type']=='cruiser' and entities[x]['team']==team :
-                    if entities[x]['moving_cost']>5:
-                        entities[x]['available_energy']-=400
-                        if entities[x]['available_energy']>0:
-                            entities[x]['moving_cost']-=1
-                        else:
-                            entities[x]['available_energy']+=400
-
-        for execute in range(ranges):
-            for x in check:
-                if entities[x]['type']=='cruiser' and entities[x]['team']==team:
-                    if entities[x]['fire_range']<5:
-                        entities[x]['available_energy']-=400
-                        if entities[x]['available_energy']>0:
-                            entities[x]['regeneration_rate']+=1
-                        else:
-                            entities[x]['available_energy']+=400        
-        return entities
-
     
+
+    # hub regeneration update
+    for occurence in range(regeneration):
+        for good_entities in check :
+            if entities[good_entities]['type']=='hub' and entities[good_entities]['team']==team:
+                if entities[good_entities]['available_energy']-750>0 and entities[good_entities]['regeneration_rate']<50:
+                    entities[good_entities]['regeneration_rate']+=5
+                    entities[good_entities]['available_energy']-=750
+                else:
+                    print('not enough energy in the hub')
+    
+    
+    #movement cost update
+    for occurence in range(move):
+        for good_entities in check :
+            if entities[good_entities]['type']=='cruiser' and entities[good_entities]['team']==team:
+                for is_hub in check:
+                    if entities[is_hub]['type']=='hub':
+                        if entities[is_hub]['available_energy']-500>0 and entities[good_entities]['moving_cost']>5:
+                            entities[good_entities]['moving_cost']+=5
+                            entities[is_hub]['available_energy']-=500
+                        else:
+                            print('not enough energy in the hub')
+
+    #storage capacity of tanker update
+    for occurence in range(storage):
+        for good_entities in check :
+            if entities[good_entities]['type']=='tanker' and entities[good_entities]['team']==team:
+                for is_hub in check:
+                    if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team :
+                        if entities[is_hub]['available_energy']-600>0 and entities[good_entities]['storage_capacity']<1200:
+                            entities[good_entities]['storage_capacity']+=100
+                            entities[is_hub]['available_energy']-=600
+                        else:
+                            print('not enough energy in the hub')
+
+    #update fire range for cruiser 
+    for occurence in range(ranges):
+        for good_entities in check :
+            if entities[good_entities]['type']=='cruiser' and entities[good_entities]['team']==team:
+                for is_hub in check:
+                    if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team:
+                        if entities[is_hub]['available_energy']-500 >0 and entities[good_entities]['fire_range']<5:
+                            entities[good_entities]['fire_range']+=1
+                            entities[is_hub]['available_energy']-=400
+                        else:
+                            print('not enough energy in the hub')
+    return entities
 
 ## COMBATS ##
 
@@ -629,32 +632,37 @@ def movement (movement_orders, board, entities):
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    board : updated dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
+    
 
     Version
     -------
     specification : Gerry Longfils (v.1 24/02/2020)
     implementation : Gerry Longfils (v.1 07/03/2020)
     """
+    list_movement=[]
+    
     #check if there's a movement order
     for x in range(len(movement_orders)):
-        list_movement=movement_orders[x].split(':')
-    a=len(list_movement)
-    for check_list in range(a):
+        list_movement+=movement_orders[x].split(':')
+    
+    for check_list in range(len(list_movement)):
         if list_movement[check_list][0]=='@':
-            p=check_list-1
+            
             #delete old coordinates from board
-            take=entities[list_movement[p]]['coordinates']
-            board[take].remove(list_movement[p])
+            take=entities[list_movement[check_list-1]]['coordinates']
+            board[take].remove(list_movement[check_list-1])
             
             
             #update entities
             b=list_movement[check_list][1:]
             b=b.split('-')
             tuples=(int(b[0]),int(b[1]))
-            entities[list_movement[p]] ['coordinates']=tuples
+            entities[list_movement[check_list-1]]['coordinates']=tuples
+            
             #update board
-            board[tuples].append(list_movement[p])
+            board[tuples].append(list_movement[check_list-1])
+
+ 
 
     return entities,board
 
@@ -798,16 +806,12 @@ def hubs_regeneration (entities):
     for entity in entities :
         if 'hub' in entity :
 
-            #Getting the regen rate of the hub
-            regen_rate = entities[entity]['regeneration_rate']
-
             #Computing the amount of energy to add to the hub
-            entities[entity]['available_energy'] += (entities[entity]['available_energy']/100) * regen_rate
+            entities[entity]['available_energy'] += (entities[entity]['available_energy']/100) *  entities[entity]['regeneration_rate']
 
             #Set energy to 1500 if there is more than 1500
             if entities[entity]['available_energy'] > 1500 :
                 entities[entity]['available_energy'] = 1500
 
-            
-        
+    
     return entities
