@@ -41,7 +41,7 @@ def create_data_structures (file_path):
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 19/02/2020)
-    implementation : Mathis Huet & Amaury Van Pevenaeyge (v.1 07/03/2020)
+    implementation : Mathis Huet & Amaury Van Pevenaeyge (v.2 17/03/2020)
     """
 
     # Creating the base of the two data structures
@@ -72,10 +72,10 @@ def create_data_structures (file_path):
     hub_blue = board_info[3].split()
     hub_red = board_info[4].split()
 
-    entities['hub_blue'] = {'coordinates': (int(hub_blue[0]),int(hub_blue[1])), 'type': 'hub', 'team': 'blue', 'structure_points': 2000,
-                             'storage_capacity' : 1500, 'available_energy': int(hub_blue[2]), 'regeneration_rate': int(hub_blue[3])}
-    entities['hub_red'] = {'coordinates': (int(hub_red[0]),int(hub_red[1])), 'type': 'hub', 'team': 'red', 'structure_points': 1500, 
-                            'storage_capacity' : 1500, 'available_energy': int(hub_red[2]), 'regeneration_rate': int(hub_red[3])}
+    entities['hub_blue'] = {'coordinates': (int(hub_blue[0]),int(hub_blue[1])), 'type': 'hub', 'team': 'blue', 'structure_points': int(hub_blue[2]),
+                             'storage_capacity' : int(hub_blue[3]), 'available_energy': int(hub_blue[3]), 'regeneration_rate': int(hub_blue[4])}
+    entities['hub_red'] = {'coordinates': (int(hub_red[0]),int(hub_red[1])), 'type': 'hub', 'team': 'red', 'structure_points': int(hub_red[2]), 
+                            'storage_capacity' : int(hub_red[3]), 'available_energy': int(hub_red[3]), 'regeneration_rate': int(hub_red[4])}
     
     # Creating the peaks in entities dict
     peak_id = 1
@@ -751,6 +751,7 @@ def energy_giving (energy_giving_orders, entities, board):
     Version
     -------
     specification : Louis Flamion (v.1 23/02/2020)
+    implementation : Amaury Van Pevenaeyge (v.2 17/03/2020)
     """
 
     #Getting back the name of the team
