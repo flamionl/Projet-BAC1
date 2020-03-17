@@ -41,7 +41,7 @@ def create_data_structures (file_path):
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 19/02/2020)
-    implementation : Mathis Huet & Amaury Van Pevenaeyge (v.1 07/03/2020)
+    implementation : Mathis Huet & Amaury Van Pevenaeyge (v.2 17/03/2020)
     """
 
     # Creating the base of the two data structures
@@ -746,6 +746,7 @@ def energy_giving (energy_giving_orders, entities, board):
     Version
     -------
     specification : Louis Flamion (v.1 23/02/2020)
+    implementation : Amaury Van Pevenaeyge (v.2 17/03/2020)
     """
 
     #Getting back the name of the team
