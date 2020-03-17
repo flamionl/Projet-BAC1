@@ -536,28 +536,29 @@ def cruiser_attack (attack_orders, board, entities):
 
      #Getting info from the attack_orders
     for order in attack_orders :
-        splited_order = order.split(':')
-        vessel_name = splited_order[0]
-        line = int(splited_order[1].split('-')[0][1:])
-        column = int(splited_order[1].split('-')[1].split('=')[0])
-        damages = int(splited_order[1].split('=')[1])
+        if order != 'red' or order != 'blue' :
+            splited_order = order.split(':')
+            vessel_name = splited_order[0]
+            line = int(splited_order[1].split('-')[0][1:])
+            column = int(splited_order[1].split('-')[1].split('=')[0])
+            damages = int(splited_order[1].split('=')[1])
 
-        #Getting coordinates of the ship that attacks
-        vessel_coordinates = entities[vessel_name]['coordinates']
+            #Getting coordinates of the ship that attacks
+            vessel_coordinates = entities[vessel_name]['coordinates']
 
-        #Checking if there is an entity on the case
-        if board[(line,column)] != [] :
-            
-            #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-            if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 :
+            #Checking if there is an entity on the case
+            if board[(line,column)] != [] :
+                
+                #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
+                if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 :
 
-                #Remove the energy needed to attack to case 
-                entities[vessel_name]['available_energy'] -= damages*10
+                    #Remove the energy needed to attack to case 
+                    entities[vessel_name]['available_energy'] -= damages*10
 
-                #Remove structures_points to the entities on the case
-                for entity in board[(line,column)] :
-                    if entities[entity]['type'] != 'peak' :
-                        entities[entity]['structure_points'] -= damages
+                    #Remove structures_points to the entities on the case
+                    for entity in board[(line,column)] :
+                        if entities[entity]['type'] != 'peak' :
+                            entities[entity]['structure_points'] -= damages
 
     return entities
 
@@ -813,3 +814,4 @@ def hubs_regeneration (entities):
         
     return entities
 
+board, entities, nb_columns, nb_lines = create_data_structures('./map.equ')
