@@ -30,7 +30,6 @@ def game (file_path, player_1, player_2):
     #Initialising turn variable
     turn = 0
 
-
     while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
 
         #Priting the board
@@ -327,6 +326,7 @@ def display_board (board, entities, nb_columns, nb_lines):
     #Print the board
 
     print(plateau)
+
 ## ORDRES ##
 
 def sort_orders (orders, team):
@@ -406,6 +406,7 @@ def get_IA_orders (board, entities):
     action_number = random.randint(0,100)
     if action_number <= 60 :
         return
+
 ## CRÉATION D'UNITÉS ##
 
 def create_vessel (creation_orders, entities):
@@ -431,7 +432,6 @@ def create_vessel (creation_orders, entities):
     for order in creation_orders[0:-1]:
 
         order = order.split(':')
-
         vessel_name = order[0]
         vessel_type = order[1]
 
@@ -439,33 +439,27 @@ def create_vessel (creation_orders, entities):
         for entity in entities:
 
             if entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'blue':
-
                 coordinates_hub_blue = entities[entity]['coordinates']
 
             elif entities[entity]['type'] == 'hub' and entities[entity]['team'] == 'red':
-
                 coordinates_hub_red = entities[entity]['coordinates']
 
         #Add the vessel in the dictionary of entities according to their type and their team
         if vessel_type == 'tanker':
 
             if team == 'blue':
-
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team,
                                             'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
             elif team == 'red':
-
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team,
                                             'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
 
         elif vessel_type == 'cruiser':
 
             if team == 'blue':
-
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 100,
                                             'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
             elif team == 'red':
-
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 100,
                                             'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
 
@@ -666,14 +660,10 @@ def remove_destroyed_entities (entities):
     entities_to_remove = []
 
     for entity in entities:
-        if entities[entity]['type'] != 'peak':
+        if entities[entity]['type'] != 'peak' and entities[entity]['type'] != 'hub':
             structure_points = entities[entity]['structure_points']
             if structure_points <= 0:
-                if entities[entity]['type'] == 'hub':
-                        # une équipe a gagné
-                        print('WIN')
-                else:
-                        entities_to_remove.append(entity)
+                entities_to_remove.append(entity)
 
     for entity in entities_to_remove:
         del entities[entity]
@@ -854,7 +844,7 @@ def hubs_regeneration (entities):
     specification : Gerry Longfils (v.1 19/02/2020)
     implementation : Gerry Longfils (v.1 13/03/2020)
     """
-#Searching for hubs name in entities
+    #Searching for hubs name in entities
     for entity in entities :
         if 'hub' in entity :
 
