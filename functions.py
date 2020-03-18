@@ -715,23 +715,23 @@ def movement (movement_orders, board, entities):
     specification : Gerry Longfils (v.2 17/03/2020)
     implementation : Gerry Longfils (v.1 17/03/2020)
     """
+    list_movement=[]
+    
+    #check if there's a movement order
+    for x in range(len(movement_orders)):
+        list_movement+=movement_orders[x].split(':')
+    
+    for check_list in range(len(list_movement)):
+        if list_movement[check_list][0]=='@':            
 
-    if movement_orders != []:
-        team = movement_orders[-1]
-        del movement_orders[-1]
-
-    for order in movement_orders:
-
-        order = order.split(':@')
-        vessel_name = order[0]
-        coordinates = order[1]
-        coordinates = coordinates.split('-')
-        coordinates = (int(coordinates[0]), int(coordinates[1]))
-
-        if coordinates[0] - entities[vessel_name]['coordinates'][0] < 2 and coordinates[1] - entities[vessel_name]['coordinates'][1] < 2:
-
-            entities[vessel_name]['coordinates'] = coordinates
-
+            #update entities
+            coordinate=list_movement[check_list][1:]
+            coordinate=coordinate.split('-')
+            tuples=(int(coordinate[0]),int(coordinate[1]))
+            if tuples[0]-entities[list_movement[check_list-1]]['coordinates'][0]<2 and tuples[1]-entities[list_movement[check_list-1]]['coordinates'][1]<2 and entities[list_movement[check_list-1]]['team']==movement_orders[-1]:
+                entities[list_movement[check_list-1]]['coordinates']=tuples
+                if entities[list_movement[check_list-1]]['type']=='cruiser':
+                    entities[list_movement[check_list-1]]['available_energy']-=10
     return entities
 
 ## TRANSFERTS D'ÉNERGIE ##
