@@ -18,11 +18,72 @@ def game (file_path, player_1, player_2):
     ----
     The 3 types of player are : 'human', 'IA', and 'distant_player' if the player is respectively\
          a human playing on the local computer, an IA on the local computer, and a player (human or IA) on an other computer
-    
+
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 22-02-2020)
+    implementation : Louis Flamion and Gerry Longfils (v-1 18/03/2020)
     """
+    #Creating data structures
+    board, entities, nb_columns, nb_lines = create_data_structures(file_path)
+
+    #Initialising turn variable
+    turn = 0
+
+
+    while entities['hub_1']['structure_points'] > 0 and entities['hub_2']['structure_points'] and turn < 1000 :
+
+        #Priting the board
+        display_board(board,entities,nb_columns,nb_lines)
+
+        #Checking player_1's type and getting orders
+        if player_1 ==  'human' :
+            order = str(input('Quels sont vos ordres joueur 1 :'))
+        else :
+            order = get_IA_orders(board,entities)
+
+        #player_1's orders sorting
+        creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(order,'blue')
+
+        #Checking player_2's type and getting orders
+        if player_2 == 'human' :
+            order = str(input('Quels sont vos ordres joueur 2 :'))
+        else :
+            order = get_IA_orders(board,entities)
+
+        #player_2's orders sorting
+        creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(order,'red')
+
+        #Creation vessel phase
+        entities = create_vessel(creation_orders_blue,entities)
+        entities = create_vessel(creation_orders_red,entities)
+
+        #upgrade entites phase
+        entities = upgrade(upgrade_orders_blue,entities)
+        entities = upgrade(upgrade_orders_red,entities)
+
+        #attack phase
+        entities = cruiser_attack(attack_orders_blue,board,entities)
+        entities = cruiser_attack(attack_orders_red,board,entities)
+
+        #move entities phase
+        entities = movement(movement_orders_blue,board,entities)
+        entities = movement(movement_orders_red,board,entities)
+
+        #energy absorption pics for tankers
+        entities = energy_absorption(energy_absorption_blue,entities,board)
+        entities = energy_absorption(energy_absorption_red,entities,board)
+
+        #energy giving phase
+        entities = energy_giving(energy_giving_blue,entities,board)
+        entities = energy_giving(energy_giving_red,entities,board)
+
+        entities= hubs_regeneration(entities)
+        board = actualise_board(board,entities)
+
+        #Increment turn variable
+        turn +=1
+
 
 def create_data_structures(file_path):
     """ Decodes the file for the setup of the game, creates the board dictionary and entities dictionnary, and places the hubs and energy peaks
@@ -67,23 +128,23 @@ def create_data_structures(file_path):
     for y in range (1, nb_lines + 1):
         for x in range(1, nb_columns + 1):
             board[(y, x)] = []
-    
+
     # Creating the hubs in entities dict
     hub_blue = board_info[3].split()
     hub_red = board_info[4].split()
 
     entities['hub_blue'] = {'coordinates': (int(hub_blue[0]),int(hub_blue[1])), 'type': 'hub', 'team': 'blue', 'structure_points': int(hub_blue[2]),
                              'storage_capacity' : int(hub_blue[3]), 'available_energy': int(hub_blue[3]), 'regeneration_rate': int(hub_blue[4])}
-    entities['hub_red'] = {'coordinates': (int(hub_red[0]),int(hub_red[1])), 'type': 'hub', 'team': 'red', 'structure_points': int(hub_red[2]), 
+    entities['hub_red'] = {'coordinates': (int(hub_red[0]),int(hub_red[1])), 'type': 'hub', 'team': 'red', 'structure_points': int(hub_red[2]),
                             'storage_capacity' : int(hub_red[3]), 'available_energy': int(hub_red[3]), 'regeneration_rate': int(hub_red[4])}
-    
+
     # Creating the peaks in entities dict
     peak_id = 1
     for line in board_info[6:-1]:
         peak_info = line.split()
         entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'available_energy' : int(peak_info[2])}
         peak_id += 1
-    
+
     # actualising the board_dict with the information of entities dict
     board = actualise_board(board, entities)
 
@@ -114,7 +175,7 @@ def actualise_board (board, entities):
     # Refilling the board with all the information from entities dict
     for entity in entities:
         board[entities[entity]['coordinates']].append(entity)
-    
+
     return board
 
 def display_board (board, entities, nb_columns, nb_lines):
@@ -136,7 +197,7 @@ def display_board (board, entities, nb_columns, nb_lines):
     specification : Louis Flamion (v.1 23/02/2020)
     implementation : Gerry Longfils and Louis Flamion (v.1 09/03/2020)
     """
-    #Emojis used 
+    #Emojis used
     hub ='♜'
     tanker = '☬'
     case = '▒'
@@ -147,39 +208,39 @@ def display_board (board, entities, nb_columns, nb_lines):
     red_color = '#F76262'
     green_color = '#25CB2B'
 
-    #Top border creation  
-    plateau = case * (nb_columns + 2)+"\n" 
+    #Top border creation
+    plateau = case * (nb_columns + 2)+"\n"
 
     #Line creation
-    for line in range(1,nb_lines+1) : 
+    for line in range(1,nb_lines+1) :
         plateau+= case
 
     #Columns creation for every lines
-        for column in range(1,nb_columns+1) : 
+        for column in range(1,nb_columns+1) :
 
-            #Checker board creatin   
-            if (column +line) % 2 == 0  : 
+            #Checker board creatin
+            if (column +line) % 2 == 0  :
 
                 #Sets the background color on red
-                background_color = red_color 
+                background_color = red_color
                 plateau += bg(background_color)
             else :
 
                 #Sets the background color on green
-                background_color = green_color 
+                background_color = green_color
                 plateau += bg(background_color)
 
                 #If there isn't any entities on the case
-            if board[(line,column)]  == [] : 
+            if board[(line,column)]  == [] :
                 plateau+=fg(background_color)
-                plateau += case      
+                plateau += case
 
                 #If there is one entity on the case
             elif len(board[line,column])==1:
                 if entities[board[(line,column)][0]]['type'] != 'peak' :
 
                     #Looking to the entitiy's team to attribute the right color
-                    if entities[board[(line,column)][0]]['team'] == 'blue' : 
+                    if entities[board[(line,column)][0]]['team'] == 'blue' :
                         plateau+=fg('#0033FF')
                     else :
                         plateau+=fg('#FF0000')
@@ -193,15 +254,15 @@ def display_board (board, entities, nb_columns, nb_lines):
                         plateau += hub
 
                     #Looks to the peak's available energy to print it with the right color
-                else :  
-                    if entities[board[(line,column)][0]]['available_energy']>=100 :    
+                else :
+                    if entities[board[(line,column)][0]]['available_energy']>=100 :
                         plateau+= fg('#008000')
                     elif entities[board[(line,column)][0]]['available_energy']<=75 :
                         plateau+= fg('#FF4500')
                     elif entities[board[(line,column)][0]]['available_energy']<=50 :
                         plateau+= fg('#efd807')
                     elif entities[board[(line,column)][0]]['available_energy']<=25 :
-                        plateau+= fg('#bb0b0b') 
+                        plateau+= fg('#bb0b0b')
 
                     #Print an energy on the board
                     plateau += energy
@@ -209,15 +270,15 @@ def display_board (board, entities, nb_columns, nb_lines):
                 #If there is more than one entity on the case
 
             else :
-                
+
                 #Initialising a list that contains the type of entities on the case
                 type_of_entities=[]
 
                 #Getting all entities type
                 for entity in board[(line,column)]:
                     type_of_entities.append(entities[entity]['type'])
-                
-                #Looking for hub 
+
+                #Looking for hub
                 if 'hub' in type_of_entities:
                     if entities[board[(line,column)][type_of_entities.index('hub')]]['team'] == 'blue':
                         plateau+=fg('#0033FF')
@@ -243,22 +304,22 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                 #Looking for peaks
                 else :
-                    if entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=100 :    
+                    if entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=100 :
                         plateau+= fg('#008000')
                     elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=75 :
                         plateau+= fg('#FF4500')
                     elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=50 :
                         plateau+= fg('#efd807')
                     elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=25 :
-                        plateau+= fg('#bb0b0b') 
+                        plateau+= fg('#bb0b0b')
                     plateau+=energy
 
-        #Reset colors                
+        #Reset colors
         plateau += attr('reset')
 
         #Goes to the next line
         plateau+=case+'\n'
-    
+
     #Bottom border creation
 
     plateau+=case * (nb_columns+2)
@@ -283,7 +344,7 @@ def sort_orders (orders, team):
     movement_orders : orders of deplacement of the player (list of str)
     energy_absorption_orders : orders of energy absorption of the player (list of str)
     energy_giving_orders : orders of energy giving of the player (list of str)
-    
+
     Version
     -------
     specification : Mathis Huet (v.2 06/03/2020)
@@ -316,12 +377,12 @@ def sort_orders (orders, team):
             energy_giving_orders.append(order)
         elif ':' in order:
             creation_orders.append(order)
-    
+
     # Adding the name of the team at the end of each non-empty list
     for List in [creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders]:
         if List != []:
             List.append(team)
-        
+
     return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders
 
 def get_IA_orders (board, entities):
@@ -340,7 +401,10 @@ def get_IA_orders (board, entities):
     -------
     specification : Louis Flamion (v.1 22/02/2020)
     """
-
+    #Defines the action to do
+    action_number = random.randint(0,100)
+    if action_number <= 60 :
+        return
 ## CRÉATION D'UNITÉS ##
 
 def create_vessel (creation_orders, entities):
@@ -366,7 +430,7 @@ def create_vessel (creation_orders, entities):
     for order in creation_orders[0:-1]:
 
         order = order.split(':')
-        
+
         vessel_name = order[0]
         vessel_type = order[1]
 
@@ -383,25 +447,25 @@ def create_vessel (creation_orders, entities):
 
         #Add the vessel in the dictionary of entities according to their type and their team
         if vessel_type == 'tanker':
-            
+
             if team == 'blue':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team, 
+                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team,
                                             'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
             elif team == 'red':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team, 
+                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team,
                                             'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
 
         elif vessel_type == 'cruiser':
 
             if team == 'blue':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 100, 
+                entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 100,
                                             'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
             elif team == 'red':
 
-                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 100, 
+                entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 100,
                                             'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
 
     return entities
@@ -434,26 +498,26 @@ def upgrade (upgrade_orders, entities):
     flag=0
     liste=[]
 
-    #split the ':' and del each key word 'upgrade
+    #split the ':' and del each key word upgrade
     for index in range(len(upgrade_orders)):
         liste+=upgrade_orders[index].split(':')
 
     for count in range(len(liste)):
         if liste[count]=='range':
             ranges+=1
-        
+
         elif liste[count]=='move':
             move+=1
-        
+
         elif liste[count]=='regeneration':
             regeneration+=1
-        
+
         elif liste[count]=='blue' or liste[count]=='red':
             team=liste[count]
 
         else:
             storage+=1
-        
+
     #update the regeneration range for the hub
     for occurence in range(regeneration):
         for good_entities in entities:
@@ -470,7 +534,7 @@ def upgrade (upgrade_orders, entities):
             if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-500>=0  :
                 entities[is_hub]['available_energy']-=500
                 flag=1
-        #search the good entities for updating       
+        #search the good entities for updating
         for good_entities in entities :
             if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['moving_cost']>5:
@@ -484,7 +548,7 @@ def upgrade (upgrade_orders, entities):
             if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-600>=0  :
                 entities[is_hub]['available_energy']-=600
                 flag=1
-        #search the good entities for updating       
+        #search the good entities for updating
         for good_entities in entities :
             if  flag==1 and entities[good_entities]['type']=='tanker'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['storage_capacity']<1200:
@@ -498,7 +562,7 @@ def upgrade (upgrade_orders, entities):
             if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-500>=0  :
                 entities[is_hub]['available_energy']-=500
                 flag=1
-        #search for the good entities for updating              
+        #search for the good entities for updating
         for good_entities in entities :
             if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['fire_range']<5:
@@ -515,7 +579,7 @@ def cruiser_attack (attack_orders, board, entities):
     Parameters
     ----------
     attack_orders : orders of attack of the player (list of str)
-    board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict) 
+    board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
@@ -527,34 +591,35 @@ def cruiser_attack (attack_orders, board, entities):
     specification : Louis Flamion (v.2 13/03/2020)
     implementation : Louis Flamion (v.1 11/03/2020)
     """
-    
+
     #Getting the team of the vessel which is attacking
-    team = attack_orders[-1]
-    
-    #Getting info from the attack_orders
-    for order in attack_orders :
-        splited_order = order.split(':')
-        vessel_name = splited_order[0]
-        line = int(splited_order[1].split('-')[0][1:])
-        column = int(splited_order[1].split('-')[1].split('=')[0])
-        damages = int(splited_order[1].split('=')[1])
+    if attack_orders != [] :
+        team = attack_orders[-1]
 
-        #Getting coordinates of the ship that attacks
-        vessel_coordinates = entities[vessel_name]['coordinates']
+        #Getting info from the attack_orders
+        for order in attack_orders :
+            splited_order = order.split(':')
+            vessel_name = splited_order[0]
+            line = int(splited_order[1].split('-')[0][1:])
+            column = int(splited_order[1].split('-')[1].split('=')[0])
+            damages = int(splited_order[1].split('=')[1])
 
-        #Checking if there is an entity on the case
-        if board[(line,column)] != [] :
-            
-            #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-            if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
+            #Getting coordinates of the ship that attacks
+            vessel_coordinates = entities[vessel_name]['coordinates']
 
-                #Remove the energy needed to attack to case 
-                entities[vessel_name]['available_energy'] -= damages*10
+            #Checking if there is an entity on the case
+            if board[(line,column)] != [] :
 
-                #Remove structures_points to the entities on the case
-                for entity in board[(line,column)] :
-                    if entities[entity]['type'] != 'peak' :
-                        entities[entity]['structure_points'] -= damages
+                #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
+                if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
+
+                    #Remove the energy needed to attack to case
+                    entities[vessel_name]['available_energy'] -= damages*10
+
+                    #Remove structures_points to the entities on the case
+                    for entity in board[(line,column)] :
+                        if entities[entity]['type'] != 'peak' :
+                            entities[entity]['structure_points'] -= damages
 
     return entities
 
@@ -576,7 +641,7 @@ def get_distance (coordinates_1, coordinates_2):
     implementation : Louis Flamion (v.1 11/03/2020)
     """
     #Manthan's formule
-    distance = abs(coordinates_1[1]-coordinates_2[1]) + abs(coordinates_1[0]-coordinates_2[0]) 
+    distance = abs(coordinates_1[1]-coordinates_2[1]) + abs(coordinates_1[0]-coordinates_2[0])
 
     return distance
 
@@ -607,12 +672,12 @@ def remove_destroyed_entities (entities):
                         print('WIN')
                 else:
                         entities_to_remove.append(entity)
-    
+
     for entity in entities_to_remove:
         del entities[entity]
-    
+
     return entities
-    
+
 ## DÉPLACEMENTS ##
 
 def movement (movement_orders, board, entities):
@@ -626,7 +691,7 @@ def movement (movement_orders, board, entities):
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    
+
 
     Version
     -------
@@ -705,7 +770,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
 
                 # Checking the distance
                 if distance <= 1:
-            
+
                     # Computing the amount of energy that will be transfered
                     absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[tanker_name]['storage_capacity'] - entities[tanker_name]['available_energy'])
 
@@ -716,7 +781,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
                     # Deleting the peak from the map if its energy is below 0
                     if entities[absorbed_entity]['type'] == 'peak'and entities[absorbed_entity]['available_energy'] <= 0:
                         del entities[absorbed_entity]
-    
+
     return entities
 
 def energy_giving (energy_giving_orders, entities, board):
@@ -762,7 +827,7 @@ def energy_giving (energy_giving_orders, entities, board):
 
                     # Computing the amount of energy that will be given
                     given_energy = min(entities[vessel_giving]['available_energy'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
-                        
+
                     #Transfering the energy
                     entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
                     entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
@@ -798,5 +863,5 @@ def hubs_regeneration (entities):
             if entities[entity]['available_energy'] > 1500 :
                 entities[entity]['available_energy'] = 1500
 
-    
+
     return entities
