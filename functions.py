@@ -31,7 +31,7 @@ def game (file_path, player_1, player_2):
     turn = 0
 
 
-    while entities['hub_1']['structure_points'] > 0 and entities['hub_2']['structure_points'] and turn < 1000 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
@@ -65,6 +65,7 @@ def game (file_path, player_1, player_2):
         #attack phase
         entities = cruiser_attack(attack_orders_blue,board,entities)
         entities = cruiser_attack(attack_orders_red,board,entities)
+        entities = remove_destroyed_entities(entities)
 
         #move entities phase
         entities = movement(movement_orders_blue,board,entities)
