@@ -426,68 +426,85 @@ def upgrade (upgrade_orders, entities):
     implementation : Gerry Longfils (v.1 12/03/2020)
     """
 
-    # Getting back and deleting the name of the team from the list if the list is not empty
-    if upgrade_orders != []:
-        team = upgrade_orders[-1]
-        del upgrade_orders[-1]
-        hub_name = 'hub_%s' % team
+    #variable for the increment
+    ranges=0
+    move=0
+    regeneration=0
+    storage=0
+    flag=0
+    liste=[]
 
-    for order in upgrade_orders:
+    #split the ':' and del each key word 'upgrade
+    for index in range(len(upgrade_orders)):
+        liste+=upgrade_orders[index].split(':')
 
-        # Treating the order
-        order = order.split(':')
-        characteristic = order[1]
-
-        # Setting the variables depending on the type of upgrade
-        if characteristic == 'regeneration':
-            entity_type = 'hub'
-            upgrade_cost = 750
-            characteristic_in_board = 'regeneration_rate'
-            upper_limit = 50
-            upgrade_step = 5
-
-        elif characteristic == 'storage':
-            entity_type = 'tanker'
-            upgrade_cost = 600
-            characteristic_in_board = 'storage_capacity'
-            upper_limit = 1200
-            upgrade_step = 100
+    for count in range(len(liste)):
+        if liste[count]=='range':
+            ranges+=1
         
-        elif characteristic == 'range':
-            entity_type = 'cruiser'
-            upgrade_cost = 400
-            characteristic_in_board = 'fire_range'
-            upper_limit = 5
-            upgrade_step = 1
+        elif liste[count]=='move':
+            move+=1
         
-        elif characteristic == 'move':
-            entity_type = 'cruiser'
-            upgrade_cost = 500
-            characteristic_in_board = 'moving_cost'
-            under_limit = 5
-            upgrade_step = -1
+        elif liste[count]=='regeneration':
+            regeneration+=1
         
-        if characteristic == 'regeneration' or characteristic == 'storage' or characteristic == 'range':
+        elif liste[count]=='blue' or liste[count]=='red':
+            team=liste[count]
 
-            # Checking if there is enough available energy in the team's hub
-            if entities[hub_name]['available_energy'] >= upgrade_cost:
-                entities[hub_name]['available_energy'] -= upgrade_cost
-
-                # Upgrading
-                for entity in entities:
-                    if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] < upper_limit:
-                        entities[entity][characteristic_in_board] += upgrade_step
+        else:
+            storage+=1
         
-        elif characteristic == 'move':
-            # Checking if there is enough available energy in the team's hub
-            if entities[hub_name]['available_energy'] >= upgrade_cost:
-                entities[hub_name]['available_energy'] -= upgrade_cost
+    #update the regeneration range for the hub
+    for occurence in range(regeneration):
+        for good_entities in entities:
+            if entities[good_entities]['type']=='hub' and entities[good_entities]['team']==team:
+                if entities[good_entities]['available_energy']-750>0 and entities[good_entities]['regeneration_rate']<50:
+                    entities[good_entities]['regeneration_rate']+=5
+                    entities[good_entities]['available_energy']-=750
 
-                # Upgrading
-                for entity in entities:
-                    if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] > under_limit:
-                        entities[entity][characteristic_in_board] += upgrade_step
-    
+
+
+    #update the move cost for the cruiser
+    for occurence in range(move):
+        for is_hub in entities:
+            if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-500>=0  :
+                entities[is_hub]['available_energy']-=500
+                flag=1
+        #search the good entities for updating       
+        for good_entities in entities :
+            if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
+                    if entities[good_entities]['moving_cost']>5:
+                        entities[good_entities]['moving_cost']-=1
+        flag=0
+
+
+    #update the storage for the tankers
+    for occurence in range(storage):
+        for is_hub in entities:
+            if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-600>=0  :
+                entities[is_hub]['available_energy']-=600
+                flag=1
+        #search the good entities for updating       
+        for good_entities in entities :
+            if  flag==1 and entities[good_entities]['type']=='tanker'  and entities[good_entities]['team']==team:
+                    if entities[good_entities]['storage_capacity']<1200:
+                        entities[good_entities]['storage_capacity']+=(100/2)
+        flag=0
+
+
+    #update the fire ranges for the cruisers
+    for occurence in range(ranges):
+        for is_hub in entities:
+            if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-500>=0  :
+                entities[is_hub]['available_energy']-=500
+                flag=1
+        #search for the good entities for updating              
+        for good_entities in entities :
+            if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
+                    if entities[good_entities]['fire_range']<5:
+                        entities[good_entities]['fire_range']+=1
+        flag=0
+
     return entities
 
 ## COMBATS ##
