@@ -510,8 +510,11 @@ def cruiser_attack (attack_orders, board, entities):
     specification : Louis Flamion (v.2 13/03/2020)
     implementation : Louis Flamion (v.1 11/03/2020)
     """
-
-     #Getting info from the attack_orders
+    
+    #Getting the team of the vessel which is attacking
+    team = attack_orders[-1]
+    
+    #Getting info from the attack_orders
     for order in attack_orders :
         splited_order = order.split(':')
         vessel_name = splited_order[0]
@@ -526,7 +529,7 @@ def cruiser_attack (attack_orders, board, entities):
         if board[(line,column)] != [] :
             
             #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-            if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 :
+            if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
 
                 #Remove the energy needed to attack to case 
                 entities[vessel_name]['available_energy'] -= damages*10
