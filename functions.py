@@ -571,6 +571,88 @@ def upgrade (upgrade_orders, entities):
 
     return entities
 
+def upgrade_mathis (upgrade_orders, entities):
+    """Checks if there is enough energy in the hub. Upgrades the entity if there is enough.
+
+    Parameters
+    ----------
+    upgrade_orders : orders of upgrade of the player (list of str)
+    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+
+    Returns
+    -------
+    entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+
+    Version
+    -------
+    specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
+    implementation : Gerry Longfils (v.1 12/03/2020)
+    """
+
+    # Getting back and deleting the name of the team from the list if the list is not empty
+    if upgrade_orders != []:
+        team = upgrade_orders[-1]
+        del upgrade_orders[-1]
+        hub_name = 'hub_%s' % team
+
+    for order in upgrade_orders:
+
+        # Treating the order
+        order = order.split(':')
+        characteristic = order[1]
+
+        # Setting the variables depending on the type of upgrade
+        if characteristic == 'regeneration':
+            entity_type = 'hub'
+            upgrade_cost = 750
+            characteristic_in_board = 'regeneration_rate'
+            upper_limit = 50
+            upgrade_step = 5
+
+        elif characteristic == 'storage':
+            entity_type = 'tanker'
+            upgrade_cost = 600
+            characteristic_in_board = 'storage_capacity'
+            upper_limit = 1200
+            upgrade_step = 100
+        
+        elif characteristic == 'range':
+            entity_type = 'cruiser'
+            upgrade_cost = 400
+            characteristic_in_board = 'fire_range'
+            upper_limit = 5
+            upgrade_step = 1
+        
+        elif characteristic == 'move':
+            entity_type = 'cruiser'
+            upgrade_cost = 500
+            characteristic_in_board = 'moving_cost'
+            under_limit = 5
+            upgrade_step = -1
+        
+        if characteristic == 'regeneration' or characteristic == 'storage' or characteristic == 'range':
+
+            # Checking if there is enough available energy in the team's hub
+            if entities[hub_name]['available_energy'] >= upgrade_cost:
+                entities[hub_name]['available_energy'] -= upgrade_cost
+
+                # Upgrading
+                for entity in entities:
+                    if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] < upper_limit:
+                        entities[entity][characteristic_in_board] += upgrade_step
+        
+        elif characteristic == 'move':
+            # Checking if there is enough available energy in the team's hub
+            if entities[hub_name]['available_energy'] >= upgrade_cost:
+                entities[hub_name]['available_energy'] -= upgrade_cost
+
+                # Upgrading
+                for entity in entities:
+                    if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] > under_limit:
+                        entities[entity][characteristic_in_board] += upgrade_step
+    
+    return entities
+
 ## COMBATS ##
 
 def cruiser_attack (attack_orders, board, entities):
@@ -698,23 +780,23 @@ def movement (movement_orders, board, entities):
     specification : Gerry Longfils (v.2 17/03/2020)
     implementation : Gerry Longfils (v.1 17/03/2020)
     """
+    list_movement=[]
+    
+    #check if there's a movement order
+    for x in range(len(movement_orders)):
+        list_movement+=movement_orders[x].split(':')
+    
+    for check_list in range(len(list_movement)):
+        if list_movement[check_list][0]=='@':            
 
-    if movement_orders != []:
-        team = movement_orders[-1]
-        del movement_orders[-1]
-
-    for order in movement_orders:
-
-        order = order.split(':@')
-        vessel_name = order[0]
-        coordinates = order[1]
-        coordinates = coordinates.split('-')
-        coordinates = (int(coordinates[0]), int(coordinates[1]))
-
-        if coordinates[0] - entities[vessel_name]['coordinates'][0] < 2 and coordinates[1] - entities[vessel_name]['coordinates'][1] < 2:
-
-            entities[vessel_name]['coordinates'] = coordinates
-
+            #update entities
+            coordinate=list_movement[check_list][1:]
+            coordinate=coordinate.split('-')
+            tuples=(int(coordinate[0]),int(coordinate[1]))
+            if tuples[0]-entities[list_movement[check_list-1]]['coordinates'][0]<2 and tuples[1]-entities[list_movement[check_list-1]]['coordinates'][1]<2 and entities[list_movement[check_list-1]]['team']==movement_orders[-1]:
+                entities[list_movement[check_list-1]]['coordinates']=tuples
+                if entities[list_movement[check_list-1]]['type']=='cruiser':
+                    entities[list_movement[check_list-1]]['available_energy']-=10
     return entities
 
 ## TRANSFERTS D'ÉNERGIE ##
