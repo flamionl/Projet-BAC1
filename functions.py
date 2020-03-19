@@ -409,13 +409,16 @@ def get_IA_orders (board, entities):
 
 ## CRÉATION D'UNITÉS ##
 
-def create_vessel (creation_orders, entities):
+def create_vessel (creation_orders, entities, storage_capacity, fire_range, moving_cost):
     """Creates a vessel (cruiser or tanker)
 
     Parameters
     ----------
     creation_orders : orders of creation of the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    storage_capacity : current storage capacity of the tankers (int)
+    fire_range : current fire range of the cruisers (int)
+    moving_cost : current moving cost of the cruisers (int)
 
     Returns
     -------
@@ -449,19 +452,33 @@ def create_vessel (creation_orders, entities):
 
             if team == 'blue':
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team,
-                                            'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
+                                            'storage_capacity': storage_capacity, 'available_energy': 600, 'structure_points': 50}
+
+                #Removes energy from the hub following the creation of a tanker
+                entities['hub_blue']['available_energy'] -= 1000
+
             elif team == 'red':
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team,
-                                            'storage_capacity': 600, 'available_energy': 600, 'structure_points': 50}
+                                            'storage_capacity': storage_capacity, 'available_energy': 600, 'structure_points': 50}
+
+                #Removes energy from the hub following the creation of a tanker
+                entities['hub_red']['available_energy'] -= 1000
 
         elif vessel_type == 'cruiser':
 
             if team == 'blue':
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 100,
-                                            'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
+                                            'available_energy': 400, 'moving_cost': moving_cost, 'fire_range': fire_range, 'storage_capacity': 400}
+
+                #Removes energy from the hub following the creation of a cruiser
+                entities['hub_blue']['available_energy'] -= 750
+
             elif team == 'red':
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 100,
-                                            'available_energy': 400, 'moving_cost': 10, 'fire_range': 1, 'storage_capacity': 400}
+                                            'available_energy': 400, 'moving_cost': moving_cost, 'fire_range': fire_range, 'storage_capacity': 400}
+
+                #Removes energy from the hub following the creation of a cruiser
+                entities['hub_red']['available_energy'] -= 750
 
     return entities
 
