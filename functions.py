@@ -467,17 +467,23 @@ def create_vessel (creation_orders, entities):
 
 ## UPGRADES ##
 
-def upgrade (upgrade_orders, entities):
+def upgrade (upgrade_orders, entities, moving_cost_cruiser, storage_capacity_tanker, fire_range_cruiser):
     """Checks if there is enough energy in the hub. Upgrades the entity if there is enough.
 
     Parameters
     ----------
     upgrade_orders : orders of upgrade of the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    moving_cost_cruiser: the current moving cost of the cruiser (int)
+    storage_capacity_tanker: the current storage capacity of the tanker (int)
+    fire_range_cruiser: the current fire range of the cruiser (int)
 
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    moving_cost_cruiser: the actualised moving cost of the cruiser (int)
+    storage_capacity_tanker: the actualised storage capacity of the tanker (int)
+    fire_range_cruiser: the actualised fire range of the cruiser (int)
 
     Version
     -------
@@ -535,7 +541,7 @@ def upgrade (upgrade_orders, entities):
             if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['moving_cost']>5:
                         entities[good_entities]['moving_cost']-=1
-                    MovingCostCruiser=entities[good_entities]['moving_cost']
+                    moving_cost_cruiser=entities[good_entities]['moving_cost']
         flag=0
 
 
@@ -550,7 +556,7 @@ def upgrade (upgrade_orders, entities):
             if  flag==1 and entities[good_entities]['type']=='tanker'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['storage_capacity']<1200:
                         entities[good_entities]['storage_capacity']+=(100/2)
-                    StorageCapacityTanker=entities[good_entities]['storage_capacity']
+                    storage_capacity_tanker=entities[good_entities]['storage_capacity']
         flag=0
 
 
@@ -565,10 +571,10 @@ def upgrade (upgrade_orders, entities):
             if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['fire_range']<5:
                         entities[good_entities]['fire_range']+=1
-                    FireRangeCruiser=entities[good_entities]['fire_range']
+                    fire_range_cruiser=entities[good_entities]['fire_range']
         flag=0
 
-    return entities,MovingCostCruiser,StorageCapacityTanker,FireRangeCruiser
+    return entities,moving_cost_cruiser,storage_capacity_tanker,fire_range_cruiser
 
 
 ## COMBATS ##
