@@ -30,14 +30,20 @@ def game (file_path, player_1, player_2):
     #Initialising turn variable
     turn = 0
 
+    #Setting the variables
+    storage_capacity_blue, storage_capacity_red = 600, 600
+    fire_range_blue, fire_range_red = 1, 1
+    moving_cost_blue, moving_cost_red = 10, 10
+
     while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
+        print(entities)
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
-            order = str(input('Quels sont vos ordres joueur 1 :'))
+            order = input('Quels sont vos ordres joueur 1 : ')
         else :
             order = get_IA_orders(board,entities)
 
@@ -46,7 +52,7 @@ def game (file_path, player_1, player_2):
 
         #Checking player_2's type and getting orders
         if player_2 == 'human' :
-            order = str(input('Quels sont vos ordres joueur 2 :'))
+            order = input('Quels sont vos ordres joueur 2 : ')
         else :
             order = get_IA_orders(board,entities)
 
@@ -54,12 +60,12 @@ def game (file_path, player_1, player_2):
         creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(order,'red')
 
         #Creation vessel phase
-        entities = create_vessel(creation_orders_blue,entities)
-        entities = create_vessel(creation_orders_red,entities)
+        entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = create_vessel(creation_orders_blue, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
+        entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = create_vessel(creation_orders_red, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
 
         #upgrade entites phase
-        entities = upgrade(upgrade_orders_blue,entities)
-        entities = upgrade(upgrade_orders_red,entities)
+        entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = upgrade(upgrade_orders_blue, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
+        entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = upgrade(upgrade_orders_red, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
 
         #attack phase
         entities = cruiser_attack(attack_orders_blue,board,entities)
@@ -409,30 +415,42 @@ def get_IA_orders (board, entities):
 
 ## CRÉATION D'UNITÉS ##
 
-def create_vessel (creation_orders, entities, storage_capacity, fire_range, moving_cost):
+def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red):
     """Creates a vessel (cruiser or tanker)
 
     Parameters
     ----------
-    creation_orders : orders of creation of the player (list of str)
+    creation_orders : orders of creation (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    storage_capacity : current storage capacity of the tankers (int)
-    fire_range : current fire range of the cruisers (int)
-    moving_cost : current moving cost of the cruisers (int)
+    storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
+    fire_range_blue : current fire range of the cruisers of the team blue (int)
+    moving_cost_blue : current moving cost of the cruisers of the team blue (int)
+    storage_capacity_red : current storage capacity of the tankers of the team red (int)
+    fire_range_red : current fire range of the cruisers of the team red (int)
+    moving_cost_red : current moving cost of the cruisers of the team red (int)
 
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
+    fire_range_blue : current fire range of the cruisers of the team blue (int)
+    moving_cost_blue : current moving cost of the cruisers of the team blue (int)
+    storage_capacity_red : current storage capacity of the tankers of the team red (int)
+    fire_range_red : current fire range of the cruisers of the team red (int)
+    moving_cost_red : current moving cost of the cruisers of the team red (int)
 
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
     """
     #Get the name of the team in the creation order list
-    team = creation_orders[-1]
+    if creation_orders != []:
+        team = creation_orders[-1]
+        del creation_orders[-1]
+        hub_name = 'hub_%s' % team
 
     #Split orders in two strings
-    for order in creation_orders[0:-1]:
+    for order in creation_orders:
 
         order = order.split(':')
         vessel_name = order[0]
@@ -448,151 +466,154 @@ def create_vessel (creation_orders, entities, storage_capacity, fire_range, movi
                 coordinates_hub_red = entities[entity]['coordinates']
 
         #Add the vessel in the dictionary of entities according to their type and their team
-        if vessel_type == 'tanker':
+        if vessel_type == 'tanker' and entities[hub_name]['available_energy'] >= 1000:
 
             if team == 'blue':
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team,
-                                            'storage_capacity': storage_capacity, 'available_energy': 600, 'structure_points': 50}
+                                            'storage_capacity': storage_capacity_blue, 'available_energy': 600, 'structure_points': 50}
 
                 #Removes energy from the hub following the creation of a tanker
                 entities['hub_blue']['available_energy'] -= 1000
 
             elif team == 'red':
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team,
-                                            'storage_capacity': storage_capacity, 'available_energy': 600, 'structure_points': 50}
+                                            'storage_capacity': storage_capacity_red, 'available_energy': 600, 'structure_points': 50}
 
                 #Removes energy from the hub following the creation of a tanker
                 entities['hub_red']['available_energy'] -= 1000
 
-        elif vessel_type == 'cruiser':
+        elif vessel_type == 'cruiser' and entities[hub_name]['available_energy'] >= 750:
 
             if team == 'blue':
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'cruiser', 'team': team, 'structure_points': 100,
-                                            'available_energy': 400, 'moving_cost': moving_cost, 'fire_range': fire_range, 'storage_capacity': 400}
+                                            'available_energy': 400, 'moving_cost': moving_cost_blue, 'fire_range': fire_range_blue, 'storage_capacity': 400}
 
                 #Removes energy from the hub following the creation of a cruiser
                 entities['hub_blue']['available_energy'] -= 750
 
             elif team == 'red':
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'cruiser', 'team': team, 'structure_points': 100,
-                                            'available_energy': 400, 'moving_cost': moving_cost, 'fire_range': fire_range, 'storage_capacity': 400}
+                                            'available_energy': 400, 'moving_cost': moving_cost_red, 'fire_range': fire_range_red, 'storage_capacity': 400}
 
                 #Removes energy from the hub following the creation of a cruiser
                 entities['hub_red']['available_energy'] -= 750
 
-    return entities
+    return entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red
 
 ## UPGRADES ##
 
-def upgrade (upgrade_orders, entities, moving_cost_cruiser, storage_capacity_tanker, fire_range_cruiser):
-    """Checks if there is enough energy in the hub. Upgrades the entity if there is enough.
+def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red):
+    """Upgrades the characteristic of an entity as asked in the orders
 
     Parameters
     ----------
     upgrade_orders : orders of upgrade of the player (list of str)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    moving_cost_cruiser: the current moving cost of the cruiser (int)
-    storage_capacity_tanker: the current storage capacity of the tanker (int)
-    fire_range_cruiser: the current fire range of the cruiser (int)
+    storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
+    fire_range_blue : current fire range of the cruisers of the team blue (int)
+    moving_cost_blue : current moving cost of the cruisers of the team blue (int)
+    storage_capacity_red : current storage capacity of the tankers of the team red (int)
+    fire_range_red : current fire range of the cruisers of the team red (int)
+    moving_cost_red : current moving cost of the cruisers of the team red (int)
 
     Returns
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    moving_cost_cruiser: the actualised moving cost of the cruiser (int)
-    storage_capacity_tanker: the actualised storage capacity of the tanker (int)
-    fire_range_cruiser: the actualised fire range of the cruiser (int)
+    storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
+    fire_range_blue : current fire range of the cruisers of the team blue (int)
+    moving_cost_blue : current moving cost of the cruisers of the team blue (int)
+    storage_capacity_red : current storage capacity of the tankers of the team red (int)
+    fire_range_red : current fire range of the cruisers of the team red (int)
+    moving_cost_red : current moving cost of the cruisers of the team red (int)
 
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
-    implementation : Gerry Longfils (v.1 12/03/2020)
+    implementation : Mathis Huet & Amaury Van Pevenaeyge (v.2 19/03/2020)
     """
 
-    #variable for the increment
-    ranges=0
-    move=0
-    regeneration=0
-    storage=0
-    flag=0
-    liste=[]
+    # Getting back and deleting the name of the team from the list if the list is not empty
+    if upgrade_orders != []:
+        team = upgrade_orders[-1]
+        del upgrade_orders[-1]
+        hub_name = 'hub_%s' % team
 
-    #split the ':' and del each key word upgrade
-    for index in range(len(upgrade_orders)):
-        liste+=upgrade_orders[index].split(':')
+    for order in upgrade_orders:
 
-    for count in range(len(liste)):
-        if liste[count]=='range':
-            ranges+=1
+        # Treating the order
+        order = order.split(':')
+        characteristic = order[1]
 
-        elif liste[count]=='move':
-            move+=1
+        # Setting the variables depending on the type of upgrade
+        if characteristic == 'regeneration':
+            entity_type = 'hub'
+            upgrade_cost = 750
+            characteristic_in_board = 'regeneration_rate'
+            upper_limit = 50
+            upgrade_step = 5
 
-        elif liste[count]=='regeneration':
-            regeneration+=1
+        elif characteristic == 'storage':
+            entity_type = 'tanker'
+            upgrade_cost = 600
+            characteristic_in_board = 'storage_capacity'
+            upper_limit = 1200
+            upgrade_step = 100
+        
+        elif characteristic == 'range':
+            entity_type = 'cruiser'
+            upgrade_cost = 400
+            characteristic_in_board = 'fire_range'
+            upper_limit = 5
+            upgrade_step = 1
+        
+        elif characteristic == 'move':
+            entity_type = 'cruiser'
+            upgrade_cost = 500
+            characteristic_in_board = 'moving_cost'
+            under_limit = 5
+            upgrade_step = -1
+        
+        if characteristic == 'regeneration' or characteristic == 'storage' or characteristic == 'range':
 
-        elif liste[count]=='blue' or liste[count]=='red':
-            team=liste[count]
+            # Checking if there is enough available energy in the team's hub
+            if entities[hub_name]['available_energy'] >= upgrade_cost:
+                entities[hub_name]['available_energy'] -= upgrade_cost
 
-        else:
-            storage+=1
+                # Upgrading
+                for entity in entities:
+                    if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] < upper_limit:
+                        entities[entity][characteristic_in_board] += upgrade_step
 
-    #update the regeneration range for the hub
-    for occurence in range(regeneration):
-        for good_entities in entities:
-            if entities[good_entities]['type']=='hub' and entities[good_entities]['team']==team:
-                if entities[good_entities]['available_energy']-750>0 and entities[good_entities]['regeneration_rate']<50:
-                    entities[good_entities]['regeneration_rate']+=5
-                    entities[good_entities]['available_energy']-=750
-                    
+                # Upgrading the characteristic for the future vessels created depending on the team
+                if team == 'blue':
+                    if characteristic == 'storage':
+                        storage_capacity_blue += upgrade_step
+                    elif characteristic == 'range':
+                        fire_range_blue += upgrade_step
+                elif team == 'red':
+                    if characteristic == 'storage':
+                        storage_capacity_red += upgrade_step
+                    elif characteristic == 'range':
+                        fire_range_red += upgrade_step
 
+        elif characteristic == 'move':
+            # Checking if there is enough available energy in the team's hub
+            if entities[hub_name]['available_energy'] >= upgrade_cost:
+                entities[hub_name]['available_energy'] -= upgrade_cost
 
-
-    #update the move cost for the cruiser
-    for occurence in range(move):
-        for is_hub in entities:
-            if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-500>=0  :
-                entities[is_hub]['available_energy']-=500
-                flag=1
-        #search the good entities for updating
-        for good_entities in entities :
-            if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
-                    if entities[good_entities]['moving_cost']>5:
-                        entities[good_entities]['moving_cost']-=1
-                    moving_cost_cruiser=entities[good_entities]['moving_cost']
-        flag=0
-
-
-    #update the storage for the tankers
-    for occurence in range(storage):
-        for is_hub in entities:
-            if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-600>=0  :
-                entities[is_hub]['available_energy']-=600
-                flag=1
-        #search the good entities for updating
-        for good_entities in entities :
-            if  flag==1 and entities[good_entities]['type']=='tanker'  and entities[good_entities]['team']==team:
-                    if entities[good_entities]['storage_capacity']<1200:
-                        entities[good_entities]['storage_capacity']+=(100/2)
-                    storage_capacity_tanker=entities[good_entities]['storage_capacity']
-        flag=0
-
-
-    #update the fire ranges for the cruisers
-    for occurence in range(ranges):
-        for is_hub in entities:
-            if entities[is_hub]['type']=='hub' and entities[is_hub]['team']==team and entities[is_hub]['available_energy']-500>=0  :
-                entities[is_hub]['available_energy']-=500
-                flag=1
-        #search for the good entities for updating
-        for good_entities in entities :
-            if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
-                    if entities[good_entities]['fire_range']<5:
-                        entities[good_entities]['fire_range']+=1
-                    fire_range_cruiser=entities[good_entities]['fire_range']
-        flag=0
-
-    return entities,moving_cost_cruiser,storage_capacity_tanker,fire_range_cruiser
-
+                # Upgrading
+                for entity in entities:
+                    if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] > under_limit:
+                        entities[entity][characteristic_in_board] += upgrade_step
+                        print(entities[entity][characteristic_in_board])
+            
+                # Upgrading the characteristic for the future cruisers created
+                if team == 'blue':
+                    moving_cost_blue += upgrade_step
+                elif team == 'red':
+                    moving_cost_red += upgrade_step
+    
+    return entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red
 
 ## COMBATS ##
 
@@ -717,23 +738,32 @@ def movement (movement_orders, board, entities):
     specification : Gerry Longfils (v.2 17/03/2020)
     implementation : Gerry Longfils (v.1 17/03/2020)
     """
-    list_movement=[]
-    
-    #check if there's a movement order
-    for x in range(len(movement_orders)):
-        list_movement+=movement_orders[x].split(':')
-    
-    for check_list in range(len(list_movement)):
-        if list_movement[check_list][0]=='@':            
+    # Getting back and deleting the name of the team from the list if the list is not empty
+    if movement_orders != []:
+        team = movement_orders[-1]
+        del movement_orders[-1]
 
-            #update entities
-            coordinate=list_movement[check_list][1:]
-            coordinate=coordinate.split('-')
-            tuples=(int(coordinate[0]),int(coordinate[1]))
-            if tuples[0]-entities[list_movement[check_list-1]]['coordinates'][0]<2 and tuples[1]-entities[list_movement[check_list-1]]['coordinates'][1]<2 and entities[list_movement[check_list-1]]['team']==movement_orders[-1]:
-                entities[list_movement[check_list-1]]['coordinates']=tuples
-                if entities[list_movement[check_list-1]]['type']=='cruiser':
-                    entities[list_movement[check_list-1]]['available_energy']-=10
+    for order in movement_orders:
+
+        #Treating the order
+        order = order.split(':@')
+        vessel_name = order[0]
+        coordinates = order[1]
+        coordinates = coordinates.split('-')
+        coordinates = (int(coordinates[0]), int(coordinates[1]))
+        distance = get_distance(coordinates, entities[vessel_name]['coordinates'])
+
+        #Actualise the coordinates of the vessel
+        if distance <= 1 and team == entities[vessel_name]['team']:
+
+            entities[vessel_name]['coordinates'] = coordinates
+
+            #If the vessel is a cruiser, remove the moving cost from his available energy
+            if entities[vessel_name]['type'] == 'cruiser':
+
+                # * distance in order to fix the case in which the player wants to move 
+                entities[vessel_name]['available_energy'] -= 10 * distance
+
     return entities
 
 ## TRANSFERTS D'ÉNERGIE ##
@@ -876,11 +906,10 @@ def hubs_regeneration (entities):
         if 'hub' in entity :
 
             #Computing the amount of energy to add to the hub
-            entities[entity]['available_energy'] += (entities[entity]['available_energy']/100) *  entities[entity]['regeneration_rate']
+            entities[entity]['available_energy'] += (entities[entity]['storage_capacity']/100) *  entities[entity]['regeneration_rate']
 
             #Set energy to 1500 if there is more than 1500
-            if entities[entity]['available_energy'] > 1500 :
-                entities[entity]['available_energy'] = 1500
-
+            if entities[entity]['available_energy'] > entities[entity]['storage_capacity'] :
+                entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
