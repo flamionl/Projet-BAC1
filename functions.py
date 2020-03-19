@@ -637,35 +637,6 @@ def cruiser_attack (attack_orders, board, entities):
     """
 
     #Getting the team of the vessel which is attacking
-    if attack_orders != [] :
-        team = attack_orders[-1]
-
-        #Getting info from the attack_orders
-        for order in attack_orders :
-            splited_order = order.split(':')
-            vessel_name = splited_order[0]
-            line = int(splited_order[1].split('-')[0][1:])
-            column = int(splited_order[1].split('-')[1].split('=')[0])
-            damages = int(splited_order[1].split('=')[1])
-
-            #Getting coordinates of the ship that attacks
-            vessel_coordinates = entities[vessel_name]['coordinates']
-
-            #Checking if there is an entity on the case
-            if board[(line,column)] != [] :
-
-                #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-                if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
-
-                    #Remove the energy needed to attack to case
-                    entities[vessel_name]['available_energy'] -= damages*10
-
-                    #Remove structures_points to the entities on the case
-                    for entity in board[(line,column)] :
-                        if entities[entity]['type'] != 'peak' :
-                            entities[entity]['structure_points'] -= damages
-
-    return entities
 
 def get_distance (coordinates_1, coordinates_2):
     """ Computes the distance between 2 coordinates
@@ -685,7 +656,7 @@ def get_distance (coordinates_1, coordinates_2):
     implementation : Louis Flamion (v.1 11/03/2020)
     """
     #Manthan's formule
-    distance = abs(coordinates_1[1]-coordinates_2[1]) + abs(coordinates_1[0]-coordinates_2[0])
+    distance = max(abs(coordinates_1[1]-coordinates_2[1]),abs(coordinates_1[0]-coordinates_2[0]))
 
     return distance
 
@@ -913,3 +884,4 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
+
