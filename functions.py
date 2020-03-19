@@ -685,7 +685,7 @@ def get_distance (coordinates_1, coordinates_2):
     implementation : Louis Flamion (v.1 11/03/2020)
     """
     #Manthan's formule
-    distance = abs(coordinates_1[1]-coordinates_2[1]) + abs(coordinates_1[0]-coordinates_2[0])
+    distance = max(abs(coordinates_1[1]-coordinates_2[1]),abs(coordinates_1[0]-coordinates_2[0]))
 
     return distance
 
