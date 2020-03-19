@@ -520,6 +520,7 @@ def upgrade (upgrade_orders, entities):
                 if entities[good_entities]['available_energy']-750>0 and entities[good_entities]['regeneration_rate']<50:
                     entities[good_entities]['regeneration_rate']+=5
                     entities[good_entities]['available_energy']-=750
+                    
 
 
 
@@ -534,6 +535,7 @@ def upgrade (upgrade_orders, entities):
             if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['moving_cost']>5:
                         entities[good_entities]['moving_cost']-=1
+                    MovingCostCruiser=entities[good_entities]['moving_cost']
         flag=0
 
 
@@ -548,6 +550,7 @@ def upgrade (upgrade_orders, entities):
             if  flag==1 and entities[good_entities]['type']=='tanker'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['storage_capacity']<1200:
                         entities[good_entities]['storage_capacity']+=(100/2)
+                    StorageCapacityTanker=entities[good_entities]['storage_capacity']
         flag=0
 
 
@@ -562,9 +565,10 @@ def upgrade (upgrade_orders, entities):
             if  flag==1 and entities[good_entities]['type']=='cruiser'  and entities[good_entities]['team']==team:
                     if entities[good_entities]['fire_range']<5:
                         entities[good_entities]['fire_range']+=1
+                    FireRangeCruiser=entities[good_entities]['fire_range']
         flag=0
 
-    return entities
+    return entities,MovingCostCruiser,StorageCapacityTanker,FireRangeCruiser
 
 
 ## COMBATS ##
