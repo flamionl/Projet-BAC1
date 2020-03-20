@@ -451,7 +451,7 @@ def get_IA_orders (board, entities,turn,ship_list):
         ship_coord_x = entities[ship_name]['coordinates'][1]
         coordinates_y=str(random.randint(ship_coord_y-1,ship_coord_y+1))
         coordinates_x=str(random.randint(ship_coord_x-1,ship_coord_x+1))
-        order = ship_name+':@'+coordinates_x+'-'+coordinates_y
+        order = ship_name+':@'+coordinates_y+'-'+coordinates_x
         print(order)
         return order,ship_list
     #generate attack orders
