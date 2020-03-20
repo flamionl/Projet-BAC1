@@ -90,7 +90,6 @@ def game (file_path, player_1, player_2):
 
         entities= hubs_regeneration(entities)
         board = actualise_board(board,entities)
-        print(entities)
 
         #Increment turn variable
         turn +=1
@@ -413,6 +412,9 @@ def get_IA_orders (board, entities,turn,ship_list):
     -------
     specification : Louis Flamion (v.1 22/02/2020)
     """
+    for ship in ship_list :
+        if ship not in entities :
+            del ship_list[ship_list.index(ship)]
     #Initialising list with the name and the type that the IA
 
     #Initialising dimensions of the map
