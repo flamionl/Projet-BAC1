@@ -648,15 +648,15 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                         entities[entity][characteristic_in_board] += upgrade_step
 
                 # Upgrading the characteristic for the future vessels created depending on the team
-                if team == 'blue' and entities[entity]['type'] == entity_type and entities[entity][characteristic_in_board] < upper_limit:
-                    if characteristic == 'storage':
+                if team == 'blue':
+                    if characteristic == 'storage' and storage_capacity_blue < upper_limit:
                         storage_capacity_blue += upgrade_step
-                    elif characteristic == 'range':
+                    elif characteristic == 'range' and fire_range_blue < upper_limit:
                         fire_range_blue += upgrade_step
-                elif team == 'red' and entities[entity]['type'] == entity_type and entities[entity][characteristic_in_board] < upper_limit:
-                    if characteristic == 'storage':
+                elif team == 'red' and entities[entity][characteristic_in_board] < upper_limit:
+                    if characteristic == 'storage' and storage_capacity_red < upper_limit:
                         storage_capacity_red += upgrade_step
-                    elif characteristic == 'range':
+                    elif characteristic == 'range' and fire_range_red < upper_limit:
                         fire_range_red += upgrade_step
 
         elif characteristic == 'move':
@@ -670,9 +670,9 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                         entities[entity][characteristic_in_board] += upgrade_step
 
                 # Upgrading the characteristic for the future cruisers created
-                if team == 'blue' and entities[entity][characteristic_in_board] > under_limit:
+                if team == 'blue' and moving_cost_blue > under_limit:
                     moving_cost_blue += upgrade_step
-                elif team == 'red' and entities[entity][characteristic_in_board] > under_limit:
+                elif team == 'red' and moving_cost_red > under_limit:
                     moving_cost_red += upgrade_step
 
     return entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red
