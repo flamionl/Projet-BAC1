@@ -37,7 +37,7 @@ def game (file_path, player_1, player_2):
     fire_range_blue, fire_range_red = 1, 1
     moving_cost_blue, moving_cost_red = 10, 10
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 10000 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
@@ -481,6 +481,7 @@ def get_IA_orders (board, entities,turn,ship_list):
         order=ship_name+':<'+coordinates_y+"-"+coordinates_x
         print(order)
         return order,ship_list
+        
 ## CRÉATION D'UNITÉS ##
 
 def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red):
@@ -538,14 +539,14 @@ def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_
 
             if team == 'blue':
                 entities[vessel_name] = {'coordinates': coordinates_hub_blue, 'type': 'tanker', 'team': team,
-                                            'storage_capacity': storage_capacity_blue, 'available_energy': 600, 'structure_points': 50}
+                                            'storage_capacity': storage_capacity_blue, 'available_energy': storage_capacity_blue, 'structure_points': 50}
 
                 #Removes energy from the hub following the creation of a tanker
                 entities['hub_blue']['available_energy'] -= 1000
 
             elif team == 'red':
                 entities[vessel_name] = {'coordinates': coordinates_hub_red, 'type': 'tanker', 'team': team,
-                                            'storage_capacity': storage_capacity_red, 'available_energy': 600, 'structure_points': 50}
+                                            'storage_capacity': storage_capacity_red, 'available_energy': storage_capacity_red, 'structure_points': 50}
 
                 #Removes energy from the hub following the creation of a tanker
                 entities['hub_red']['available_energy'] -= 1000
@@ -640,12 +641,12 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
             characteristic_in_board = 'moving_cost'
             under_limit = 5
             upgrade_step = -1
+        
+        # Checking if there is enough available energy in the team's hub
+        if entities[hub_name]['available_energy'] >= upgrade_cost:
+            entities[hub_name]['available_energy'] -= upgrade_cost
 
-        if characteristic == 'regeneration' or characteristic == 'storage' or characteristic == 'range':
-
-            # Checking if there is enough available energy in the team's hub
-            if entities[hub_name]['available_energy'] >= upgrade_cost:
-                entities[hub_name]['available_energy'] -= upgrade_cost
+            if characteristic == 'regeneration' or characteristic == 'storage' or characteristic == 'range':
 
                 # Upgrading
                 for entity in entities:
@@ -664,10 +665,7 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                     elif characteristic == 'range' and fire_range_red < upper_limit:
                         fire_range_red += upgrade_step
 
-        elif characteristic == 'move':
-            # Checking if there is enough available energy in the team's hub
-            if entities[hub_name]['available_energy'] >= upgrade_cost:
-                entities[hub_name]['available_energy'] -= upgrade_cost
+            elif characteristic == 'move':
 
                 # Upgrading
                 for entity in entities:
