@@ -447,8 +447,10 @@ def get_IA_orders (board, entities,turn,ship_list):
     #generate movement orders
     elif random.random() < .7:
         ship_name=ship_list[random.randint(1,len(ship_list)-1)]
-        coordinates_y=str(random.randint(1,column))
-        coordinates_x=str(random.randint(1,line))
+        ship_coord_y = entities[ship_name]['coordinates'][0]
+        ship_coord_x = entities[ship_name]['coordinates'][1]
+        coordinates_y=str(random.randint(ship_coord_y-1,ship_coord_y+1))
+        coordinates_x=str(random.randint(ship_coord_x-1,ship_coord_x+1))
         order = ship_name+':@'+coordinates_x+'-'+coordinates_y
         print(order)
         return order,ship_list
