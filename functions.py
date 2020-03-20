@@ -817,7 +817,7 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
         distance = get_distance(coordinates, entities[vessel_name]['coordinates'])
 
         #Check if the coordinates of the movement is in the board
-        if int(coordinates[0]) <= nb_lines and int(coordinates[1]) <= nb_columns:
+        if int(coordinates[0]) <= nb_lines or int(coordinates[1]) <= nb_columns:
 
             #Actualise the coordinates of the vessel
             if distance <= 1 and team == entities[vessel_name]['team']:
