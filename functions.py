@@ -29,7 +29,8 @@ def game (file_path, player_1, player_2):
 
     #Initialising turn variable
     turn = 0
-    ship_list = []
+    ship_list_1 = []
+    ship_list_2 = []
 
     #Setting the variables
     storage_capacity_blue, storage_capacity_red = 600, 600
@@ -39,14 +40,14 @@ def game (file_path, player_1, player_2):
     while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 10000 :
 
         #Priting the board
-        #display_board(board,entities,nb_columns,nb_lines)
+        display_board(board,entities,nb_columns,nb_lines)
 
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
             order = input('Quels sont vos ordres joueur 1 : ')
         else :
-            order,ship_list_1 = get_IA_orders(board,entities,turn,ship_list)
+            order,ship_list_1 = get_IA_orders(board,entities,turn,ship_list_1)
 
 
         #player_1's orders sorting
@@ -56,7 +57,7 @@ def game (file_path, player_1, player_2):
         if player_2 == 'human' :
             order = input('Quels sont vos ordres joueur 2 : ')
         else :
-            order,ship_list_2 = get_IA_orders(board,entities,turn,ship_list)
+            order,ship_list_2 = get_IA_orders(board,entities,turn,ship_list_2)
 
 
         #player_2's orders sorting
@@ -76,8 +77,8 @@ def game (file_path, player_1, player_2):
         entities = remove_destroyed_entities(entities)
 
         #move entities phase
-        entities = movement(movement_orders_blue,board,entities)
-        entities = movement(movement_orders_red,board,entities)
+        entities = movement(movement_orders_blue,board,entities, nb_columns, nb_lines)
+        entities = movement(movement_orders_red,board,entities, nb_columns, nb_lines)
 
         #energy absorption pics for tankers
         entities = energy_absorption(energy_absorption_blue,entities,board)
@@ -653,7 +654,7 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                         storage_capacity_blue += upgrade_step
                     elif characteristic == 'range' and fire_range_blue < upper_limit:
                         fire_range_blue += upgrade_step
-                elif team == 'red' and entities[entity][characteristic_in_board] < upper_limit:
+                elif team == 'red' and storage_capacity_red < upper_limit:
                     if characteristic == 'storage' and storage_capacity_red < upper_limit:
                         storage_capacity_red += upgrade_step
                     elif characteristic == 'range' and fire_range_red < upper_limit:
