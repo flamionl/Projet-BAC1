@@ -36,18 +36,18 @@ def game (file_path, player_1, player_2):
     fire_range_blue, fire_range_red = 1, 1
     moving_cost_blue, moving_cost_red = 10, 10
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 10000 :
 
         #Priting the board
-        display_board(board,entities,nb_columns,nb_lines)
+        #display_board(board,entities,nb_columns,nb_lines)
 
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
             order = input('Quels sont vos ordres joueur 1 : ')
         else :
-            order,ship_list = get_IA_orders(board,entities,turn,ship_list)
-            print('BLUE'+str(ship_list))
+            order,ship_list_1 = get_IA_orders(board,entities,turn,ship_list)
+
 
         #player_1's orders sorting
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(order,'blue')
@@ -56,8 +56,7 @@ def game (file_path, player_1, player_2):
         if player_2 == 'human' :
             order = input('Quels sont vos ordres joueur 2 : ')
         else :
-            order,ship_list = get_IA_orders(board,entities,turn,ship_list)
-            print('Red'+str(ship_list))
+            order,ship_list_2 = get_IA_orders(board,entities,turn,ship_list)
 
 
         #player_2's orders sorting
@@ -457,7 +456,7 @@ def get_IA_orders (board, entities,turn,ship_list):
         ship_name=ship_list[random.randint(0,len(ship_list)-1)]
         coordinates_y=str(random.randint(1,column))
         coordinates_x=str(random.randint(1,line))
-        damages=str(random.randint(1,100))
+        damages=str(random.randint(1,40))
         order = ship_name+':*'+coordinates_y+'-'+coordinates_x+'='+damages
         print(order)
         return order,ship_list
@@ -466,7 +465,7 @@ def get_IA_orders (board, entities,turn,ship_list):
     elif random.random() <.05:
         giver = ship_list[random.randint(0,len(ship_list)-1)]
         recever = ship_list[random.randint(0,len(ship_list)-1)]
-        order = giver+':<'+recever
+        order = giver+':>'+recever
         print(order)
         return order,ship_list
     #energy abosorption
@@ -703,6 +702,7 @@ def cruiser_attack (attack_orders, board, entities):
     #Getting the team of the vessel which is attacking
     if attack_orders != [] :
         team = attack_orders[-1]
+        del attack_orders[-1]
 
         #Getting info from the attack_orders
         for order in attack_orders :
@@ -716,7 +716,7 @@ def cruiser_attack (attack_orders, board, entities):
             vessel_coordinates = entities[vessel_name]['coordinates']
 
             #Checking if there is an entity on the case
-            if board[(line,column)] != [] :
+            if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
 
                 #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
                 if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
