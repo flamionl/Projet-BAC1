@@ -29,6 +29,7 @@ def game (file_path, player_1, player_2):
 
     #Initialising turn variable
     turn = 0
+    ship_list = []
 
     #Setting the variables
     storage_capacity_blue, storage_capacity_red = 600, 600
@@ -39,13 +40,14 @@ def game (file_path, player_1, player_2):
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
-        print(entities)
+
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
             order = input('Quels sont vos ordres joueur 1 : ')
         else :
-            order = get_IA_orders(board,entities)
+            order,ship_list = get_IA_orders(board,entities,turn,ship_list)
+            print('BLUE'+str(ship_list))
 
         #player_1's orders sorting
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(order,'blue')
@@ -54,7 +56,9 @@ def game (file_path, player_1, player_2):
         if player_2 == 'human' :
             order = input('Quels sont vos ordres joueur 2 : ')
         else :
-            order = get_IA_orders(board,entities)
+            order,ship_list = get_IA_orders(board,entities,turn,ship_list)
+            print('Red'+str(ship_list))
+
 
         #player_2's orders sorting
         creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(order,'red')
@@ -86,6 +90,7 @@ def game (file_path, player_1, player_2):
 
         entities= hubs_regeneration(entities)
         board = actualise_board(board,entities)
+        print(entities)
 
         #Increment turn variable
         turn +=1
@@ -392,7 +397,7 @@ def sort_orders (orders, team):
 
     return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders
 
-def get_IA_orders (board, entities):
+def get_IA_orders (board, entities,turn,ship_list):
     """ Generates the orders of the IA
 
     Parameters
@@ -408,11 +413,70 @@ def get_IA_orders (board, entities):
     -------
     specification : Louis Flamion (v.1 22/02/2020)
     """
-    #Defines the action to do
-    action_number = random.randint(0,100)
-    if action_number <= 60 :
-        return
+    #Initialising list with the name and the type that the IA
 
+    #Initialising dimensions of the map
+    column = 12
+    line = 14
+    #Creating ship for the first turn
+    if turn <=1 :
+        ship_name = str(random.randint(1,100000000))
+        ship_type = random.choice(['tanker','cruiser'])
+        order=ship_name+':'+ship_type
+        ship_list.append(ship_name)
+        print(order)
+        return order,ship_list
+
+
+    #generate ship orders
+    if random.random() < .05 :
+        ship_name = str(random.randint(1,100000000))
+        ship_type = random.choice(['tanker','cruiser'])
+        order=ship_name+':'+ship_type
+        ship_list.append(ship_name)
+        print(order)
+        return order,ship_list
+
+    #generate upgrade orders
+    elif random.random() < .05:
+        upgrade_choice = random.choice(['regeneration','storage','range','move'])
+        order='upgrade:'+upgrade_choice
+        print(order)
+        return order,ship_list
+
+    #generate movement orders
+    elif random.random() < .7:
+        ship_name=ship_list[random.randint(1,len(ship_list)-1)]
+        coordinates_y=str(random.randint(1,column))
+        coordinates_x=str(random.randint(1,line))
+        order = ship_name+':@'+coordinates_x+'-'+coordinates_y
+        print(order)
+        return order,ship_list
+    #generate attack orders
+    elif random.random() < .10:
+        ship_name=ship_list[random.randint(0,len(ship_list)-1)]
+        coordinates_y=str(random.randint(1,column))
+        coordinates_x=str(random.randint(1,line))
+        damages=str(random.randint(1,100))
+        order = ship_name+':*'+coordinates_y+'-'+coordinates_x+'='+damages
+        print(order)
+        return order,ship_list
+
+    #energy giving
+    elif random.random() <.05:
+        giver = ship_list[random.randint(0,len(ship_list)-1)]
+        recever = ship_list[random.randint(0,len(ship_list)-1)]
+        order = giver+':<'+recever
+        print(order)
+        return order,ship_list
+    #energy abosorption
+    else :
+        ship_name=ship_list[random.randint(0,len(ship_list)-1)]
+        coordinates_y=str(random.randint(1,column))
+        coordinates_x=str(random.randint(1,line))
+        order=ship_name+':<'+coordinates_y+"-"+coordinates_x
+        print(order)
+        return order,ship_list
 ## CRÉATION D'UNITÉS ##
 
 def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red):
@@ -558,21 +622,21 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
             characteristic_in_board = 'storage_capacity'
             upper_limit = 1200
             upgrade_step = 100
-        
+
         elif characteristic == 'range':
             entity_type = 'cruiser'
             upgrade_cost = 400
             characteristic_in_board = 'fire_range'
             upper_limit = 5
             upgrade_step = 1
-        
+
         elif characteristic == 'move':
             entity_type = 'cruiser'
             upgrade_cost = 500
             characteristic_in_board = 'moving_cost'
             under_limit = 5
             upgrade_step = -1
-        
+
         if characteristic == 'regeneration' or characteristic == 'storage' or characteristic == 'range':
 
             # Checking if there is enough available energy in the team's hub
@@ -606,13 +670,13 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                     if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] > under_limit:
                         entities[entity][characteristic_in_board] += upgrade_step
                         print(entities[entity][characteristic_in_board])
-            
+
                 # Upgrading the characteristic for the future cruisers created
                 if team == 'blue':
                     moving_cost_blue += upgrade_step
                 elif team == 'red':
                     moving_cost_red += upgrade_step
-    
+
     return entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red
 
 ## COMBATS ##
@@ -761,7 +825,7 @@ def movement (movement_orders, board, entities):
             #If the vessel is a cruiser, remove the moving cost from his available energy
             if entities[vessel_name]['type'] == 'cruiser':
 
-                # * distance in order to fix the case in which the player wants to move 
+                # * distance in order to fix the case in which the player wants to move
                 entities[vessel_name]['available_energy'] -= 10 * distance
 
     return entities
@@ -913,3 +977,5 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
+
+game('./map.equ','IA','IA')
