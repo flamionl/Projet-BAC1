@@ -648,12 +648,12 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                         entities[entity][characteristic_in_board] += upgrade_step
 
                 # Upgrading the characteristic for the future vessels created depending on the team
-                if team == 'blue' and entities[entity][characteristic_in_board] < upper_limit:
+                if team == 'blue' and entities[entity]['type'] == entity_type and entities[entity][characteristic_in_board] < upper_limit:
                     if characteristic == 'storage':
                         storage_capacity_blue += upgrade_step
                     elif characteristic == 'range':
                         fire_range_blue += upgrade_step
-                elif team == 'red' and entities[entity][characteristic_in_board] < upper_limit:
+                elif team == 'red' and entities[entity]['type'] == entity_type and entities[entity][characteristic_in_board] < upper_limit:
                     if characteristic == 'storage':
                         storage_capacity_red += upgrade_step
                     elif characteristic == 'range':
@@ -668,7 +668,6 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                 for entity in entities:
                     if entities[entity]['type'] == entity_type and entities[entity]['team'] == team and entities[entity][characteristic_in_board] > under_limit:
                         entities[entity][characteristic_in_board] += upgrade_step
-                        print(entities[entity][characteristic_in_board])
 
                 # Upgrading the characteristic for the future cruisers created
                 if team == 'blue' and entities[entity][characteristic_in_board] > under_limit:
