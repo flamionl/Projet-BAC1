@@ -82,7 +82,7 @@ while (moving_cost > 5 or turn < 20) and  regeneration rate == 50 and fire_range
 
 #THIRD PHASE
 
-while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list < 15:
+while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list < 15
 
     if turn is pair
         create 2 cruisers
@@ -102,8 +102,66 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
         create a tanker
         add tanker to defense_tankers list
 
+        for all the tankers in regeneration_tankers list
+
+            if tanker available_energy different from its storage_capacity
+                move tankers towards random peaks
+                absorb the peak
+            else
+                move tanker to the hub
+                transfer its energy to the hub
+
+        end for
+
+        for all the tankers not in regeneration_tankers list
+
+            if the available energy of the tanker equals to its storage_capacity
+                move tanker towards the cruiser which has the less available_energy
+                transfer energy to the cruiser
+
+            else
+                move each tanker towards a differenet peak
+                absorb energy from the peak
+
+        end for
+
     for cruiser in defense_cruisers list
         if an opponent cruiser is in its fire_range
             attack this cruiser
 
 # FOURTH PHASE
+
+while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list == 15
+    create max cruisers
+    add cruiser to attack_cruisers list
+
+    for all the cruisers in attack_cruisers list
+        attack the hub if it's possible
+        move the cruiser towards the hub if the hub is not in its fire_range
+
+    for cruiser in defense_cruisers list
+        if an opponent cruiser is in its fire_range
+            attack this cruiser
+
+        for all the tankers in regeneration_tankers list
+
+            if tanker available_energy different from its storage_capacity
+                move tankers towards random peaks
+                absorb the peak
+            else
+                move tanker to the hub
+                transfer its energy to the hub
+
+        end for
+
+        for all the tankers not in regeneration_tankers list
+
+            if the available energy of the tanker equals to its storage_capacity
+                move tanker towards the cruiser which has the less available_energy
+                transfer energy to the cruiser
+
+            else
+                move each tanker towards a differenet peak
+                absorb energy from the peak
+
+        end for
