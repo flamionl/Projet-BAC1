@@ -6,11 +6,16 @@ output : chain of characters containing orders for the game
 
 #FIRST PHASE
 
-while regeneration_rate < 50
+initialize turn
 
-    create tanker
-    add tanker to regeneration_tankers list
-    upgrade regeneration_rate of the hub
+while regeneration_rate < 50 or turn < 10
+
+    if turn is pair
+        create tanker
+        add tanker to regeneration_tankers list
+    
+    else
+        upgrade regeneration_rate of the hub
 
     for all the tankers in regeneration_tankers list
         if tanker available_energy different from its storage_capacity
@@ -22,11 +27,13 @@ while regeneration_rate < 50
 
     end for
 
+    turn += 1
+
 end while
 
 #SECOND PHASE
 
-initialize turn to 0
+re-initialize the turn
 
 while (turn < 5 or fire_range < 5) and regeneration_rate == 50
 
@@ -41,6 +48,10 @@ while (turn < 5 or fire_range < 5) and regeneration_rate == 50
             absorb the peak
 
     end for
+
+    turn += 1
+
+end while
 
 while (moving_cost > 5 or turn < 20) and  regeneration rate == 50 and fire_range == 5
 
@@ -80,7 +91,13 @@ while (moving_cost > 5 or turn < 20) and  regeneration rate == 50 and fire_range
 
     end for
 
+    turn += 1
+
+end while
+
 #THIRD PHASE
+
+re-initialize the turn
 
 while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list < 15
 
@@ -93,10 +110,15 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
                 move the cruiser on a case where the distance with the hub equals 4
                 if there is another defense cruiser on the same case as the cruiser
                     move the cruiser to another case
+
+            end for
+
         else
             for cruiser in cruisers_list:
                 if distance between hub and cruiser != 4
                     move cruiser to a case where the distance equals 5
+
+            end for
 
     else
         create a tanker
@@ -129,7 +151,15 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
         if an opponent cruiser is in its fire_range
             attack this cruiser
 
+    end for
+
+    turn += 1
+
+end while
+
 # FOURTH PHASE
+
+re-initialize the turn
 
 while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list == 15
     create max cruisers
@@ -138,6 +168,8 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
     for all the cruisers in attack_cruisers list
         attack the hub if it's possible
         move the cruiser towards the hub if the hub is not in its fire_range
+
+    end for
 
     for cruiser in defense_cruisers list
         if an opponent cruiser is in its fire_range
@@ -165,3 +197,9 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
                 absorb energy from the peak
 
         end for
+
+    end for
+
+    turn += 1
+
+end while
