@@ -11,11 +11,11 @@ initialize turn
 while regeneration_rate < 50 or turn < 10
 
     if turn is pair
-        create tanker
-        add tanker to regeneration_tankers list
+        upgrade regeneration_rate of the hub
     
     else
-        upgrade regeneration_rate of the hub
+        create tanker
+        add tanker to regeneration_tankers list
 
     for all the tankers in regeneration_tankers list
         if tanker available_energy different from its storage_capacity
@@ -203,3 +203,4 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
     turn += 1
 
 end while
+"""
