@@ -215,8 +215,8 @@ def display_board (board, entities, nb_columns, nb_lines):
     energy = '●'
 
     #Color used to print the board
-    red_color = '#F76262'
-    green_color = '#25CB2B'
+    color1 = '#000000'
+    color2 = '#ffffff'
 
     #Top border creation
     plateau = case * (nb_columns + 2)+"\n"
@@ -232,12 +232,12 @@ def display_board (board, entities, nb_columns, nb_lines):
             if (column +line) % 2 == 0  :
 
                 #Sets the background color on red
-                background_color = red_color
+                background_color = color1
                 plateau += bg(background_color)
             else :
 
                 #Sets the background color on green
-                background_color = green_color
+                background_color = color2
                 plateau += bg(background_color)
 
                 #If there isn't any entities on the case
@@ -265,15 +265,26 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                     #Looks to the peak's available energy to print it with the right color
                 else :
-                    if entities[board[(line,column)][0]]['available_energy']>=100 :
-                        plateau+= fg('#008000')
-                    elif entities[board[(line,column)][0]]['available_energy']<=75 :
-                        plateau+= fg('#FF4500')
-                    elif entities[board[(line,column)][0]]['available_energy']<=50 :
-                        plateau+= fg('#efd807')
-                    elif entities[board[(line,column)][0]]['available_energy']<=25 :
-                        plateau+= fg('#bb0b0b')
+                    
+                    #Looking at biggest amount of energy of all peaks
+                    energy_amount = []
+                    for entity in entities :
+                        if entities[entity]['type'] == 'peak' :
+                            energy_amount.append(entities[entity]['available_energy'])
+                    
+                    #Getting the biggest amount of energy
+                    max_amount = max(energy_amount)
 
+                    #Attributing colors to the peaks according their percentage of the biggest amount of energy
+                    if entities[board[(line,column)][0]]['available_energy']>=(0.75*max_amount) :
+                        plateau+= fg('#008000')
+                    elif entities[board[(line,column)][0]]['available_energy']<(0.75*max_amount) and entities[board[(line,column)][0]]['available_energy'] >= (0.5*max_amount) :
+                        plateau+= fg('#FF4500')
+                    elif entities[board[(line,column)][0]]['available_energy']<(0.5*max_amount) and entities[board[(line,column)][0]]['available_energy'] >= (0.25*max_amount) :
+                        plateau+= fg('#efd807')
+                    else :
+                        plateau+= fg('#bb0b0b')
+                    
                     #Print an energy on the board
                     plateau += energy
 
@@ -312,15 +323,26 @@ def display_board (board, entities, nb_columns, nb_lines):
                         plateau+=fg('#FF0000')
                     plateau+=tanker
 
-                #Looking for peaks
+                #Looking for colors of the peaks
                 else :
-                    if entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=100 :
+
+                    #Looking at biggest amount of energy of all peaks
+                    energy_amount = []
+                    for entity in entities :
+                        if entities[entity]['type'] == 'peak' :
+                            energy_amount.append(entities[entity]['available_energy'])
+                    
+                    #Getting the biggest amount of energy
+                    max_amount = max(energy_amount)
+
+                    #Attributing colors to the peaks according their percentage of the biggest amount of energy
+                    if entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']>=(0.75*max_amount) :
                         plateau+= fg('#008000')
-                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=75 :
+                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<(0.75*max_amount) and entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy'] >= (0.5*max_amount) :
                         plateau+= fg('#FF4500')
-                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=50 :
+                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<(0.5*max_amount) and entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy'] >= (0.25*max_amount) :
                         plateau+= fg('#efd807')
-                    elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<=25 :
+                    else :
                         plateau+= fg('#bb0b0b')
                     plateau+=energy
 
