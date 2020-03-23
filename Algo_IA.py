@@ -142,7 +142,7 @@ while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and lengt
                 transfer energy to the cruiser
 
             else
-                move each tanker towards a differenet peak
+                move each tanker towards a different peak
                 absorb energy from the peak
 
         end for
