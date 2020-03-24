@@ -41,13 +41,14 @@ def game (file_path, player_1, player_2):
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
+        print('turn : %d' % turn)
 
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
             order = input('Quels sont vos ordres joueur 1 : ')
         else :
-            order,ship_list_1 = get_IA_orders(board,entities,turn,ship_list_1)
+            order,ship_list_1 = get_IA_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
 
 
         #player_1's orders sorting
@@ -57,7 +58,7 @@ def game (file_path, player_1, player_2):
         if player_2 == 'human' :
             order = input('Quels sont vos ordres joueur 2 : ')
         else :
-            order,ship_list_2 = get_IA_orders(board,entities,turn,ship_list_2)
+            order,ship_list_2 = get_IA_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
 
 
         #player_2's orders sorting
@@ -418,13 +419,17 @@ def sort_orders (orders, team):
 
     return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders
 
-def get_IA_orders (board, entities,turn,ship_list):
+def get_IA_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
     """ Generates the orders of the IA
 
     Parameters
     ----------
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    turn : turn of the game (int)
+    ship_list : list of the current ships on the map (list of str)
+    nb_columns : number of columns of the board game (int)
+    nb_lines : number of lines of the board game (int)
 
     Returns
     -------
@@ -434,75 +439,70 @@ def get_IA_orders (board, entities,turn,ship_list):
     -------
     specification : Louis Flamion (v.1 22/02/2020)
     """
+    # Initializing the order
+    order = ''
+
+    # Deleting the destroyed vessel from ship_list
     for ship in ship_list :
         if ship not in entities :
             del ship_list[ship_list.index(ship)]
-    #Initialising list with the name and the type that the IA
 
-    #Initialising dimensions of the map
-    column = 12
-    line = 14
     #Creating ship for the first turn
     if turn <=1 :
         ship_name = str(random.randint(1,100000000))
         ship_type = random.choice(['tanker','cruiser'])
-        order=ship_name+':'+ship_type
+        order += ship_name + ':' + ship_type
         ship_list.append(ship_name)
         print(order)
-        return order,ship_list
+        return order, ship_list
 
 
     #generate ship orders
-    if random.random() < .05 :
+    if random.random() < 0.03 :
         ship_name = str(random.randint(1,100000000))
         ship_type = random.choice(['tanker','cruiser'])
-        order=ship_name+':'+ship_type
+        order += ' ' + ship_name + ':' + ship_type
         ship_list.append(ship_name)
         print(order)
-        return order,ship_list
+        return order, ship_list
 
     #generate upgrade orders
-    elif random.random() < .05:
+    if random.random() < 0.1:
         upgrade_choice = random.choice(['regeneration','storage','range','move'])
-        order='upgrade:'+upgrade_choice
-        print(order)
-        return order,ship_list
+        order += ' upgrade:' + upgrade_choice
 
     #generate movement orders
-    elif random.random() < .7:
-        ship_name=ship_list[random.randint(1,len(ship_list)-1)]
-        ship_coord_y = entities[ship_name]['coordinates'][0]
-        ship_coord_x = entities[ship_name]['coordinates'][1]
-        coordinates_y=str(random.randint(ship_coord_y-1,ship_coord_y+1))
-        coordinates_x=str(random.randint(ship_coord_x-1,ship_coord_x+1))
-        order = ship_name+':@'+coordinates_y+'-'+coordinates_x
-        print(order)
-        return order,ship_list
+    if random.random() < 1.1:  # toujours
+        for iteration in range (1, 5):
+            ship_name=ship_list[random.randint(1,len(ship_list)-1)]
+            ship_coord_y = entities[ship_name]['coordinates'][0]
+            ship_coord_x = entities[ship_name]['coordinates'][1]
+            coordinates_y = str(random.randint(ship_coord_y - 1,ship_coord_y + 1))
+            coordinates_x=str(random.randint(ship_coord_x - 1,ship_coord_x + 1))
+            order += ' ' + ship_name + ':@' + coordinates_y + '-' + coordinates_x
     #generate attack orders
-    elif random.random() < .10:
-        ship_name=ship_list[random.randint(0,len(ship_list)-1)]
-        coordinates_y=str(random.randint(1,column))
-        coordinates_x=str(random.randint(1,line))
-        damages=str(random.randint(1,40))
-        order = ship_name+':*'+coordinates_y+'-'+coordinates_x+'='+damages
-        print(order)
-        return order,ship_list
+    if random.random() < 1.1:  # toujours
+        for iteration in range (1, 3):
+            ship_name = ship_list[random.randint(0, len(ship_list) - 1)]
+            coordinates_y = str(random.randint(1, nb_lines))
+            coordinates_x = str(random.randint(1, nb_columns))
+            damages = str(random.randint(1, 40))
+            order += ' ' + ship_name + ':*' + coordinates_y + '-' + coordinates_x + '=' + damages
 
     #energy giving
-    elif random.random() <.05:
-        giver = ship_list[random.randint(0,len(ship_list)-1)]
-        recever = ship_list[random.randint(0,len(ship_list)-1)]
-        order = giver+':>'+recever
-        print(order)
-        return order,ship_list
+    if random.random() < 1.1:
+        giver = ship_list[random.randint(0,len(ship_list) - 1)]
+        receiver = ship_list[random.randint(0,len(ship_list) - 1)]
+        order += ' ' + giver + ':>' + receiver
     #energy abosorption
-    else :
-        ship_name=ship_list[random.randint(0,len(ship_list)-1)]
-        coordinates_y=str(random.randint(1,column))
-        coordinates_x=str(random.randint(1,line))
-        order=ship_name+':<'+coordinates_y+"-"+coordinates_x
-        print(order)
-        return order,ship_list
+    if random.random() < 1.1:
+        ship_name = ship_list[random.randint(0,len(ship_list) - 1)]
+        coordinates_y = str(random.randint(1, nb_lines))
+        coordinates_x = str(random.randint(1, nb_columns))
+        order += ' ' + ship_name + ':<' + coordinates_y + "-" + coordinates_x
+    
+    print(order)
+    return order, ship_list
         
 ## CRÉATION D'UNITÉS ##
 
