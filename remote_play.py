@@ -208,3 +208,5 @@ def get_remote_orders(connection):
         orders = ''
         
     return orders
+
+print(get_IP())

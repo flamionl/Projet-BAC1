@@ -2,10 +2,10 @@
 
 from colored import *
 import random
-
+import remote_play
 ## MISE EN PLACE ##
 
-def game (file_path, player_1, player_2):
+def game (file_path, player_1, player_2,remote_IP):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
@@ -13,17 +13,27 @@ def game (file_path, player_1, player_2):
     player 1 : type of the player 1 (str)
     player 2 : type of player 2 (str)
     file_path : path of the file containing the information for the setup of the game (str)
+    remote_IP : IP adress of the the remote player (int)
 
     Note
     ----
-    The 3 types of player are : 'human', 'IA', and 'distant_player' if the player is respectively\
-         a human playing on the local computer, an IA on the local computer, and a player (human or IA) on an other computer
+    The 3 types of player are : 'human', 'AI', and 'remote_player' if the player is respectively\
+         a human playing on the local computer, an AI on the local computer, and a player (human or AI) on an other computer
 
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 22-02-2020)
     implementation : Louis Flamion and Gerry Longfils (v-1 18/03/2020)
     """
+
+    #Getting connection information
+    if player_1 == 'remote_player' :
+        connection = remote_play.connect_to_player(1,remote_IP)
+
+    elif player_2 == 'remote_player' :
+        connection = remote_play.connect_to_player(2,remote_IP)
+
+
     #Creating data structures
     board, entities, nb_columns, nb_lines = create_data_structures(file_path)
 
@@ -32,7 +42,7 @@ def game (file_path, player_1, player_2):
     ship_list_1 = []
     ship_list_2 = []
 
-    #Setting the variables
+    #Setting the variables for upgrade function
     storage_capacity_blue, storage_capacity_red = 600, 600
     fire_range_blue, fire_range_red = 1, 1
     moving_cost_blue, moving_cost_red = 10, 10
@@ -47,8 +57,14 @@ def game (file_path, player_1, player_2):
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
             order = input('Quels sont vos ordres joueur 1 : ')
+        elif player_1 == 'AI':
+            order,ship_list_1 = get_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
         else :
-            order,ship_list_1 = get_IA_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
+            order = remote_play.get_remote_orders(connection)
+
+        #Sending orders to the remote_player
+        if player_2 == 'remote_player' :
+            remote_play.notify_remote_orders(connection,order)
 
 
         #player_1's orders sorting
@@ -57,8 +73,14 @@ def game (file_path, player_1, player_2):
         #Checking player_2's type and getting orders
         if player_2 == 'human' :
             order = input('Quels sont vos ordres joueur 2 : ')
+        elif player_2 == 'AI' :
+            order,ship_list_2 = get_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
         else :
-            order,ship_list_2 = get_IA_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
+            order = remote_play.get_remote_orders(connection)
+
+        # Sending orders to the remote player
+        if player_1 == 'remote_player':
+            remote_play.notify_remote_orders(connection, order)
 
 
         #player_2's orders sorting
@@ -94,6 +116,9 @@ def game (file_path, player_1, player_2):
 
         #Increment turn variable
         turn +=1
+
+    #End communication with remote player
+    remote_play.disconnect_from_player(connection)
 
 
 def create_data_structures(file_path):
@@ -266,13 +291,13 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                     #Looks to the peak's available energy to print it with the right color
                 else :
-                    
+
                     #Looking at biggest amount of energy of all peaks
                     energy_amount = []
                     for entity in entities :
                         if entities[entity]['type'] == 'peak' :
                             energy_amount.append(entities[entity]['available_energy'])
-                    
+
                     #Getting the biggest amount of energy
                     max_amount = max(energy_amount)
 
@@ -285,7 +310,7 @@ def display_board (board, entities, nb_columns, nb_lines):
                         plateau+= fg('#efd807')
                     else :
                         plateau+= fg('#bb0b0b')
-                    
+
                     #Print an energy on the board
                     plateau += energy
 
@@ -332,7 +357,7 @@ def display_board (board, entities, nb_columns, nb_lines):
                     for entity in entities :
                         if entities[entity]['type'] == 'peak' :
                             energy_amount.append(entities[entity]['available_energy'])
-                    
+
                     #Getting the biggest amount of energy
                     max_amount = max(energy_amount)
 
@@ -419,8 +444,8 @@ def sort_orders (orders, team):
 
     return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders
 
-def get_IA_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
-    """ Generates the orders of the IA
+def get_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
+    """ Generates the orders of the AI
 
     Parameters
     ----------
@@ -433,7 +458,7 @@ def get_IA_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
 
     Returns
     -------
-    IA_order : orders of the IA (str)
+    AI_order : orders of the IA (str)
 
     Version
     -------
@@ -500,10 +525,10 @@ def get_IA_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
         coordinates_y = str(random.randint(1, nb_lines))
         coordinates_x = str(random.randint(1, nb_columns))
         order += ' ' + ship_name + ':<' + coordinates_y + "-" + coordinates_x
-    
+
     print(order)
     return order, ship_list
-        
+
 ## CRÉATION D'UNITÉS ##
 
 def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red):
@@ -663,7 +688,7 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
             characteristic_in_board = 'moving_cost'
             under_limit = 5
             upgrade_step = -1
-        
+
         # Checking if there is enough available energy in the team's hub
         if entities[hub_name]['available_energy'] >= upgrade_cost:
             entities[hub_name]['available_energy'] -= upgrade_cost
