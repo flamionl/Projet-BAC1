@@ -27,12 +27,8 @@ def game (file_path, player_1, player_2,remote_IP):
     """
 
     #Getting connection information
-    if player_1 == 'remote_player' :
-        connection = remote_play.connect_to_player(1,remote_IP)
-
-    elif player_2 == 'remote_player' :
-        connection = remote_play.connect_to_player(2,remote_IP)
-
+    if player_1 == 'remote_player' or player_2 == 'remote_player' :
+        connection = remote_play.create_connection(4,0,remote_IP,1)
 
     #Creating data structures
     board, entities, nb_columns, nb_lines = create_data_structures(file_path)
@@ -118,7 +114,7 @@ def game (file_path, player_1, player_2,remote_IP):
         turn +=1
 
     #End communication with remote player
-    remote_play.disconnect_from_player(connection)
+    remote_play.close_connection(connection)
 
 
 def create_data_structures(file_path):
