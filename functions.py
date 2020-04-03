@@ -5,7 +5,7 @@ import random
 import remote_play
 ## MISE EN PLACE ##
 
-def game (file_path, player_1, player_2,remote_IP):
+def game (file_path, player_1, player_2,remote_IP,your_id,remote_id):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
@@ -28,7 +28,7 @@ def game (file_path, player_1, player_2,remote_IP):
 
     #Getting connection information
     if player_1 == 'remote_player' or player_2 == 'remote_player' :
-        connection = remote_play.create_connection(4,0,remote_IP,1)
+        connection = remote_play.create_connection(your_id,remote_id,remote_IP,1)
 
     #Creating data structures
     board, entities, nb_columns, nb_lines = create_data_structures(file_path)
@@ -1028,4 +1028,4 @@ def hubs_regeneration (entities):
 
     return entities
 
-game('./map.equ','IA','IA')
+
