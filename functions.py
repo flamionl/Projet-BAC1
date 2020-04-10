@@ -5,7 +5,7 @@ import random
 import remote_play
 ## MISE EN PLACE ##
 
-def game (file_path, player_1, player_2,remote_IP,your_id,remote_id):
+def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
@@ -113,8 +113,10 @@ def game (file_path, player_1, player_2,remote_IP,your_id,remote_id):
         #Increment turn variable
         turn +=1
 
+
     #End communication with remote player
-    remote_play.close_connection(connection)
+    if player_1 == 'remote_player' or player_2 == 'remote_player' :
+        remote_play.close_connection(connection)
 
 
 def create_data_structures(file_path):
@@ -756,23 +758,23 @@ def cruiser_attack (attack_orders, board, entities):
             line = int(splited_order[1].split('-')[0][1:])
             column = int(splited_order[1].split('-')[1].split('=')[0])
             damages = int(splited_order[1].split('=')[1])
+            if vessel_name in entities :
+                #Getting coordinates of the ship that attacks
+                vessel_coordinates = entities[vessel_name]['coordinates']
 
-            #Getting coordinates of the ship that attacks
-            vessel_coordinates = entities[vessel_name]['coordinates']
+                #Checking if there is an entity on the case
+                if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
 
-            #Checking if there is an entity on the case
-            if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
+                    #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
+                    if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
 
-                #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-                if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
+                        #Remove the energy needed to attack to case
+                        entities[vessel_name]['available_energy'] -= damages*10
 
-                    #Remove the energy needed to attack to case
-                    entities[vessel_name]['available_energy'] -= damages*10
-
-                    #Remove structures_points to the entities on the case
-                    for entity in board[(line,column)] :
-                        if entities[entity]['type'] != 'peak' :
-                            entities[entity]['structure_points'] -= damages
+                        #Remove structures_points to the entities on the case
+                        for entity in board[(line,column)] :
+                            if entities[entity]['type'] != 'peak' :
+                                entities[entity]['structure_points'] -= damages
 
     return entities
 
@@ -859,24 +861,25 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
         vessel_name = order[0]
         coordinates = order[1]
         coordinates = coordinates.split('-')
-        coordinates = (int(coordinates[0]), int(coordinates[1]))
-        distance = get_distance(coordinates, entities[vessel_name]['coordinates'])
+        if vessel_name in entities:
+            coordinates = (int(coordinates[0]), int(coordinates[1]))
+            distance = get_distance(coordinates, entities[vessel_name]['coordinates'])
 
-        #Check if the coordinates of the movement is in the board
-        if int(coordinates[0]) > 0 and int(coordinates[1]) > 0:
+            #Check if the coordinates of the movement is in the board
+            if int(coordinates[0]) > 0 and int(coordinates[1]) > 0:
 
-            if int(coordinates[0]) <= nb_lines and int(coordinates[1]) <= nb_columns:
+                if int(coordinates[0]) <= nb_lines and int(coordinates[1]) <= nb_columns:
 
-                    #Actualise the coordinates of the vessel
-                    if distance <= 1 and team == entities[vessel_name]['team']:
+                        #Actualise the coordinates of the vessel
+                        if distance <= 1 and team == entities[vessel_name]['team']:
 
-                        entities[vessel_name]['coordinates'] = coordinates
+                            entities[vessel_name]['coordinates'] = coordinates
 
-                        #If the vessel is a cruiser, remove the moving cost from his available energy
-                        if entities[vessel_name]['type'] == 'cruiser':
+                            #If the vessel is a cruiser, remove the moving cost from his available energy
+                            if entities[vessel_name]['type'] == 'cruiser':
 
-                            # * distance in order to fix the case in which the player wants to move
-                            entities[vessel_name]['available_energy'] -= 10 * distance
+                                # * distance in order to fix the case in which the player wants to move
+                                entities[vessel_name]['available_energy'] -= 10 * distance
 
     return entities
 
@@ -919,31 +922,30 @@ def energy_absorption (energy_absorption_orders, entities, board):
         x = int(coord_list[1])
         coordinates = (y, x)
 
-        # Checking what is on the coordinates
-        entities_on_case = board[coordinates]
+        if coordinates in board :
+            entities_on_case = board[coordinates]
+            for entity in entities_on_case:
+                absorbed_entity = entity
 
-        for entity in entities_on_case:
-            absorbed_entity = entity
+                # Checking if the type of the entities is convenient
+                if ((entities[absorbed_entity]['type'] == 'hub' and entities[absorbed_entity]['team'] == team) or entities[absorbed_entity]['type'] == 'peak') and entities[tanker_name]['type'] == 'tanker':
 
-            # Checking if the type of the entities is convenient
-            if ((entities[absorbed_entity]['type'] == 'hub' and entities[absorbed_entity]['team'] == team) or entities[absorbed_entity]['type'] == 'peak') and entities[tanker_name]['type'] == 'tanker':
+                    # Computing distance
+                    distance = get_distance(entities[tanker_name]['coordinates'], entities[absorbed_entity]['coordinates'])
 
-                # Computing distance
-                distance = get_distance(entities[tanker_name]['coordinates'], entities[absorbed_entity]['coordinates'])
+                    # Checking the distance
+                    if distance <= 1:
 
-                # Checking the distance
-                if distance <= 1:
+                        # Computing the amount of energy that will be transfered
+                        absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[tanker_name]['storage_capacity'] - entities[tanker_name]['available_energy'])
 
-                    # Computing the amount of energy that will be transfered
-                    absorbed_energy = min(entities[absorbed_entity]['available_energy'], entities[tanker_name]['storage_capacity'] - entities[tanker_name]['available_energy'])
+                        #Transfering the energy
+                        entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
+                        entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
 
-                    #Transfering the energy
-                    entities[absorbed_entity]['available_energy'] = entities[absorbed_entity]['available_energy'] - absorbed_energy
-                    entities[tanker_name]['available_energy'] = entities[tanker_name]['available_energy'] + absorbed_energy
-
-                    # Deleting the peak from the map if its energy is below 0
-                    if entities[absorbed_entity]['type'] == 'peak'and entities[absorbed_entity]['available_energy'] <= 0:
-                        del entities[absorbed_entity]
+                        # Deleting the peak from the map if its energy is below 0
+                        if entities[absorbed_entity]['type'] == 'peak'and entities[absorbed_entity]['available_energy'] <= 0:
+                            del entities[absorbed_entity]
 
     return entities
 
@@ -976,24 +978,24 @@ def energy_giving (energy_giving_orders, entities, board):
         order = order.split(':>')
         vessel_giving = order[0]
         vessel_receiving = order[1]
+        if vessel_giving in entities and vessel_receiving in entities :
+            #Checking what is on the coordinates
+            coordinates_receiving = entities[vessel_receiving]['coordinates']
+            coordinates_giving = entities[vessel_giving]['coordinates']
+            distance = get_distance(coordinates_receiving, coordinates_giving)
+            if distance <= 1:
 
-        #Checking what is on the coordinates
-        coordinates_receiving = entities[vessel_receiving]['coordinates']
-        coordinates_giving = entities[vessel_giving]['coordinates']
-        distance = get_distance(coordinates_receiving, coordinates_giving)
-        if distance <= 1:
+                # Checking if the type of the entities is convenient
+                if entities[vessel_receiving]['type'] == 'hub' or entities[vessel_receiving]['type'] == 'cruiser':
 
-            # Checking if the type of the entities is convenient
-            if entities[vessel_receiving]['type'] == 'hub' or entities[vessel_receiving]['type'] == 'cruiser':
+                    if entities[vessel_giving]['type'] == 'tanker' and entities[vessel_receiving]['team'] == team:
 
-                if entities[vessel_giving]['type'] == 'tanker' and entities[vessel_receiving]['team'] == team:
+                        # Computing the amount of energy that will be given
+                        given_energy = min(entities[vessel_giving]['available_energy'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
 
-                    # Computing the amount of energy that will be given
-                    given_energy = min(entities[vessel_giving]['available_energy'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
-
-                    #Transfering the energy
-                    entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
-                    entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
+                        #Transfering the energy
+                        entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
+                        entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
 
     return entities
 
