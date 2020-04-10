@@ -54,7 +54,7 @@ def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
         if player_1 ==  'human' :
             order = input('Quels sont vos ordres joueur 1 : ')
         elif player_1 == 'AI':
-            order,ship_list_1 = get_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
+            order,ship_list_1 = get_naive_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
         else :
             order = remote_play.get_remote_orders(connection)
 
@@ -70,7 +70,7 @@ def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
         if player_2 == 'human' :
             order = input('Quels sont vos ordres joueur 2 : ')
         elif player_2 == 'AI' :
-            order,ship_list_2 = get_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
+            order,ship_list_2 = get_naive_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
         else :
             order = remote_play.get_remote_orders(connection)
 
@@ -442,7 +442,7 @@ def sort_orders (orders, team):
 
     return creation_orders, upgrade_orders, attack_orders, movement_orders, energy_absorption_orders, energy_giving_orders
 
-def get_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
+def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
     """ Generates the orders of the AI
 
     Parameters
@@ -526,6 +526,7 @@ def get_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines):
 
     print(order)
     return order, ship_list
+
 
 ## CRÉATION D'UNITÉS ##
 
