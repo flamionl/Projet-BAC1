@@ -5,7 +5,7 @@ import random
 import remote_play
 ## MISE EN PLACE ##
 
-def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
+def game (file_path, player_1, player_2,your_id,remote_id):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
@@ -28,7 +28,7 @@ def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
 
     #Getting connection information
     if player_1 == 'remote_player' or player_2 == 'remote_player' :
-        connection = remote_play.create_connection(your_id,remote_id,remote_IP,1)
+        connection = remote_play.create_connection(your_id,remote_id,'127.0.0.1',True)
 
     #Creating data structures
     board, entities, nb_columns, nb_lines = create_data_structures(file_path)
@@ -115,7 +115,7 @@ def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
 
 
     #End communication with remote player
-    if player_1 == 'remote_player' or player_2 == 'remote_player' :
+     if player_1 == 'remote_player' or player_2 == 'remote_player' :
         remote_play.close_connection(connection)
 
 
