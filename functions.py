@@ -120,7 +120,7 @@ def game (file_path, player_1, player_2,remote_IP=0,your_id='',remote_id=''):
 
 
 def create_data_structures(file_path):
-    """ Decodes the file for the setup of the game, creates the board dictionary and entities dictionnary, and places the hubs and energy peaks
+    """ Decodes the file for the setup of the game, creates the board dictionary and entities dictionary, and places the hubs and energy peaks
 
     Parameters
     ----------
@@ -129,7 +129,7 @@ def create_data_structures(file_path):
     Returns
     -------
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
-    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     nb_columns : number of columns of the board game (int)
     nb_lines : number of lines of the board game (int)
 
@@ -536,7 +536,7 @@ def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_
     Parameters
     ----------
     creation_orders : orders of creation (list of str)
-    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
     fire_range_blue : current fire range of the cruisers of the team blue (int)
     moving_cost_blue : current moving cost of the cruisers of the team blue (int)
@@ -546,7 +546,7 @@ def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_
 
     Returns
     -------
-    entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : updated dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
     fire_range_blue : current fire range of the cruisers of the team blue (int)
     moving_cost_blue : current moving cost of the cruisers of the team blue (int)
@@ -623,7 +623,7 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
     Parameters
     ----------
     upgrade_orders : orders of upgrade of the player (list of str)
-    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     storage_capacity_blue : current storage capacity of the tankers of the team blue (int)
     fire_range_blue : current fire range of the cruisers of the team blue (int)
     moving_cost_blue : current moving cost of the cruisers of the team blue (int)
@@ -833,17 +833,16 @@ def remove_destroyed_entities (entities):
 ## DÉPLACEMENTS ##
 
 def movement (movement_orders, board, entities, nb_columns, nb_lines):
-    """ moves an entity by consequences of the orders given by player or an IA
+    """Moves an entity by consequences of the orders given by player or an IA
 
     Parameters
     ----------
     movement_orders : orders of deplacement of the player (list of str)
-    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Returns
     -------
-    entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-
+    entities : updated dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Version
     -------
@@ -956,12 +955,12 @@ def energy_giving (energy_giving_orders, entities, board):
     Parameters
     ----------
     energy_giving_orders : orders of energy giving od the player (list of str)
-    entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
 
     Returns
     -------
-    entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
+    entities : updated dictionary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
     Version
     -------
