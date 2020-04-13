@@ -1,11 +1,11 @@
 # Découpage des fonctions
 
-from colored import *
+import colored
 import random
 import remote_play
 ## MISE EN PLACE ##
 
-def game (file_path, player_1, player_2,your_id=0,remote_id=0):
+def game(file_path, player_1, player_2,your_id=0,remote_id=0):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
@@ -45,7 +45,7 @@ def game (file_path, player_1, player_2,your_id=0,remote_id=0):
     fire_range_blue, fire_range_red = 1, 1
     moving_cost_blue, moving_cost_red = 10, 10
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 10000 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
@@ -114,13 +114,10 @@ def game (file_path, player_1, player_2,your_id=0,remote_id=0):
 
         #Increment turn variable
         turn +=1
-
-
-    #End communication with remote player
-     if player_1 == 'remote_player' or player_2 == 'remote_player' :
+    #End communication with the remote player
+    if player_1 == 'remote_player' or player_2 == 'remote_player' :
         remote_play.close_connection(connection)
-
-
+    
 def create_data_structures(file_path):
     """ Decodes the file for the setup of the game, creates the board dictionary and entities dictionary, and places the hubs and energy peaks
 
@@ -259,16 +256,16 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                 #Sets the background color on red
                 background_color = color1
-                plateau += bg(background_color)
+                plateau += colored.bg(background_color)
             else :
 
                 #Sets the background color on green
                 background_color = color2
-                plateau += bg(background_color)
+                plateau += colored.bg(background_color)
 
                 #If there isn't any entities on the case
             if board[(line,column)]  == [] :
-                plateau+=fg(background_color)
+                plateau+=colored.fg(background_color)
                 plateau += case
 
                 #If there is one entity on the case
@@ -277,9 +274,9 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                     #Looking to the entitiy's team to attribute the right color
                     if entities[board[(line,column)][0]]['team'] == 'blue' :
-                        plateau+=fg('#0033FF')
+                        plateau+=colored.fg('#0033FF')
                     else :
-                        plateau+=fg('#FF0000')
+                        plateau+=colored.fg('#FF0000')
 
                     #Looking to the entity's type to print on the board
                     if entities[board[(line,column)][0]]['type'] == 'cruiser':
@@ -303,13 +300,13 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                     #Attributing colors to the peaks according their percentage of the biggest amount of energy
                     if entities[board[(line,column)][0]]['available_energy']>=(0.75*max_amount) :
-                        plateau+= fg('#008000')
+                        plateau+= colored.fg('#008000')
                     elif entities[board[(line,column)][0]]['available_energy']<(0.75*max_amount) and entities[board[(line,column)][0]]['available_energy'] >= (0.5*max_amount) :
-                        plateau+= fg('#FF4500')
+                        plateau+= colored.fg('#FF4500')
                     elif entities[board[(line,column)][0]]['available_energy']<(0.5*max_amount) and entities[board[(line,column)][0]]['available_energy'] >= (0.25*max_amount) :
-                        plateau+= fg('#efd807')
+                        plateau+= colored.fg('#efd807')
                     else :
-                        plateau+= fg('#bb0b0b')
+                        plateau+= colored.fg('#bb0b0b')
 
                     #Print an energy on the board
                     plateau += energy
@@ -328,25 +325,25 @@ def display_board (board, entities, nb_columns, nb_lines):
                 #Looking for hub
                 if 'hub' in type_of_entities:
                     if entities[board[(line,column)][type_of_entities.index('hub')]]['team'] == 'blue':
-                        plateau+=fg('#0033FF')
+                        plateau+=colored.fg('#0033FF')
                     else:
-                        plateau+=fg('#FF0000')
+                        plateau+=colored.fg('#FF0000')
                     plateau += hub
 
                 #Looking for cruiser
                 elif 'cruiser' in type_of_entities :
                     if entities[board[(line,column)][type_of_entities.index('cruiser')]]['team'] == 'blue':
-                        plateau+=fg('#0033FF')
+                        plateau+=colored.fg('#0033FF')
                     else:
-                        plateau+=fg('#FF0000')
+                        plateau+=colored.fg('#FF0000')
                     plateau +=cruiser
 
                 #Looking for tankers
                 elif 'tanker' in type_of_entities :
                     if entities[board[(line,column)][type_of_entities.index('tanker')]]['team'] == 'blue':
-                        plateau+=fg('#0033FF')
+                        plateau+=colored.fg('#0033FF')
                     else:
-                        plateau+=fg('#FF0000')
+                        plateau+=colored.fg('#FF0000')
                     plateau+=tanker
 
                 #Looking for colors of the peaks
@@ -363,17 +360,17 @@ def display_board (board, entities, nb_columns, nb_lines):
 
                     #Attributing colors to the peaks according their percentage of the biggest amount of energy
                     if entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']>=(0.75*max_amount) :
-                        plateau+= fg('#008000')
+                        plateau+= colored.fg('#008000')
                     elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<(0.75*max_amount) and entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy'] >= (0.5*max_amount) :
-                        plateau+= fg('#FF4500')
+                        plateau+= colored.fg('#FF4500')
                     elif entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy']<(0.5*max_amount) and entities[board[(line,column)][type_of_entities.index('peak')]]['available_energy'] >= (0.25*max_amount) :
-                        plateau+= fg('#efd807')
+                        plateau+= colored.fg('#efd807')
                     else :
-                        plateau+= fg('#bb0b0b')
+                        plateau+= colored.fg('#bb0b0b')
                     plateau+=energy
 
         #Reset colors
-        plateau += attr('reset')
+        plateau += colored.attr('reset')
 
         #Goes to the next line
         plateau+=case+'\n'
@@ -1040,3 +1037,4 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
+
