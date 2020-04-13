@@ -870,16 +870,16 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
 
                 if int(coordinates[0]) <= nb_lines and int(coordinates[1]) <= nb_columns:
 
-                        #Actualise the coordinates of the vessel
-                        if distance <= 1 and team == entities[vessel_name]['team']:
+                    #Actualise the coordinates of the vessel
+                    if distance <= 1 and team == entities[vessel_name]['team'] and entities[vessel_name]['available_energy'] - 10 * distance > 0:
 
-                            entities[vessel_name]['coordinates'] = coordinates
+                        entities[vessel_name]['coordinates'] = coordinates
 
-                            #If the vessel is a cruiser, remove the moving cost from his available energy
-                            if entities[vessel_name]['type'] == 'cruiser':
+                        #If the vessel is a cruiser, remove the moving cost from his available energy
+                        if entities[vessel_name]['type'] == 'cruiser':
 
-                                # * distance in order to fix the case in which the player wants to move
-                                entities[vessel_name]['available_energy'] -= 10 * distance
+                            # * distance in order to fix the case in which the player wants to move
+                            entities[vessel_name]['available_energy'] -= 10 * distance
 
     return entities
 
