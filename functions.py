@@ -5,7 +5,7 @@ import random
 import remote_play
 ## MISE EN PLACE ##
 
-def game (file_path, player_1, player_2,your_id,remote_id):
+def game (file_path, player_1, player_2,your_id=0,remote_id=0):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
@@ -13,17 +13,19 @@ def game (file_path, player_1, player_2,your_id,remote_id):
     player 1 : type of the player 1 (str)
     player 2 : type of player 2 (str)
     file_path : path of the file containing the information for the setup of the game (str)
-    remote_IP : IP adress of the the remote player (int)
+    your_id : ID of your group if you play with a remote_player  (int) (optionnal)
+    remote_id : ID of the remote group (int) (optionnal)
 
     Note
     ----
     The 3 types of player are : 'human', 'AI', and 'remote_player' if the player is respectively\
          a human playing on the local computer, an AI on the local computer, and a player (human or AI) on an other computer
+    If you want to be connected to a referee set remote_id to 0
 
     Version
     -------
-    specification : Amaury Van Pevenaeyge (v.1 22-02-2020)
-    implementation : Louis Flamion and Gerry Longfils (v-1 18/03/2020)
+    specification :Louis Flamion & Gerry Longfils (v.3 12/04/2020)
+    implementation : Louis Flamion & Gerry Longfils (v.3 12/04/2020)
     """
 
     #Getting connection information
@@ -43,7 +45,7 @@ def game (file_path, player_1, player_2,your_id,remote_id):
     fire_range_blue, fire_range_red = 1, 1
     moving_cost_blue, moving_cost_red = 10, 10
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 10000 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
@@ -229,7 +231,7 @@ def display_board (board, entities, nb_columns, nb_lines):
     Version
     -------
     specification : Louis Flamion (v.1 23/02/2020)
-    implementation : Gerry Longfils and Louis Flamion (v.1 09/03/2020)
+    implementation : Gerry Longfils & Louis Flamion (v.2 20/03/2020)
     """
     #Emojis used
     hub ='♜'
@@ -386,7 +388,7 @@ def display_board (board, entities, nb_columns, nb_lines):
 ## ORDRES ##
 
 def sort_orders (orders, team):
-    """ Sorts the order of a player depending on the type of these orders
+    """ Sorts the orders of a player depending on the type of these orders
 
     Parameters
     ----------
@@ -450,17 +452,19 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     turn : turn of the game (int)
-    ship_list : list of the current ships on the map (list of str)
+    ship_list : IA's ship list (list of str)
     nb_columns : number of columns of the board game (int)
     nb_lines : number of lines of the board game (int)
 
     Returns
     -------
     AI_order : orders of the IA (str)
+    ship_list : IA's ship list (list of str)
 
     Version
     -------
     specification : Louis Flamion (v.1 22/02/2020)
+    implementation : Gerry Longfils & Louis Flamion (v.1 19/03/2020)
     """
     # Initializing the order
     order = ''
@@ -476,7 +480,6 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
         ship_type = random.choice(['tanker','cruiser'])
         order += ship_name + ':' + ship_type
         ship_list.append(ship_name)
-        print(order)
         return order, ship_list
 
 
@@ -486,7 +489,6 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
         ship_type = random.choice(['tanker','cruiser'])
         order += ' ' + ship_name + ':' + ship_type
         ship_list.append(ship_name)
-        print(order)
         return order, ship_list
 
     #generate upgrade orders
@@ -524,8 +526,10 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
         coordinates_x = str(random.randint(1, nb_columns))
         order += ' ' + ship_name + ':<' + coordinates_y + "-" + coordinates_x
 
-    print(order)
+
     return order, ship_list
+
+
 
 
 ## CRÉATION D'UNITÉS ##
@@ -557,6 +561,7 @@ def create_vessel (creation_orders, entities, storage_capacity_blue, fire_range_
     Version
     -------
     specification : Amaury Van Pevenaeyge (v.1 23/02/2020)
+    implementation : Amaury Van Pevenaeyge (v.1 15/03/2020)
     """
     #Get the name of the team in the creation order list
     if creation_orders != []:
@@ -733,7 +738,7 @@ def cruiser_attack (attack_orders, board, entities):
 
     Parameters
     ----------
-    attack_orders : orders of attack of the player (list of str)
+    attack_orders : attack order of the player (list of str)
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
@@ -819,12 +824,14 @@ def remove_destroyed_entities (entities):
     """
     entities_to_remove = []
 
+    # Adding the entities to remove in the list
     for entity in entities:
         if entities[entity]['type'] != 'peak' and entities[entity]['type'] != 'hub':
             structure_points = entities[entity]['structure_points']
             if structure_points <= 0:
                 entities_to_remove.append(entity)
 
+    # Removing the entities in the list, from entities dict
     for entity in entities_to_remove:
         del entities[entity]
 
@@ -847,7 +854,7 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
     Version
     -------
     specification : Gerry Longfils (v.2 17/03/2020)
-    implementation : Gerry Longfils (v.1 17/03/2020)
+    implementation : Gerry Longfils & Amaury Van Pevenaeyge (v.1 17/03/2020)
     """
     # Getting back and deleting the name of the team from the list if the list is not empty
     if movement_orders != []:
@@ -898,13 +905,17 @@ def energy_absorption (energy_absorption_orders, entities, board):
     -------
     entities : updated dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
 
+    Notes
+    -----
+    The order gives a coordinate and the entitiy absorbs the energy of the first entities which have the correct type
+    (so it's a bit random if there are sevral entities of a correct type on the same coordinates)
+    And it continues to absorb the enrgy of another entity on the case if the tanker is not full of energy
+
     Version
     -------
     specification : Gerry Longfils (v.1 24/02/2020)
     implementation : Mathis Huet (v.2 17/03/2020)
     """
-    ### L'ordre donne une coordonnée et la fonction absorbe l'énergie des premières entités qui ont le bon type s'il en existe plusieurs sur la case
-    ### Jusqu'à ce que la soute du tanker soit pleine ou que toutes les entités absorbables sur la case visée n'aient plus d'énergie
 
     # Getting back and deleting the name of the team from the list if the list is not empty
     if energy_absorption_orders != []:
@@ -1029,5 +1040,3 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
-
-
