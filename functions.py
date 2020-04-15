@@ -526,7 +526,48 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
 
     return order, ship_list
 
+def get_adequate_movement_order(departure_coordinates, arrival_coordinates, ship_name):
+    """ Gives the adequate movement order (1 case range) in deplace an entity to the arrival_coordinates
 
+    Parameters
+    ----------
+    departure-coordinates : current coordinates of the entity (tuple of integers)
+    arrival_coordinates : coordinates where the entity has to go, on a long term (tuple of integers)
+    ship_name : name of the ship (int)
+
+    Returns
+    -------
+    adequate_order : adequate order of movement (str)
+
+    Note
+    ----
+    This function is only used in the AI
+
+    Version
+    -------
+    specification : Mathis Huet (v.1 15/04/2020)
+    implementation : Mathis Huet (v.1 15/04/2020)
+    """
+    y_difference = arrival_coordinates[0] - departure_coordinates[0]
+    x_difference = arrival_coordinates[1] - departure_coordinates[1]
+
+    if y_difference > 0:
+        adequate_y = departure_coordinates[0] + 1
+    elif y_difference == 0:
+        adequate_y = departure_coordinates[0]
+    elif y_difference < 0:
+        adequate_y = departure_coordinates[0] - 1
+    
+    if x_difference > 0:
+        adequate_x = departure_coordinates [1] + 1
+    elif x_difference == 0:
+        adequate_x = departure_coordinates [1]
+    if x_difference < 0:
+        adequate_x = departure_coordinates [1] - 1
+
+    adequate_order = '%s:@%d-%d' % (ship_name, adequate_y, adequate_x)
+
+    return adequate_order
 
 
 ## CRÉATION D'UNITÉS ##
@@ -1037,4 +1078,3 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
-
