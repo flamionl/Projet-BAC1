@@ -203,7 +203,7 @@ def create_data_structures(file_path):
 
     # Creating the peaks in entities dict
     peak_id = 1
-    for line in board_info[6:]:
+    for line in board_info[6:-1]:
         peak_info = line.split()
         entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'available_energy' : int(peak_info[2])}
         peak_id += 1
@@ -1013,12 +1013,12 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
                 if int(coordinates[0]) <= nb_lines and int(coordinates[1]) <= nb_columns:
 
                     #Actualise the coordinates of the vessel
-                    if distance <= 1 and team == entities[vessel_name]['team'] and entities[vessel_name]['available_energy'] - 10 * distance > 0:
+                    if distance <= 1 and entities[vessel_name]['team'] == team and entities[vessel_name]['type'] == 'tanker' :
 
                         entities[vessel_name]['coordinates'] = coordinates
 
-                        #If the vessel is a cruiser, remove the moving cost from his available energy
-                        if entities[vessel_name]['type'] == 'cruiser':
+                    #If the vessel is a cruiser, remove the moving cost from his available energy
+                    elif entities[vessel_name]['type'] == 'cruiser' and distance <= 1 and entities[vessel_name]['team'] == team and entities[vessel_name]['available_energy'] - 10 * distance > 0:
 
                             # * distance in order to fix the case in which the player wants to move
                             entities[vessel_name]['available_energy'] -= 10 * distance
