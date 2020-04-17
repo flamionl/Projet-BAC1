@@ -8,7 +8,7 @@ output : chain of characters containing orders for the game
 
 initialize turn
 
-while regeneration_rate < 50 or turn < 10
+if regeneration_rate < 50 or turn < 10
 
     if turn is pair
         upgrade regeneration_rate of the hub
@@ -35,7 +35,7 @@ end while
 
 re-initialize the turn
 
-while (turn < 5 or fire_range < 5) and regeneration_rate == 50
+if (turn < 5 or fire_range < 5) and regeneration_rate == 50
 
     create tanker
     transfer energy to the hub
@@ -99,7 +99,7 @@ end while
 
 re-initialize the turn
 
-while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list < 15
+if fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list < 15
 
     if turn is pair
         create 2 cruisers
@@ -161,7 +161,7 @@ end while
 
 re-initialize the turn
 
-while fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list == 15
+if fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length of the defense_cruisers list == 15
     create max cruisers
     add cruiser to attack_cruisers list
 

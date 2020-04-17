@@ -3,6 +3,7 @@
 import colored
 import random
 import remote_play
+
 ## MISE EN PLACE ##
 
 def game(file_path, player_1, player_2,your_id=0,remote_id=0):
@@ -45,7 +46,16 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
     fire_range_blue, fire_range_red = 1, 1
     moving_cost_blue, moving_cost_red = 10, 10
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 1000 :
+    # Setting variables for AI
+    turn_phase_1 = 0
+    AI_data = {}
+    tanker_to_peak = {}
+    peaks = []
+    for entity in entities:
+        if entities[entity]['type'] == 'peak':
+            peaks.append(entity)
+
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 11 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
@@ -54,11 +64,15 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
-            order = input('Quels sont vos ordres joueur 1 : ')
+            orders = input('Quels sont vos ordres joueur 1 : ')
+        elif player_1 == 'naive_AI':
+            orders, ship_list_1 = get_naive_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
         elif player_1 == 'AI':
-            order,ship_list_1 = get_naive_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
+            orders, AI_data, turn_phase_1, peaks, tanker_to_peak = get_AI_orders(entities, turn_phase_1, AI_data, peaks, 'blue', tanker_to_peak)
         else :
             order = remote_play.get_remote_orders(connection)
+        
+        print('orders player_1 : %s' % orders)
 
         #Sending orders to the remote_player
         if player_2 == 'remote_player' :
@@ -66,15 +80,31 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
 
 
         #player_1's orders sorting
-        creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(order,'blue')
+        creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(orders,'blue')
 
+        print ('movement_orders : %s' % str(movement_orders_blue))
         #Checking player_2's type and getting orders
         if player_2 == 'human' :
-            order = input('Quels sont vos ordres joueur 2 : ')
-        elif player_2 == 'AI' :
-            order,ship_list_2 = get_naive_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
+            orders = input('Quels sont vos ordres joueur 2 : ')
+        elif player_2 == 'naive_AI' :
+            orders, ship_list_2 = get_naive_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
+        elif player_2 == 'AI':
+            turn_phase_1 = 0
+            AI_data = {}
+            tanker_to_peak = {}
+
+            # Creating a list of peaks
+            peaks = []
+            for entity in entities:
+                if entities[entity]['type'] == 'peak':
+                    peaks.append(entity)
+
+            orders, AI_data, turn_phase_1, peaks, tanker_to_peak = get_AI_orders(entities, turn_phase_1, AI_data, peaks, 'red', tanker_to_peak)
+        
         else :
             order = remote_play.get_remote_orders(connection)
+
+        print('orders player_2 : %s' % orders)
 
         # Sending orders to the remote player
         if player_1 == 'remote_player':
@@ -82,7 +112,7 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
 
 
         #player_2's orders sorting
-        creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(order,'red')
+        creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(orders,'red')
 
         #Creation vessel phase
         entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = create_vessel(creation_orders_blue, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
@@ -526,6 +556,73 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
 
     return order, ship_list
 
+def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
+
+    ### First phase ###
+
+    orders = ''
+    hub = 'hub_%s' % team
+
+    if entities[hub]['regeneration_rate'] < 50 or turn_phase_1 < 10:
+
+        # Upgrade regeneration
+        if turn_phase_1 % 2 == 0:
+            orders += ' upgrade:regeneration'
+        
+        # Creating a regeration tanker
+        else:
+            flag = 0
+            while flag == 0:
+                ship_name = str(random.randint(0, 1000000))
+                if ship_name not in AI_data and ship_name not in entities:
+                    flag = 1
+                    orders += ' %s:tanker' % ship_name
+                    AI_data[ship_name] = {'type' : 'tanker', 'function' : 'regeneration'}
+        
+        for ship in AI_data:
+            if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration':
+                
+                # If the ship has been crated this turn
+                if ship not in entities:
+                    # Attributing a peak to the ship if is not already done
+                    if ship not in tanker_to_peak:
+                        if peaks != []:
+                            peak_index = random.randint(0, len(peaks) - 1)
+                            peak_name = peaks[peak_index]
+                            peak_coordinates = entities[peak_name]['coordinates']
+                            tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
+                            del peaks[peak_index]
+
+                    # Transfer tanker's energy to the hub
+                    orders += ' %s:>%s' % (ship, hub)
+                
+                elif entities[ship]['available_energy'] != entities[ship]['storage_capacity']:
+                    
+                    # move tanker to the peak
+                    departure_coordinates = entities[ship]['coordinates']
+                    peak_coordinates = tanker_to_peak[ship]['peak_coordinates']
+                    print('departure_coordinates : %s' % str(departure_coordinates))
+                    print('peak_coordinates : %s' % str(peak_coordinates))
+                    orders += get_adequate_movement_order(departure_coordinates, peak_coordinates, ship)
+                    
+                    # Tanker absorbs energy from the peak
+                    y_coordinates = peak_coordinates[0]
+                    x_coordinates = peak_coordinates[1]
+                    orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
+                
+                else:
+                    # Move tanker to the hub
+                    departure_coordinates = entities[ship]['coordinates']
+                    hub_coordinates = entities[hub]['coordinates']
+                    orders += get_adequate_movement_order(departure_coordinates, hub_coordinates, ship)
+
+                    # Transfer tanker's energy to the hub
+                    orders += ' %s:>%s' % (ship, hub)
+        
+        turn_phase_1 += 1
+
+    return orders, AI_data, turn_phase_1, peaks, tanker_to_peak
+
 def get_adequate_movement_order(departure_coordinates, arrival_coordinates, ship_name):
     """ Gives the adequate movement order (1 case range) in deplace an entity to the arrival_coordinates
 
@@ -565,7 +662,7 @@ def get_adequate_movement_order(departure_coordinates, arrival_coordinates, ship
     if x_difference < 0:
         adequate_x = departure_coordinates [1] - 1
 
-    adequate_order = '%s:@%d-%d' % (ship_name, adequate_y, adequate_x)
+    adequate_order = ' %s:@%d-%d' % (ship_name, adequate_y, adequate_x)
 
     return adequate_order
 
@@ -1078,3 +1175,5 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
+
+game('./map.equ', 'AI', 'naive_AI')
