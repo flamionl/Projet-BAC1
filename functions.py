@@ -55,7 +55,7 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
         if entities[entity]['type'] == 'peak':
             peaks.append(entity)
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 11 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 100 :
 
         #Priting the board
         display_board(board,entities,nb_columns,nb_lines)
@@ -203,7 +203,7 @@ def create_data_structures(file_path):
 
     # Creating the peaks in entities dict
     peak_id = 1
-    for line in board_info[6:-1]:
+    for line in board_info[6:]:
         peak_info = line.split()
         entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'available_energy' : int(peak_info[2])}
         peak_id += 1
@@ -563,7 +563,7 @@ def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
     orders = ''
     hub = 'hub_%s' % team
 
-    if entities[hub]['regeneration_rate'] < 50 or turn_phase_1 < 10:
+    if entities[hub]['regeneration_rate'] < 50 or turn_phase_1 < 15:
 
         # Upgrade regeneration
         if turn_phase_1 % 2 == 0:
@@ -585,13 +585,12 @@ def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
                 # If the ship has been crated this turn
                 if ship not in entities:
                     # Attributing a peak to the ship if is not already done
-                    if ship not in tanker_to_peak:
-                        if peaks != []:
-                            peak_index = random.randint(0, len(peaks) - 1)
-                            peak_name = peaks[peak_index]
-                            peak_coordinates = entities[peak_name]['coordinates']
-                            tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
-                            del peaks[peak_index]
+                    if ship not in tanker_to_peak and peaks != []:
+                        peak_index = random.randint(0, len(peaks) - 1)
+                        peak_name = peaks[peak_index]
+                        peak_coordinates = entities[peak_name]['coordinates']
+                        tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
+                        del peaks[peak_index]
 
                     # Transfer tanker's energy to the hub
                     orders += ' %s:>%s' % (ship, hub)
@@ -599,16 +598,15 @@ def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
                 elif entities[ship]['available_energy'] != entities[ship]['storage_capacity']:
                     
                     # move tanker to the peak
-                    departure_coordinates = entities[ship]['coordinates']
-                    peak_coordinates = tanker_to_peak[ship]['peak_coordinates']
-                    print('departure_coordinates : %s' % str(departure_coordinates))
-                    print('peak_coordinates : %s' % str(peak_coordinates))
-                    orders += get_adequate_movement_order(departure_coordinates, peak_coordinates, ship)
-                    
-                    # Tanker absorbs energy from the peak
-                    y_coordinates = peak_coordinates[0]
-                    x_coordinates = peak_coordinates[1]
-                    orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
+                    if ship in tanker_to_peak:
+                        departure_coordinates = entities[ship]['coordinates']
+                        peak_coordinates = tanker_to_peak[ship]['peak_coordinates']
+                        orders += get_adequate_movement_order(departure_coordinates, peak_coordinates, ship)
+                        
+                        # Tanker absorbs energy from the peak
+                        y_coordinates = peak_coordinates[0]
+                        x_coordinates = peak_coordinates[1]
+                        orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
                 
                 else:
                     # Move tanker to the hub
