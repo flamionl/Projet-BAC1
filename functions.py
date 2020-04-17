@@ -203,7 +203,7 @@ def create_data_structures(file_path):
 
     # Creating the peaks in entities dict
     peak_id = 1
-    for line in board_info[6:-1]:
+    for line in board_info[6:]:
         peak_info = line.split()
         entities['peak_%s' % str(peak_id)] = {'coordinates' : (int(peak_info[0]), int(peak_info[1])), 'type' : 'peak', 'available_energy' : int(peak_info[2])}
         peak_id += 1
