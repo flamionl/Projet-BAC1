@@ -1701,8 +1701,6 @@ def hubs_regeneration (entities):
 
     return entities
 
-
-
 def check_cruiser_with_less_energy(entities, cruiser_to_restock):
     """take the cruiser with less energy
     
