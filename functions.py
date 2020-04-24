@@ -65,10 +65,11 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
 
     while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 100 :
 
-        #Priting the board
+        #Printing the board
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
 
+        ## Player_1 ##
 
         #Checking player_1's type and getting orders
         if player_1 ==  'human' :
@@ -91,6 +92,9 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(orders,'blue')
 
         print ('movement_orders : %s' % str(movement_orders_blue))
+
+        ## Player 2 ##
+
         #Checking player_2's type and getting orders
         if player_2 == 'human' :
             orders = input('Quels sont vos ordres joueur 2 : ')
@@ -111,6 +115,8 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
 
         #player_2's orders sorting
         creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(orders,'red')
+
+        ## Orders execution ##
 
         #Creation vessel phase
         entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = create_vessel(creation_orders_blue, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
