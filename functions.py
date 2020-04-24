@@ -732,6 +732,7 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
                     # Transfer tanker's energy to the hub
                     orders += ' %s:>%s' % (ship, hub)
         
+        cruiser_to_restock = cruiser_attack
         #For the other tankers
         for tanker in other_tankers :
             
@@ -739,16 +740,7 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
             if entities[tanker]['available_energy'] == entities[tanker]['storage_capacity'] :
 
                 #Move the tanker towards the attack cruiser which has the less available_energy
-                cruiser_to_restock = cruiser_attack
-                cruiser_target = cruiser_to_restock[0]
-                #Getting the cruiser attack with the less amount of energy
-
-                if cruiser_to_restock != [] :
-
-                    for index in range(0,len(cruiser_to_restock)-1) :
-                        if entities[cruiser_to_restock[index]] < entities[cruiser_target] :
-                            cruiser_target = cruiser_to_restock[index]
-                    cruiser_to_restock.remove(cruiser_target)
+                cruiser_target, cruiser_to_restock = check_cruiser_with_less_energy(entities,cruiser_to_restock)
                     
                     #Moving the tanker toward the tanker
                     if get_distance(entities[cruiser_target]['coordinates'],entities[tanker]['coordinates']) - fire_range != 0 :
@@ -1325,7 +1317,7 @@ def hubs_regeneration (entities):
 
 
 
-def check_cruiser_with_less_energy(entities):
+def check_cruiser_with_less_energy(entities, cruiser_to_restock):
     """take the cruiser with less energy
     
     parameters
@@ -1341,26 +1333,18 @@ def check_cruiser_with_less_energy(entities):
     implementation : Gerry Longfils (v.1 24/04/2020)
     """
 
-    list_of_entities=[]
-
-    #putting entities name in a list 
-    for entity in entities:
-        if entities[entity]['type']=='cruiser':
-            list_of_entities.append(entity)
-        
-
-
     #putting the fist cruiser in cruiser_name  
-    name_cruiser=list_of_entities[0]
+    cruiser_target=cruiser_to_restock[0]
     
     #check for the cruiser with less energy
-    for index in range(len(list_of_entities)):
-        if entities[name_cruiser]['available_energy']>entities[list_of_entities[index]]['available_energy']:
-            name_cruiser=list_of_entities[index]
+    for index in range(len(cruiser_to_restock)-1):
+        if entities[cruiser_target]['available_energy']>entities[cruiser_to_restock[index]]['available_energy']:
+            cruiser_target=cruiser_to_restock[index]
+    cruiser_to_restock.remove(cruiser_target)
 
 
 
-    return name_cruiser
+    return cruiser_target, cruiser_to_restock
 
 
 
