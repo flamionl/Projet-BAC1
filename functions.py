@@ -1323,4 +1323,47 @@ def hubs_regeneration (entities):
 
     return entities
 
+
+
+def check_cruiser_with_less_energy(entities):
+    """take the cruiser with less energy
+    
+    parameters
+    ----------
+    entities: dictionnary with the entities of the game
+
+    return:
+    -------
+    cruiser_name : that the cruiser with less energy
+
+
+    specification : Gerry Longfils (v.1 24/04/2020)
+    implementation : Gerry Longfils (v.1 24/04/2020)
+    """
+
+    list_of_entities=[]
+
+    #putting entities name in a list 
+    for entity in entities:
+        if entities[entity]['type']=='cruiser':
+            list_of_entities.append(entity)
+        
+
+
+    #putting the fist cruiser in cruiser_name  
+    name_cruiser=list_of_entities[0]
+    
+    #check for the cruiser with less energy
+    for index in range(len(list_of_entities)):
+        if entities[name_cruiser]['available_energy']>entities[list_of_entities[index]]['available_energy']:
+            name_cruiser=list_of_entities[index]
+
+
+
+    return name_cruiser
+
+
+
+
+
 game('./map.equ', 'AI', 'naive_AI')
