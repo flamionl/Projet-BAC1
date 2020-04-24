@@ -673,7 +673,7 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
         else :
             #Moving attack cruiser toward ennemy hub
             for ship in AI_data :
-                if AI_data[ship]['function'] == 'attack' :
+                if AI_data[ship]['function'] == 'attack' and AI_data[ship]['type'] == 'cruiser' :
                     
                     #Checking if the ship is in fire range
                     if get_distance(entities[ship]['coordinates'],entities[enemy_hub]['coordinates']) - fire_range == 0 :
