@@ -1145,7 +1145,6 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
                     x_coordinates = peak_coordinates[1]
                     orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
 
-        turn_phase_1 += 1
 
     return orders, AI_data, turn_phase_1,turn_phase_2, peaks, tanker_to_peak
 
