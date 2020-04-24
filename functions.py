@@ -821,7 +821,7 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
 
                     name_tanker=str(entity)
                     #MOVING TANKER TO THE CRUISER WHICH LESS ENERGY
-                    if entities[entity][available_energy]==entities[entity][storage_capacity]:
+                    if entities[entity]['available_energy']==entities[entity]['storage_capacity']:
 
 
                         #moving tanker to the a cruiser with less energy (question : celui qui a le moins d'énergie ou pas ? ou ceux qui est pas à fond ? version ici = version qui sont pas à fond)
@@ -877,7 +877,7 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
                     for entity in entities:
                         if entities[entity]['type']=='hub' and entities[entity]['team']!=team:
                             opposing_hub_coordinates = entities[entity]['coordinates']
-                            cruiser_coordinates = entites[cruiser_attack]['coordinates']
+                            cruiser_coordinates = entities[cruiser_attack]['coordinates']
 
                             if get_distance(opposing_hub_coordinates,cruiser_coordinates)!= entities[cruiser_attack]['fire_range']:
                                 moving_order+=get_adequate_movement_order(opposing_hub_coordinates,cruiser_coordinates,is_cruiser)
@@ -885,7 +885,7 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
 
                             #attacking opposing hub order A CHECKER
                             if get_distance(opposing_hub_coordinates,cruiser_coordinates)== entities[cruiser_attack]['fire_range']:
-                                attack_opposing_hub_order=cruiser_attack+':*'+opposing_hub_coordinates[0]+'-'+opposing_hub_coordinates[1]+'='+entities[cruiser_attack]['available_energy']/10
+                                attack_opposing_hub_order+=cruiser_attack+':*'+opposing_hub_coordinates[0]+'-'+opposing_hub_coordinates[1]+'='+entities[cruiser_attack]['available_energy']/10
 
     orders+=upgrade_range_order+transfer_energy_order+moving_order+absorption_order+create_cruiser_order+upgrade_moving_cost_order+transfer_energy_hub_order
 
@@ -955,7 +955,7 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
         #If turn is odd, create a refill tanker
         else:
 
-            ship_name_3 = random.randit(0,1000000)
+            ship_name_3 = random.randint(0,1000000)
             if ship_name_3 not in AI_data and ship_name_3 not in entities:
                 orders += ' %d:cruiser' %ship_name_3
                 AI_data[ship_name_3] = {'type' : 'tanker', 'function' : 'refill'}
@@ -1004,7 +1004,7 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
 
                         #Move tankers towards the cruiser wich has the less available_energy
                         cruiser_target, cruiser_to_restock = check_cruiser_with_less_energy(entities, cruiser_to_restock)
-                        tanker_coordinates = entities[tanker]['coordinates']
+                        tanker_coordinates = entities[ship]['coordinates']
                         cruiser_target_coordinates = entities[cruiser_target]['coordinates']
                         orders += get_adequate_movement_order(tanker_coordinates, cruiser_target_coordinates, cruiser_target)
 
