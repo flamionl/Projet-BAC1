@@ -556,12 +556,51 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
 
     return order, ship_list
 
-def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
+def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
+
+
+    order = ''
+    #Getting the hub name of the AI
+    if team == 'blue' :
+        hub = 'hub_blue'
+        enemy_hub = 'hub_red'
+        enemy_team = 'red'
+    else :
+        hub = 'hub_red'
+        enemy_hub = 'hub_blue'
+        enemy_team = 'blue'
+
+    #Getting fire range value and moving cost value
+    for ship in AI_data :
+        if AI_data[ship]['type'] == 'cruiser' :
+            moving_cost = entities[ship]['moving_cost']
+            fire_range = entities[ship]['fire_range']
+
+    #Getting the defenses cruisers
+    cruiser_defense = []
+    for ship in AI_data :
+        if AI_data[ship]['type'] == 'cruiser' and AI_data[ship]['function'] == 'defense' :
+            cruiser_defense.append(AI_data[ship])
+
+    #Getting the attacks cruisers
+    cruiser_attack = []
+    for ship in AI_data : 
+        if AI_data[ship]['type'] == 'cruiser' and AI_data[ship]['function'] == 'attack':
+            cruiser_attack.append(AI_data[ship])
+
+    #Getting regeneration tankers
+    regeneration_tanker  = []
+    for ship in AI_data :
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
+            regeneration_tanker.append(ship)
+
+    #Getting other tankers
+    other_tankers = []
+    for ship in AI_data :
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] != 'regeneration' :
+            other_tankers.append(ship)
 
     ### First phase ###
-
-    orders = ''
-    hub = 'hub_%s' % team
 
     if entities[hub]['regeneration_rate'] < 50 or turn_phase_1 < 15:
 
@@ -582,7 +621,7 @@ def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
         for ship in AI_data:
             if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration':
                 
-                # If the ship has been crated this turn
+                # If the ship has been created this turn
                 if ship not in entities:
                     # Attributing a peak to the ship if is not already done
                     if ship not in tanker_to_peak and peaks != []:
