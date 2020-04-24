@@ -661,6 +661,157 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
                     # Transfer tanker's energy to the hub
                     orders += ' %s:>%s' % (ship, hub)
 
+    ###THIRD PHASE###
+
+    # Setting all the variables
+    nb_defense_cruisers = 0
+
+    #Pick the team of the hubs
+    if team == 'blue':
+        ennemy_hub = 'hub_red'
+    else:
+        ennemy_hub = 'hub_blue'
+
+    #Pick the coordinates of the ennemy's hub
+    ennemy_hub_coordinates = entities[ennemy_hub]['coordinates']
+
+    #Pick the coordinates of the AI's hub
+    hub_coordinates = entities[hub]['coordinates']
+
+    # Loop
+    for cruiser in AI_data:
+        if AI_data[cruiser]['type'] == cruiser and AI_data[cruiser]['function'] == 'defense':
+            nb_defense_cruisers += 1
+
+    if fire_range == 5 and moving_cost == 5 and entities['hub']['regeneration_rate'] == 50 and nb_defense_cruisers < 15:
+
+        #If turn is peer, create 2 defense cruisers
+        if turn % 2 == 0:
+
+            ship_name_1 = random.randint(0,1000000)
+            if ship_name_1 not in AI_data and ship_name_1 not in entities:
+                orders += ' %d:cruiser' %ship_name_1
+                AI_data[ship_name_1] = {'type' : 'cruiser', 'function' : 'defense'}
+
+            ship_name_2 = random.randint(0,1000000)
+            if ship_name_2 not in AI_data and ship_name_2 not in entities:
+                orders += ' %d:cruiser' %random.randint(0,1000000)
+                AI_data[ship_name_2] = {'type' : 'cruiser', 'function' : 'defense'}
+
+            #Create the defense line with the defense cruisers
+            if nb_defense_cruisers < 15:
+
+                flag_movement = 0
+                for cruiser in AI_data:
+                    if AI_data[cruiser]['type'] == 'cruiser' and AI_data[cruiser]['function'] == 'defense':
+                        if cruiser in entities:
+                            cruiser_coordinates = entities[cruiser]['coordinates']
+                            distance = get_distance(hub_coordinates, cruiser_coordinates)
+
+                            if distance < 3:
+                                orders += get_adequate_movement_order(cruiser_coordinates, ennemy_hub_coordinates, cruiser)
+                                flag_movement = 1
+
+                            # If there is another entity on the case, move the entity elsewhere
+                            elif distance == 3:
+                                entities_on_case = board[cruiser_coordinates]
+                                for entity in entities_on_case:
+                                    if entity in AI_data and AI_data[entity]['type'] == 'cruiser' and AI_data[entity]['function'] == 'defense' and entity != cruiser:
+                                        y_coordinates = cruiser_coordinates[0]
+                                        x_coordinates = cruiser_coordinates[1]
+                                        new_y = y_coordinates + random.randint(-1, 1)
+                                        new_x = x_coordinates + random.randint(-1, 1)
+                                        orders += get_adequate_movement_order(cruiser_coordinates, (new_y, new_x), cruiser)
+                                        flag_movement = 1
+
+        #If turn is odd, create a refill tanker
+        else:
+
+            ship_name_3 = random.randit(0,1000000)
+            if ship_name_3 not in AI_data and ship_name_3 not in entities:
+                orders += ' %d:cruiser' %ship_name_3
+                AI_data[ship_name_3] = {'type' : 'tanker', 'function' : 'refill'}
+
+            cruiser_to_restock = cruiser_attack
+            for ship in AI_data:
+
+                if AI_data[ship]['type'] == 'tanker':
+
+                    # If the ship has been crated this turn
+                    if ship not in entities:
+                        # Attributing a peak to the ship if is not already done
+                        if ship not in tanker_to_peak and peaks != []:
+                            peak_index = random.randint(0, len(peaks) - 1)
+                            peak_name = peaks[peak_index]
+                            peak_coordinates = entities[peak_name]['coordinates']
+                            tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
+                            del peaks[peak_index]
+
+                        # Transfer tanker's energy to the hub
+                        orders += ' %s:>%s' % (ship, hub)
+
+                    elif entities[ship]['available_energy'] != entities[ship]['storage_capacity']:
+
+                        # move tanker to the peak
+                        if ship in tanker_to_peak:
+                            departure_coordinates = entities[ship]['coordinates']
+                            peak_coordinates = tanker_to_peak[ship]['peak_coordinates']
+                            orders += get_adequate_movement_order(departure_coordinates, peak_coordinates, ship)
+
+                            # Tanker absorbs energy from the peak
+                            y_coordinates = peak_coordinates[0]
+                            x_coordinates = peak_coordinates[1]
+                            orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
+
+                    elif AI_data[ship]['function'] == 'regeneration' and entities[ship]['available_energy'] == entities[ship]['storage_capacity']:
+                        # Move tanker to the hub
+                        departure_coordinates = entities[ship]['coordinates']
+                        hub_coordinates = entities[hub]['coordinates']
+                        orders += get_adequate_movement_order(departure_coordinates, hub_coordinates, ship)
+
+                        # Transfer tanker's energy to the hub
+                        orders += ' %s:>%s' % (ship, hub)
+
+                    elif AI_data[ship]['function'] != 'regeneration' and entities[ship]['available_energy'] == entities[ship]['storage_capacity']:
+
+                        #Move tankers towards the cruiser wich has the less available_energy
+                        cruiser_target, cruiser_to_restock = check_cruiser_with_less_energy(entities, cruiser_to_restock)
+                        tanker_coordinates = entities[tanker]['coordinates']
+                        cruiser_target_coordinates = entities[cruiser_target]['coordinates']
+                        orders += get_adequate_movement_order(tanker_coordinates, cruiser_target_coordinates, cruiser_target)
+
+            #For every defense cruiser
+            for ship in cruiser_defense :
+
+                #Attacking every enemy in the fire range
+                for coord in board :
+                    if get_distance(coord,entities[ship]['coordinates']) <= fire_range and board[coord] != [] and flag_movement == 0:
+
+                        #Checking if there is an enemy on the case
+                        flag = 0
+                        for entity in board[coord] :
+                            if entities[entity]['type'] != 'peak' and entities[entity]['team'] == enemy_team :
+                                flag = 1
+                        #Attack the case if there is an enemy on the case
+                        if flag == 1  :
+                            order += ' '+ship+'*'+str(entities[ship]['coordinates'][0])+'-'+str(entities[ship]['coordinates'][1])+'='+str(10)
+
+            for ship in AI_data :
+                if AI_data[ship]['function'] == 'attack' and AI_data[ship]['type'] == 'cruiser':
+
+                    #Checking if the ship is in fire range
+                    if get_distance(entities[ship]['coordinates'],entities[enemy_hub]['coordinates']) - fire_range == 0 :
+                        enemy_hub_y = entities[enemy_hub]['coordinates'][0]
+                        enemy_hub_x = entities[enemy_hub]['coordinates'][1]
+
+                        #Generating attack order
+                        order+= ' '+ship+':@'+str(enemy_hub_y)+'-'+str(enemy_hub_x)
+
+                    #If the ships are not in the fire range
+                    else :
+                        #Move the cruiser towards the enemy hubs
+                        order+= get_adequate_movement_order(entities[ship]['coordinates'],entities[enemy_hub]['coordinates'],ship)
+
     ##PHASE 4##
     if entities[hub]['regeneration_rate'] == 50 and moving_cost == 5 and fire_range == 5 and cruiser_defense >= 15 :
 
