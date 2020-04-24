@@ -698,7 +698,6 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
 
 
     ##############FIRST PHASE OF PHASE 2
-
     if regeneration_rate==50:
         while (turn_phase_2<5 or fire_range<5) :
             
@@ -915,7 +914,7 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
     if fire_range == 5 and moving_cost == 5 and entities['hub']['regeneration_rate'] == 50 and nb_defense_cruisers < 15:
 
         #If turn is peer, create 2 defense cruisers
-        if turn % 2 == 0:
+        if turn_phase_2 % 2 == 0:
 
             ship_name_1 = random.randint(0,1000000)
             if ship_name_1 not in AI_data and ship_name_1 not in entities:
