@@ -113,13 +113,6 @@ if fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length o
 
             end for
 
-        else
-            for cruiser in cruisers_list:
-                if distance between hub and cruiser != 4
-                    move cruiser to a case where the distance equals 5
-
-            end for
-
     else
         create a tanker
         add tanker to defense_tankers list

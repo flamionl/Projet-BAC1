@@ -566,7 +566,7 @@ def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
     if entities[hub]['regeneration_rate'] < 50 or turn_phase_1 < 15:
 
         # Upgrade regeneration
-        if turn_phase_1 % 2 == 0:
+        if turn_phase_1 % 2 == 0 and entities[hub]['regeneration_rate'] < 50:
             orders += ' upgrade:regeneration'
         
         # Creating a regeration tanker
@@ -579,18 +579,19 @@ def get_AI_orders(entities, turn_phase_1, AI_data, peaks, team, tanker_to_peak):
                     orders += ' %s:tanker' % ship_name
                     AI_data[ship_name] = {'type' : 'tanker', 'function' : 'regeneration'}
         
+        # for all the ships
         for ship in AI_data:
             if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration':
                 
                 # If the ship has been crated this turn
-                if ship not in entities:
+                if ship not in entities and ship not in tanker_to_peak and peaks != []:
+
                     # Attributing a peak to the ship if is not already done
-                    if ship not in tanker_to_peak and peaks != []:
-                        peak_index = random.randint(0, len(peaks) - 1)
-                        peak_name = peaks[peak_index]
-                        peak_coordinates = entities[peak_name]['coordinates']
-                        tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
-                        del peaks[peak_index]
+                    peak_index = random.randint(0, len(peaks) - 1)
+                    peak_name = peaks[peak_index]
+                    peak_coordinates = entities[peak_name]['coordinates']
+                    tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
+                    del peaks[peak_index]
 
                     # Transfer tanker's energy to the hub
                     orders += ' %s:>%s' % (ship, hub)
