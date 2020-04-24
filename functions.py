@@ -661,6 +661,235 @@ def get_AI_orders(entities, board, turn_phase_1, AI_data, peaks, team, tanker_to
                     # Transfer tanker's energy to the hub
                     orders += ' %s:>%s' % (ship, hub)
 
+    #define variable for order
+    upgrade_range_order=''
+    transfer_energy_order=' '
+    coordinates_peak=[]
+    coordinates_peak_B=[]
+    taking_tanker=0
+    moving_order=' '
+    absorption_order=' '
+    create_cruiser_order=' '
+    upgrade_moving_cost_order=' '
+    transfer_energy_hub_order=' '
+
+
+
+    #taking regeneration_rate of the good teams
+
+    for search_hub in entities:
+        if entities[search_hub]['type']=='hub' and entities[search_hub]['team']==team:
+            regeneration_rate=entities[search_hub]['regeneration_rate']
+
+
+
+    #taking moving_cost and fire_range from a cruiser
+
+    for search_cruiser in entities:
+        if entities[search_cruiser]['type']=='cruiser' and entities[search_cruiser]['team']==team:
+            fire_range=entities[search_cruiser]['fire_range']
+            moving_cost=entities[search_cruiser]['moving_cost']
+
+
+    #taking  position of energy peaks in coordinates_peak variable
+    for key_entities in entities:
+        if entities[key_entities]['type']=='peak':
+            coordinates_peak.append(entities[key_entities]['coordinates'])  
+
+
+    ##############FIRST PHASE OF PHASE 2
+
+    if regeneration_rate==50:
+        while (turn_phase_2<5 or fire_range<5) :
+            
+            #creation of tankers
+            name_tanker_creation=random.randint(1,1566156510)
+            tanker_creation_order=str(name_tanker_creation)+':'+'tanker'
+
+            
+            #upgrading fire_range for cruisers
+            while fire_range<5:
+                upgrade_range_order+=' upgrade:range '
+                fire_range+=1
+
+            #transfer energy for the hub
+            transfer_energy_hub_order+=' '+str(name_tanker_creation)+':<hub'
+
+            
+        
+            #MOVING TANkER WHO ARE NOT FULL OF ENERGY TO A PEAK 
+            #Take a tanker who are not full of energy 
+            for key_entities in entities:
+                if entities[key_entities]['type']=='tanker' and entities[key_entities]['available_energy']<entities[key_entities]['storage_capacity'] and entities[key_entities]['team']==team:
+                    name_tanker=str(key_entities)
+                    tanker_coordinates=entities[key_entities]['coordinates']
+            
+                    #taking a random energy_peaks
+                    b=int(len(coordinates_peak))
+                    if len(coordinates_peak)>=1:
+                        ramdom_value=randint(0,len(coordinates_peak))
+                        energy_peaks_coordinates=coordinates_peak[ramdom_value]
+                    
+                        #remove this coordinates and avoid having two tankers on the same coordinates
+                        del coordinates_peak[ramdom_value]
+
+                    
+                        #making condition for creating movement order to energy peaks
+                        if get_distance(tanker_coordinates,energy_peaks_coordinates)!=0:
+                            moving_order+=get_adequate_movement_order(tanker_coordinates,energy_peaks_coordinates,name_tanker)
+
+                    
+                        #making absorption order when the tanker is on a energy peaks
+                        if get_distance(tanker_coordinates,energy_peaks_coordinates)==0:
+                            absorption_order+=name_tanker+':<'+str(energy_peaks_coordinates[0])+'-'+str(energy_peaks_coordinates[1])
+            
+    ####SECONDE PHASE OF PHASE 2
+
+
+
+
+
+    if turn_phase_2<20 and regeneration_rate==50 and fire_range==5:
+
+
+            if turn_phase_2%2==0:
+                name_cruiser_creation_A=random.randint(1,1566156510)
+                name_cruiser_creation_B=random.randint(1,1566156510)
+
+                create_cruiser_order+=' '+str(name_cruiser_creation_A)+':'+'cruiser'+' '+str(name_cruiser_creation_B)+':'+'cruiser'+' '
+                AI[name_cruiser_creation_A]={'type':'cruiser','function':'attack'}
+                AI[name_cruiser_creation_B]={'type':'cruiser','function':'attack'}
+
+            else:
+                while moving_cost>5 :
+                    name_cruiser_creation_A=random.randint(1,1566156510)
+                    create_cruiser_order+=' '+str(name_cruiser_creation_A)+':'+'cruiser'+' '
+                    AI[name_cruiser_creation_A]={'type':'cruiser','function':'attack'}
+                    upgrade_moving_cost_order+='upgrade:move'   
+                    moving_cost-=1
+
+            for elements in AI :
+                
+                #putting the entities name in a string
+                name_tanker=str(elements)
+                tanker_coordinates=entities[elements]['coordinates']
+
+
+                #checking if it's a regeneration's tanker and if the tanker is not full of his available_energy 
+                if AI[elements]['type']=='tanker' and AI[elements]['functions']=='regeneration' and entities[elements]['available_energy']!=entities[elements]['storage_capacity'] and  entities[elements]['team']==team:
+                    
+
+                    #taking a random energy_peaks
+                    ramdom_value=randint(0,len(coordinates_peak)-1)
+                    energy_peaks_coordinates=list(coordinates_peak[ramdom_value])
+
+                    
+                    #remove this coordinates and avoid having two tankers on the same coordinates
+                    del coordinates_peak[ramdom_value]
+
+                    
+                    #making condition for creating movement order to energy peaks
+                    if get_distance(tanker_coordinates,energy_peaks_coordinates)!=0:
+                        moving_order+=get_adequate_movement_order(tanker_coordinates,energy_peaks_coordinates,name_tanker)
+
+                    if get_distance(tanker_coordinates,energy_peaks_coordinates)==0:
+                        absorption_order+=name_tanker+':<'+str(energy_peaks_coordinates[0])+'-'+str(energy_peaks_coordinates[1])
+                        
+                        
+                else:
+                    
+                    #get hub location
+                    for entity in entities:
+                        if entities[entity]['type']=='hub' and  entities[entity]['team']==team:
+                            hub_location=entities[entity]['coordinates']
+        
+                    
+                    #generating movement order to the hub 
+                    if get_distance(tanker_coordinates,hub_location)!=0:
+                        moving_order+=get_adequate_movement_order(tanker_coordinates,energy_peaks_coordinates,name_tanker)
+                    
+                    if get_distance(tanker_coordinates,hub_location)==0:
+                        transfer_energy_order+=' '+name_tanker_creation+':<hub '
+        
+
+
+
+
+
+            # taking all tankers not in regeneration list
+            for entity in entities:
+                if entity not in AI and entities[entity]['type']=='tanker' and  entities[entity]['team']==team:
+                    
+                    name_tanker=str(entity)
+                    #MOVING TANKER TO THE CRUISER WHICH LESS ENERGY  
+                    if entities[entity][available_energy]==entities[entity][storage_capacity]:
+
+
+                        #moving tanker to the a cruiser with less energy (question : celui qui a le moins d'énergie ou pas ? ou ceux qui est pas à fond ? version ici = version qui sont pas à fond)
+
+                        #taking a cruiser with less energy
+                        for is_cruiser in entities:
+                            if entities[is_cruiser]['type']=='cruiser' and entities[is_cruiser]['available_energy']<=50 and  entities[is_cruiser]['team']==team:
+                                
+
+                                #getting tanker position 
+                                tanker_coordinates=entities[entity]['coordinates']
+                                #getting cruiser position
+                                cruiser_coordinates=entities[is_cruiser]['coordinates']
+                                
+
+                                #moving tanker
+                                if get_distance(tanker_coordinates,cruiser_coordinates)!=0:
+                                    moving_order+=get_adequate_movement_order(tanker_coordinates,cruiser_coordinates,name_tanker)
+
+
+                                #transfer energy to the cruiser
+                                if get_distance(tanker_coordinates,cruiser_coordinates)==0:
+                                    transfer_energy_order+=entity+':>'+is_cruiser+' '
+
+                        
+                    else:
+                        name_tanker=str(entity)
+                        tanker_coordinates=list(entities[entity]['coordinates'])
+
+                        #taking a random energy_peaks
+                    
+                        if len(coordinates_peak)>=1:
+                            ramdom_value=randint(0,coordinates_peak)
+                            energy_peaks_coordinates=coordinates_peak[ramdom_value]
+                    
+                            #remove this coordinates and avoid having two tankers on the same coordinates
+                            del coordinates_peak[ramdom_value]
+
+                    
+                            #making condition for creating movement order to energy peaks
+                            if get_distance(tanker_coordinates,energy_peaks_coordinates)!=0:
+                                moving_order+=get_adequate_movement_order(tanker_coordinates,energy_peaks_coordinates,name_tanker)
+
+                    
+                            #making absorption order when the tanker is on a energy peaks
+                            if get_distance(tanker_coordinates,energy_peaks_coordinates)==0:
+                                absorption_order+=name_tanker+':<'+str(energy_peaks_coordinates[0])+'-'+str(energy_peaks_coordinates[1])
+
+            for cruiser_attack in AI:
+                if entities[cruiser_attack]['type']=='cruiser' and AI[cruiser_attack]['function']=='attack' and entities[cruiser_attack]['team']==team:
+
+                    #taking the opposing hub
+                    for entity in entities:
+                        if entities[entity]['type']=='hub' and entities[entity]['team']!=team:
+                            opposing_hub_coordinates=list(entities[entity]['coordinates'])
+                            cruiser_coordinates=list(entites[cruiser_attack]['coordinates'])
+
+                            if get_distance(opposing_hub_coordinates,cruiser_coordinates)!= entities[cruiser_attack]['fire_range']:
+                                moving_order+=get_adequate_movement_order(opposing_hub_coordinates,cruiser_coordinates,is_cruiser)
+
+
+                            #attacking opposing hub order A CHECKER
+                            if get_distance(opposing_hub_coordinates,cruiser_coordinates)== entities[cruiser_attack]['fire_range']:
+                                attack_opposing_hub_order=cruiser_attack+':*'+opposing_hub_coordinates[0]+'-'+opposing_hub_coordinates[1]+'='+entities[cruiser_attack]['available_energy']/10
+    
+    order=upgrade_range_order+transfer_energy_order+moving_order+absorption_order+create_cruiser_order+upgrade_moving_cost_order+transfer_energy_hub_order
+
     ###THIRD PHASE###
 
     # Setting all the variables
