@@ -1731,8 +1731,4 @@ def check_cruiser_with_less_energy(entities, cruiser_to_restock):
 
     return cruiser_target, cruiser_to_restock
 
-
-
-
-
 game('./map.equ', 'AI', 'naive_AI')
