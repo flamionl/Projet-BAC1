@@ -266,9 +266,9 @@ def display_board (board, entities, nb_columns, nb_lines):
     """
     #Emojis used
     hub ='♜'
-    tanker = '☬'
+    tanker = '▲'
     case = '▒'
-    cruiser = '▲'
+    cruiser = '☬'
     energy = '●'
 
     #Color used to print the board
@@ -895,33 +895,31 @@ def get_AI_orders(entities, board, turn_phase_1,turn_phase_2, AI_data, peaks, te
                 AI_data[ship_name_2] = {'type' : 'cruiser', 'function' : 'defense'}
                 cruiser_defense.append(ship_name_2)
 
-        #If turn is odd, create a refill tanker
         else:
             #Create the defense line with the defense cruisers
-            if len(cruiser_defense) < 15:
+            flag_movement = 0
+            for cruiser in cruiser_defense :
+                if cruiser in entities:
+                    cruiser_coordinates = entities[cruiser]['coordinates']
+                    distance = get_distance(hub_coordinates, cruiser_coordinates)
 
-                flag_movement = 0
-                for cruiser in cruiser_defense :
-                    if cruiser in entities:
-                        cruiser_coordinates = entities[cruiser]['coordinates']
-                        distance = get_distance(hub_coordinates, cruiser_coordinates)
+                    if distance < 3:
+                        orders += get_adequate_movement_order(cruiser_coordinates, enemy_hub_coordinates, cruiser)
+                        flag_movement = 1
 
-                        if distance < 3:
-                            orders += get_adequate_movement_order(cruiser_coordinates, ennemy_hub_coordinates, cruiser)
-                            flag_movement = 1
+                    # If there is another entity on the case, move the entity elsewhere
+                    elif distance == 3:
+                        entities_on_case = board[cruiser_coordinates]
+                        for entity in entities_on_case:
+                            if entity in AI_data and AI_data[entity]['type'] == 'cruiser' and AI_data[entity]['function'] == 'defense' and entity != cruiser:
+                                y_coordinates = cruiser_coordinates[0]
+                                x_coordinates = cruiser_coordinates[1]
+                                new_y = y_coordinates + random.randint(-1, 1)
+                                new_x = x_coordinates + random.randint(-1, 1)
+                                orders += get_adequate_movement_order(cruiser_coordinates, (new_y, new_x), cruiser)
+                                flag_movement = 1
 
-                        # If there is another entity on the case, move the entity elsewhere
-                        elif distance == 3:
-                            entities_on_case = board[cruiser_coordinates]
-                            for entity in entities_on_case:
-                                if entity in AI_data and AI_data[entity]['type'] == 'cruiser' and AI_data[entity]['function'] == 'defense' and entity != cruiser:
-                                    y_coordinates = cruiser_coordinates[0]
-                                    x_coordinates = cruiser_coordinates[1]
-                                    new_y = y_coordinates + random.randint(-1, 1)
-                                    new_x = x_coordinates + random.randint(-1, 1)
-                                    orders += get_adequate_movement_order(cruiser_coordinates, (new_y, new_x), cruiser)
-                                    flag_movement = 1
-
+            #If turn is odd, create a refill tanker
             ship_name_3 = random.randint(0,1000000)
             if ship_name_3 not in AI_data and ship_name_3 not in entities:
                 orders += ' %d:cruiser' %ship_name_3
