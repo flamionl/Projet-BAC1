@@ -55,6 +55,7 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
     AI_data_blue = {}
     tanker_to_peak_blue = {}
     peaks_blue = []
+    tanker_to_cruiser_blue = {}
     for entity in entities:
         if entities[entity]['type'] == 'peak':
             peaks_blue.append(entity)
@@ -63,14 +64,15 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
     turn_AI_red = 0
     AI_data_red = {}
     tanker_to_peak_red = {}
+    tanker_to_cruiser_red = {}
     peaks_red = peaks_blue
 
-    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 100 :
+    while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 400 :
 
         #Printing the board
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
-        print(entities)
+        
 
         ## Player_1 ##
 
@@ -80,19 +82,19 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
         elif player_1 == 'naive_AI':
             orders, ship_list_1 = get_naive_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
         elif player_1 == 'AI':
-            orders, AI_data_blue, turn_AI_blue ,peaks_blue, tanker_to_peak_blue = get_AI_orders(entities, board, turn_AI_blue, AI_data_blue, peaks_blue, 'blue', tanker_to_peak_blue)
+            orders, AI_data_blue, turn_AI_blue ,peaks_blue, tanker_to_peak_blue, tanker_to_cruiser_blue = get_AI_orders(entities, turn_AI_blue, AI_data_blue, peaks_blue, 'blue', tanker_to_peak_blue, tanker_to_cruiser_blue)
         else :
             orders = remote_play.get_remote_orders(connection)
 
-        print('orders player_1 : %s' % orders)
+        #print('orders player_1 : %s' % orders)
 
         #Sending orders to the remote_player
         if player_2 == 'remote_player' :
             remote_play.notify_remote_orders(connection,orders)
-        #player_1's orders sorting
+        ##################player_1's orders sorting
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(orders,'blue')
 
-        print ('movement_orders : %s' % str(movement_orders_blue))
+        ####################print ('movement_orders : %s' % str(movement_orders_blue))
 
         ## Player 2 ##
 
@@ -102,12 +104,12 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
         elif player_2 == 'naive_AI' :
             orders, ship_list_2 = get_naive_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
         elif player_2 == 'AI':
-            orders, AI_data_red, turn_AI_red, peaks_red, tanker_to_peak_red = get_AI_orders(entities, board, turn_AI_red, AI_data_red, peaks_red, 'red', tanker_to_peak_red)
+            orders, AI_data_red, turn_AI_red, peaks_red, tanker_to_peak_red, tanker_to_cruiser_red = get_AI_orders(entities, turn_AI_red, AI_data_red, peaks_red, 'red', tanker_to_peak_red, tanker_to_cruiser_red)
 
         else :
             orders = remote_play.get_remote_orders(connection)
 
-        print('orders player_2 : %s' % orders)
+        ####################"print('orders player_2 : %s' % orders)
 
         # Sending orders to the remote player
         if player_1 == 'remote_player':
@@ -149,6 +151,13 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
 
         #Increment turn variable
         turn +=1
+    
+    if entities['hub_blue']['structure_points'] <= 0 and entities['hub_red']['structure_points'] <= 0:
+        print('It\'s a draw !')
+    elif entities['hub_blue']['structure_points'] <= 0:
+        print('Team red wins !')
+    elif entities['hub_red']['structure_points'] <= 0:
+        print('Team blue wins !')
     #End communication with the remote player
     if player_1 == 'remote_player' or player_2 == 'remote_player' :
         remote_play.close_connection(connection)
@@ -529,7 +538,7 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
         order += ' upgrade:' + upgrade_choice
 
     #generate movement orders
-    if random.random() < 1.1:  # toujours
+    if random.random() < 1.1 and len(ship_list) > 1:  # toujours
         for iteration in range (1, 5):
             ship_name=ship_list[random.randint(0,len(ship_list)-1)]
             ship_coord_y = entities[ship_name]['coordinates'][0]
@@ -538,7 +547,7 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
             coordinates_x=str(random.randint(ship_coord_x - 1,ship_coord_x + 1))
             order += ' ' + ship_name + ':@' + coordinates_y + '-' + coordinates_x
     #generate attack orders
-    if random.random() < 1.1:  # toujours
+    if random.random() < 1.1 and len(ship_list) > 1:  # toujours
         for iteration in range (1, 3):
             ship_name = ship_list[random.randint(0, len(ship_list) - 1)]
             coordinates_y = str(random.randint(1, nb_lines))
@@ -547,12 +556,12 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
             order += ' ' + ship_name + ':*' + coordinates_y + '-' + coordinates_x + '=' + damages
 
     #energy giving
-    if random.random() < 1.1:
+    if random.random() < 1.1 and len(ship_list) > 1:
         giver = ship_list[random.randint(0,len(ship_list) - 1)]
         receiver = ship_list[random.randint(0,len(ship_list) - 1)]
         order += ' ' + giver + ':>' + receiver
     #energy abosorption
-    if random.random() < 1.1:
+    if random.random() < 1.1 and len(ship_list) > 1:
         ship_name = ship_list[random.randint(0,len(ship_list) - 1)]
         coordinates_y = str(random.randint(1, nb_lines))
         coordinates_x = str(random.randint(1, nb_columns))
@@ -561,39 +570,37 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
 
     return order, ship_list
 
-def refuel_cruisers(entities, fire_range, other_tankers, cruiser_attack, hub_y, hub_x):
+def refuel_cruisers(entities, fire_range, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser):
 
     orders = ''
 
-    #For the other tankers
-    cruiser_to_refuel = cruiser_attack
-    for tanker in other_tankers :
+    for tanker in other_tankers:
 
-        #If the tanker is full of energy
-        if entities[tanker]['available_energy'] == entities[tanker]['storage_capacity'] and cruiser_attack != []:
+        if tanker not in tanker_to_cruiser and cruiser_attack != []:
+            index = random.randint(0, len(cruiser_attack) - 1)
+            tanker_to_cruiser[tanker] = {'associated_cruiser' : cruiser_attack[index]}
 
-            #Searching the cruiser with the less energy
-            cruiser_target = cruiser_to_refuel[0]
-            for index in range(len(cruiser_to_refuel) - 1):
-                if entities[cruiser_target]['available_energy'] > entities[cruiser_to_refuel[index]]['available_energy']:
-                    cruiser_target=cruiser_to_refuel[index]
-            cruiser_to_refuel.remove(cruiser_target)
+        elif tanker in tanker_to_cruiser and tanker_to_cruiser[tanker]['associated_cruiser'] in entities and tanker in entities and entities[tanker]['available_energy'] != 0:
+            target_coordinates = entities[tanker_to_cruiser[tanker]['associated_cruiser']]['coordinates']
+
+            if get_distance(entities[tanker]['coordinates'], target_coordinates) > 1:
+                
+                # Move and give energy
+                orders += get_adequate_movement_order(entities[tanker]['coordinates'], target_coordinates, tanker)
+                orders += ' %s:>%s' % (tanker, tanker_to_cruiser[tanker]['associated_cruiser'])
             
+            elif get_distance(entities[tanker]['coordinates'], target_coordinates) <= 1:
 
-            #Moving the tanker towards the cruiser
-            if get_distance(entities[cruiser_target]['coordinates'],entities[tanker]['coordinates']) > 1 :
-                get_adequate_movement_order(entities[tanker]['coordinates'],entities[cruiser_target]['coordinates'], tanker)
-            else :
-                orders +=' %s:>%s' % (tanker, cruiser_target)
-
-        else :
-            # Move to the hub 
+                # Give energy
+                orders += ' %s:>%s' % (tanker, tanker_to_cruiser[tanker]['associated_cruiser'])
+        
+        elif tanker in tanker_to_cruiser and tanker in entities and entities[tanker]['available_energy'] == 0:
+            
+            # Move to the hub
             orders += ' %s:@%d-%d' % (tanker, hub_y, hub_x)
-
-            # Absorbing energy from the hub
             orders += ' %s:<%d-%d' % (tanker, hub_y, hub_x)
-    
-    return orders
+
+    return orders, tanker_to_cruiser
             
                 
 def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
@@ -611,14 +618,15 @@ def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
                 enemy_hub_x = entities[enemy_hub]['coordinates'][1]
 
                 #Generating attack order
-                #orders += ' %s:*%d-%d=%d' % (ship, enemy_hub_y, enemy_hub_x, int(entities[ship]['available_energy']/10) - 1)
+                orders += ' %s:*%d-%d=%d' % (ship, enemy_hub_y, enemy_hub_x, int(entities[ship]['available_energy']/10) - 1)
 
             #If the ship is not in the fire range
             else :
                 #Move the cruiser towards the enemy hubs
                 orders+= get_adequate_movement_order(entities[ship]['coordinates'],entities[enemy_hub]['coordinates'],ship)
-    
     return orders
+    
+    
 
 def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers):
     """Move the regeneration tanker to an energy peak, absorb the energy peak and move the tanker to the hub
@@ -698,7 +706,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
 
     return orders, tanker_to_peak, peaks, other_tankers
 
-def get_AI_orders(entities, board, turn_AI, AI_data, peaks,team, tanker_to_peak):
+def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker_to_cruiser):
 
     orders = ''
     fire_range = 1
@@ -785,7 +793,6 @@ def get_AI_orders(entities, board, turn_AI, AI_data, peaks,team, tanker_to_peak)
         tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
         
         orders += tanker_orders    
-    turn_AI += 1
 
     ### Phase 3 ###
     
@@ -825,14 +832,16 @@ def get_AI_orders(entities, board, turn_AI, AI_data, peaks,team, tanker_to_peak)
         orders += tanker_orders
 
         # Move the attack tankers to the hub, absorb its energy, and transfer it to the cruiser with the less energy
-        refuel_orders = refuel_cruisers(entities, fire_range, other_tankers, cruiser_attack, hub_y, hub_x)
+        refuel_orders, tanker_to_cruiser = refuel_cruisers(entities, fire_range, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser)
         orders += refuel_orders
 
         #Move the attack cruisers towards the enemy hub and attack it
         AI_attack_orders = AI_attack(entities, enemy_hub, cruiser_attack, fire_range)
         orders += AI_attack_orders
                     
-    return orders, AI_data, turn_AI, peaks, tanker_to_peak
+    turn_AI += 1
+
+    return orders, AI_data, turn_AI, peaks, tanker_to_peak, tanker_to_cruiser
 
 def get_adequate_movement_order(departure_coordinates, arrival_coordinates, ship_name):
     """ Gives the adequate movement order (1 case range) in deplace an entity to the arrival_coordinates
@@ -1285,7 +1294,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
             for entity in entities_on_case:
                 absorbed_entity = entity
 
-                if absorbed_entity in entities:
+                if absorbed_entity in entities and tanker_name in entities:
                     # Checking if the type of the entities is convenient
                     if ((entities[absorbed_entity]['type'] == 'hub' and entities[absorbed_entity]['team'] == team) or entities[absorbed_entity]['type'] == 'peak') and entities[tanker_name]['type'] == 'tanker':
 
@@ -1456,4 +1465,4 @@ def check_cruiser_with_less_energy2(entities):
 
     return name_cruiser
 
-game('./map.equ', 'AI', 'naive_AI')
+game('./test.equ', 'AI', 'AI')
