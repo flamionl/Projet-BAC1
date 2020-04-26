@@ -37,8 +37,6 @@ re-initialize the turn
 
 if (turn < 5 or fire_range < 5) and regeneration_rate == 50
 
-    create tanker
-    transfer energy to the hub
     upgrade fire_range
 
     for all the tankers
