@@ -57,6 +57,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
     peaks_blue = []
     tanker_to_cruiser_blue = {}
     state_phase_1_blue = 0
+    state_phase_2_blue = 0
     for entity in entities:
         if entities[entity]['type'] == 'peak':
             peaks_blue.append(entity)
@@ -67,6 +68,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
     tanker_to_peak_red = {}
     tanker_to_cruiser_red = {}
     state_phase_1_red = 0
+    state_phase_2_red = 0
     peaks_red = []
     for entity in entities :
         if entities[entity]['type'] == 'peak' :
@@ -87,7 +89,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         elif player_1 == 'naive_AI':
             orders, ship_list_1 = get_naive_AI_orders(board, entities, turn, ship_list_1, nb_columns, nb_lines)
         elif player_1 == 'AI':
-            orders, AI_data_blue, turn_AI_blue ,peaks_blue, tanker_to_peak_blue, tanker_to_cruiser_blue, state_phase_1_blue = get_AI_orders(entities, turn_AI_blue, AI_data_blue, peaks_blue, 'blue', tanker_to_peak_blue, tanker_to_cruiser_blue, state_phase_1_blue)
+            orders, AI_data_blue, turn_AI_blue ,peaks_blue, tanker_to_peak_blue, tanker_to_cruiser_blue, state_phase_1_blue, state_phase_2_blue = get_AI_orders(entities, turn_AI_blue, AI_data_blue, peaks_blue, 'blue', tanker_to_peak_blue, tanker_to_cruiser_blue, state_phase_1_blue, state_phase_2_blue)
         else :
             orders = remote_play.get_remote_orders(connection)
 
@@ -99,7 +101,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         #player_1's orders sorting
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(orders,'blue')
 
-        ####################print ('movement_orders : %s' % str(movement_orders_blue))
+        print ('creation_orders : %s' % str(creation_orders_blue))
 
         ## Player 2 ##
 
@@ -109,8 +111,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         elif player_2 == 'naive_AI' :
             orders, ship_list_2 = get_naive_AI_orders(board, entities, turn, ship_list_2, nb_columns, nb_lines)
         elif player_2 == 'AI':
-            orders, AI_data_red, turn_AI_red, peaks_red, tanker_to_peak_red, tanker_to_cruiser_red, state_phase_1_red = get_AI_orders(entities, turn_AI_red, AI_data_red, peaks_red, 'red', tanker_to_peak_red, tanker_to_cruiser_red, state_phase_1_red)
-
+            orders, AI_data_red, turn_AI_red, peaks_red, tanker_to_peak_red, tanker_to_cruiser_red, state_phase_1_red, state_phase_2_red = get_AI_orders(entities, turn_AI_red, AI_data_red, peaks_red, 'red', tanker_to_peak_red, tanker_to_cruiser_red, state_phase_1_red, state_phase_2_red)
         else :
             orders = remote_play.get_remote_orders(connection)
 
@@ -157,6 +158,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
 
         #Increment turn variable
         turn +=1
+        print(AI_data_red)
     
     if entities['hub_blue']['structure_points'] <= 0 and entities['hub_red']['structure_points'] <= 0:
         print('It\'s a draw !')
@@ -719,11 +721,11 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
             if ship not in tanker_to_peak and peaks == [] and entities[ship]['available_energy'] == 0:
                 regeneration_tanker.remove(ship)
                 other_tankers.append(ship)
-                AI_data[ship]['function'] = 'attack'
+                AI_data[ship]['function'] = 'refuel'
 
     return orders, tanker_to_peak, peaks, other_tankers
 
-def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker_to_cruiser,state_phase_1):
+def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker_to_cruiser,state_phase_1,state_phase_2):
 
     orders = ''
     fire_range = 1
@@ -800,7 +802,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
     
     ### Phase 2 ###
 
-    if state_phase_1 == 1:
+    if state_phase_1 == 1 and entities[hub]['available_energy'] >= 1000 and moving_cost == 10:
     # Create a refuel tanker 
         flag = 0
         while flag == 0:
@@ -809,11 +811,11 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
                 flag = 1
                 orders += ' %s:tanker' % ship_name
                 AI_data[ship_name] = {'type' : 'tanker', 'function' : 'refuel'}
-                state_phase_1 = 2
+                state_phase_2 = 1
     
     ### Phase 3 ###
     
-    if state_phase_1 == 2 and len(other_tankers) >= 1:
+    if state_phase_1 == 1 and state_phase_2 == 1 and len(other_tankers) >= 1:
     
         if entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 5 and (turn_AI % 2 == 0 or moving_cost == 5):
             #create a cruiser
@@ -841,7 +843,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
     print('moving cost : %s' % moving_cost )
     turn_AI += 1
 
-    return orders, AI_data, turn_AI, peaks, tanker_to_peak, tanker_to_cruiser, state_phase_1
+    return orders, AI_data, turn_AI, peaks, tanker_to_peak, tanker_to_cruiser, state_phase_1, state_phase_2
     
 def get_adequate_movement_order(departure_coordinates, arrival_coordinates, ship_name):
     """ Gives the adequate movement order (1 case range) in deplace an entity to the arrival_coordinates
