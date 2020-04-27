@@ -753,6 +753,12 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
     for ship in AI_data :
         if AI_data[ship]['type'] == 'cruiser' and AI_data[ship]['function'] == 'attack':
             cruiser_attack.append(ship)
+    
+    #Getting regeneration tankers 
+    regeneration_tankers = []
+    for ship in AI_data :
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
+            regeneration_tankers.append(ship)
 
     #Getting other tankers
     other_tankers = []
@@ -762,7 +768,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 1 ###
 
-    if tanker_storage_capacity < 900:
+    if tanker_storage_capacity < 900 or len(regeneration_tankers) < 15:
 
         #Upgrade storage
         if turn_AI % 10 == 5 and tanker_storage_capacity < 900 :
@@ -785,7 +791,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 2 ###
 
-    if fire_range < 5 and tanker_storage_capacity == 900:
+    if fire_range < 5 and tanker_storage_capacity == 900 :
 
         #upgrade the fire range
         orders+= ' upgrade:range'
@@ -797,37 +803,25 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 3 ###
     
-    if turn_AI >= 30 :
+    if fire_range == 5 and tanker_storage_capacity == 900:
         
-        if turn_AI % 2 == 0 :
+        if turn_AI % 5 == 0 :
+            if moving_cost > 5   :
+
+                #upgrade moving_cost
+                orders += ' upgrade:move'
             
-            
-            #Create one cruiser
+        else:
+  
+            #create a cruiser
             flag = 0
-            while flag == 0:
+            while flag == 0 :
                 ship_name = str(random.randint(0, 1000000))
                 if ship_name not in AI_data and ship_name not in entities:
                     flag += 1
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
                     cruiser_attack.append(ship_name)
-        else:
-
-            if moving_cost > 5 :
-
-                #upgrade moving_cost
-                orders += ' upgrade:move'
-            else : 
-                
-                #create a cruiser
-                flag = 0
-                while flag == 0 :
-                    ship_name = str(random.randint(0, 1000000))
-                    if ship_name not in AI_data and ship_name not in entities:
-                        flag += 1
-                        orders += ' %s:cruiser' % ship_name
-                        AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
-                        cruiser_attack.append(ship_name)
         
         # Move the regeneration tankers to the peaks, absorb them and transfer the energy to the hub
         tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
