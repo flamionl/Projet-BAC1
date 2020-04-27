@@ -1465,4 +1465,3 @@ def check_cruiser_with_less_energy2(entities):
 
     return name_cruiser
 
-game('./test.equ', 'AI', 'AI')
