@@ -54,8 +54,8 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
     turn_AI_blue = 0
     AI_data_blue = {}
     tanker_to_peak_blue = {}
-    peaks_blue = []
     tanker_to_cruiser_blue = {}
+    peaks_blue = []
     for entity in entities:
         if entities[entity]['type'] == 'peak':
             peaks_blue.append(entity)
@@ -65,7 +65,10 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
     AI_data_red = {}
     tanker_to_peak_red = {}
     tanker_to_cruiser_red = {}
-    peaks_red = peaks_blue
+    peaks_red = []
+    for entity in entities:
+        if entities[entity]['type'] == 'peak':
+            peaks_red.append(entity)
 
     while entities['hub_blue']['structure_points'] > 0 and entities['hub_red']['structure_points'] > 0 and turn < 400 :
 
@@ -644,6 +647,10 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
     for ship in AI_data :
         if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
             regeneration_tanker.append(ship)
+    
+    for peak in peaks:
+        if peak not in entities:
+            peaks.remove(peak)
             
     for ship in regeneration_tanker:
 
@@ -754,12 +761,6 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
         if AI_data[ship]['type'] == 'cruiser' and AI_data[ship]['function'] == 'attack':
             cruiser_attack.append(ship)
 
-    #Getting regeneration tankers
-    regeneration_tanker = []
-    for ship in AI_data:
-        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
-            regeneration_tanker.append(ship)
-
     #Getting other tankers
     other_tankers = []
     for ship in AI_data :
@@ -768,7 +769,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 1 ###
 
-    if tanker_storage_capacity < 900 or len(regeneration_tanker) < 15:
+    if tanker_storage_capacity < 900:
 
         #Upgrade storage
         if turn_AI % 10 == 5 and tanker_storage_capacity < 900 :
@@ -791,11 +792,10 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 2 ###
 
-    if fire_range < 3 and tanker_storage_capacity == 900 :
+    if fire_range < 5 and tanker_storage_capacity == 900:
 
         #upgrade the fire range
-        if turn_AI % 5 == 1:
-            orders+= ' upgrade:range'
+        orders+= ' upgrade:range'
 
         # Move the tankers to the peaks, absorb them and transfer the energy to the hub
         tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
@@ -804,25 +804,37 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 3 ###
     
-    if fire_range == 3 and tanker_storage_capacity == 900:
+    if turn_AI >= 30 :
         
-        if turn_AI % 5 == 0 :
-            if moving_cost > 5   :
-
-                #upgrade moving_cost
-                orders += ' upgrade:move'
+        if turn_AI % 2 == 0 :
             
-        else:
-  
-            #create a cruiser
+            
+            #Create one cruiser
             flag = 0
-            while flag == 0 :
+            while flag == 0:
                 ship_name = str(random.randint(0, 1000000))
                 if ship_name not in AI_data and ship_name not in entities:
                     flag += 1
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
                     cruiser_attack.append(ship_name)
+        else:
+
+            if moving_cost > 5 :
+
+                #upgrade moving_cost
+                orders += ' upgrade:move'
+            else : 
+                
+                #create a cruiser
+                flag = 0
+                while flag == 0 :
+                    ship_name = str(random.randint(0, 1000000))
+                    if ship_name not in AI_data and ship_name not in entities:
+                        flag += 1
+                        orders += ' %s:cruiser' % ship_name
+                        AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
+                        cruiser_attack.append(ship_name)
         
         # Move the regeneration tankers to the peaks, absorb them and transfer the energy to the hub
         tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
@@ -1398,71 +1410,4 @@ def hubs_regeneration (entities):
 
     return entities
 
-def check_cruiser_with_less_energy(entities, cruiser_to_restock):
-    """take the cruiser with less energy
-
-    parameters
-    ----------
-    entities: dictionnary with the entities of the game (dict)
-    cruiser_to_restock:
-
-    return:
-    -------
-    cruiser_name : that the cruiser with less energy (str)
-
-
-    specification : Gerry Longfils (v.1 24/04/2020)
-    implementation : Gerry Longfils (v.1 24/04/2020)
-    """
-
-    #putting the fist cruiser in cruiser_name
-    cruiser_target=cruiser_to_restock[0]
-
-    #check for the cruiser with less energy
-    for index in range(len(cruiser_to_restock)-1):
-        if entities[cruiser_target]['available_energy']>entities[cruiser_to_restock[index]]['available_energy']:
-            cruiser_target=cruiser_to_restock[index]
-    cruiser_to_restock.remove(cruiser_target)
-
-
-
-    return cruiser_target, cruiser_to_restock
-
-def check_cruiser_with_less_energy2(entities):
-    """take the cruiser with less energy
-
-    parameters
-    ----------
-    entities: dictionnary with the entities of the game
-
-    return:
-    -------
-    cruiser_name : that the cruiser with less energy
-
-
-    specification : Gerry Longfils (v.1 24/04/2020)
-    implementation : Gerry Longfils (v.1 24/04/2020)
-    """
-
-    list_of_entities=[]
-
-    #putting entities name in a list
-    for entity in entities:
-        if entities[entity]['type']=='cruiser':
-            list_of_entities.append(entity)
-
-
-
-    #putting the fist cruiser in cruiser_name
-    name_cruiser=list_of_entities[0]
-
-    #check for the cruiser with less energy
-    for index in range(len(list_of_entities)-1):
-        if entities[name_cruiser]['available_energy']>entities[list_of_entities[index]]['available_energy']:
-            name_cruiser=list_of_entities[index]
-
-
-
-    return name_cruiser
-
-game('./map.equ', 'AI', 'AI')
+game('./extension.equ', 'AI', 'AI')
