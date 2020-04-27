@@ -86,12 +86,12 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
         else :
             orders = remote_play.get_remote_orders(connection)
 
-        #print('orders player_1 : %s' % orders)
+        print('orders player_1 : %s' % orders)
 
         #Sending orders to the remote_player
         if player_2 == 'remote_player' :
             remote_play.notify_remote_orders(connection,orders)
-        ##################player_1's orders sorting
+        #player_1's orders sorting
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(orders,'blue')
 
         ####################print ('movement_orders : %s' % str(movement_orders_blue))
@@ -109,7 +109,7 @@ def game(file_path, player_1, player_2,your_id=0,remote_id=0):
         else :
             orders = remote_play.get_remote_orders(connection)
 
-        ####################"print('orders player_2 : %s' % orders)
+        print('orders player_2 : %s' % orders)
 
         # Sending orders to the remote player
         if player_1 == 'remote_player':
@@ -625,9 +625,7 @@ def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
                 #Move the cruiser towards the enemy hubs
                 orders+= get_adequate_movement_order(entities[ship]['coordinates'],entities[enemy_hub]['coordinates'],ship)
     return orders
-    
-    
-
+      
 def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers):
     """Move the regeneration tanker to an energy peak, absorb the energy peak and move the tanker to the hub
     
@@ -660,7 +658,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
             del peaks[peak_index]
 
             # Transfer tanker's energy to the hub
-            orders += ' %s:>%s' % (ship, hub)
+            orders += ' %s:>hub' % ship
 
         elif ship in entities and ship in tanker_to_peak and entities[ship]['available_energy'] != entities[ship]['storage_capacity']:
             
@@ -697,7 +695,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
             orders += get_adequate_movement_order(departure_coordinates, hub_coordinates, ship)
 
             # Transfer tanker's energy to the hub
-            orders += ' %s:>%s' % (ship, hub)
+            orders += ' %s:>hub' % ship
 
             if ship not in tanker_to_peak and peaks == [] and entities[ship]['available_energy'] == 0:
                 regeneration_tanker.remove(ship)
@@ -711,6 +709,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
     orders = ''
     fire_range = 1
     moving_cost = 10
+    tanker_storage_capacity = 600
 
     #Getting the hub name of the AI
     if team == 'blue' :
@@ -738,8 +737,10 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
             fire_range = entities[ship]['fire_range']
 
             
-    #Getting regeneration rate value
-    regeneration_rate = entities[hub]['regeneration_rate']
+    #Getting tanker storage capacity
+    for ship in AI_data :
+        if ship in entities and entities[ship]['type'] == 'tanker' :
+            tanker_storage_capacity = entities[ship]['storage_capacity']
 
     #Getting the defenses cruisers
     cruiser_defense = []
@@ -761,11 +762,11 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 1 ###
 
-    if regeneration_rate < 50 or turn_AI < 25:
+    if tanker_storage_capacity < 900:
 
-        # Upgrade regeneration
-        if turn_AI % 2 == 0 and regeneration_rate < 50:
-            orders += ' upgrade:regeneration'
+        #Upgrade storage
+        if turn_AI % 10 == 5 and tanker_storage_capacity < 900 :
+            orders += ' upgrade:storage'
 
         # Creating a regeration tanker
         else:
@@ -784,10 +785,10 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
 
     ### Phase 2 ###
 
-    if turn_AI >= 25 and turn_AI < 30 :
+    if fire_range < 5 and tanker_storage_capacity == 900:
 
         #upgrade the fire range
-        orders+= 'upgrade:range'
+        orders+= ' upgrade:range'
 
         # Move the tankers to the peaks, absorb them and transfer the energy to the hub
         tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
@@ -800,9 +801,10 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
         
         if turn_AI % 2 == 0 :
             
-            #Create two cruisers 
+            
+            #Create one cruiser
             flag = 0
-            while flag == 0 or flag == 1:
+            while flag == 0:
                 ship_name = str(random.randint(0, 1000000))
                 if ship_name not in AI_data and ship_name not in entities:
                     flag += 1
@@ -814,7 +816,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
             if moving_cost > 5 :
 
                 #upgrade moving_cost
-                orders += 'upgrade:move'
+                orders += ' upgrade:move'
             else : 
                 
                 #create a cruiser
@@ -1318,6 +1320,7 @@ def energy_absorption (energy_absorption_orders, entities, board):
     return entities
 
 def energy_giving (energy_giving_orders, entities, board):
+    
     """ Transfers energy from a tanker to a cruiser or a hub
 
     Parameters
@@ -1346,6 +1349,8 @@ def energy_giving (energy_giving_orders, entities, board):
         order = order.split(':>')
         vessel_giving = order[0]
         vessel_receiving = order[1]
+        if vessel_receiving == 'hub':
+            vessel_receiving += '_%s' % team
         if vessel_giving in entities and vessel_receiving in entities :
             #Checking what is on the coordinates
             coordinates_receiving = entities[vessel_receiving]['coordinates']
@@ -1360,7 +1365,7 @@ def energy_giving (energy_giving_orders, entities, board):
 
                         # Computing the amount of energy that will be given
                         given_energy = min(entities[vessel_giving]['available_energy'], entities[vessel_receiving]['storage_capacity'] - entities[vessel_receiving]['available_energy'])
-
+                            
                         #Transfering the energy
                         entities[vessel_receiving]['available_energy'] = entities[vessel_receiving]['available_energy'] + given_energy
                         entities[vessel_giving]['available_energy'] = entities[vessel_giving]['available_energy'] - given_energy
@@ -1390,7 +1395,7 @@ def hubs_regeneration (entities):
         if 'hub' in entity :
 
             #Computing the amount of energy to add to the hub
-            entities[entity]['available_energy'] += (entities[entity]['storage_capacity']/100) *  entities[entity]['regeneration_rate']
+            entities[entity]['available_energy'] += entities[entity]['regeneration_rate']
 
             #Set energy to 1500 if there is more than 1500
             if entities[entity]['available_energy'] > entities[entity]['storage_capacity'] :
@@ -1465,4 +1470,4 @@ def check_cruiser_with_less_energy2(entities):
 
     return name_cruiser
 
-game('./test.equ', 'AI', 'AI')
+game('./map.equ', 'AI', 'AI')

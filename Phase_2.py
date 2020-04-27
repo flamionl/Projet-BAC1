@@ -787,7 +787,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
     if turn_AI >= 25 and turn_AI < 30 :
 
         #upgrade the fire range
-        orders+= 'upgrade:range'
+        orders+= ' upgrade:range'
 
         # Move the tankers to the peaks, absorb them and transfer the energy to the hub
         tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
@@ -814,7 +814,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks,team, tanker_to_peak, tanker
             if moving_cost > 5 :
 
                 #upgrade moving_cost
-                orders += 'upgrade:move'
+                orders += ' upgrade:move'
             else : 
                 
                 #create a cruiser
@@ -1465,3 +1465,4 @@ def check_cruiser_with_less_energy2(entities):
 
     return name_cruiser
 
+game('./test.equ', 'AI', 'AI')
