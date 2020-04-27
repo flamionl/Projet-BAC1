@@ -4,7 +4,51 @@
 input : two dictionnaries composing our data structure board and entities
 output : chain of characters containing orders for the game
 
-#FIRST PHASE
+intialize turn
+
+# FIRST PHASE #
+
+create regeneration tanker
+transférer direct l'énergie au hub s'il vient d'être créé
+bouger jusqu'à un peak et ramener l'énergie
+jusqu'à ce qu'on en ait créé 15
+
+# SECOND PHASE # (à faire par la suite)
+
+create 5 refuel tankers
+
+# THIRD PHASE #
+
+(flag = 0)
+
+if flag == 0:
+amélioration:
+    flag 1
+
+elif flag == 1:
+    création:
+    flag = 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 initialize turn
 
@@ -194,4 +238,4 @@ if fire_range == 5 and moving_cost == 5 and regeneration_rate == 50 and length o
     turn += 1
 
 end while
-"""
+"""i
