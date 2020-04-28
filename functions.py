@@ -679,7 +679,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
             del peaks[peak_index]
 
             # Transfer tanker's energy to the hub
-            orders += ' %s:>%s' % (ship, hub)
+            orders += ' %s:>hub' % ship
 
         elif ship in entities and ship in tanker_to_peak and entities[ship]['available_energy'] != entities[ship]['storage_capacity']:
             
@@ -709,14 +709,13 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
 
         # if the tanker is full or if the aren't any peaks left to absorb for the tanker
         elif ship in entities and ((entities[ship]['available_energy'] == entities[ship]['storage_capacity']) or (ship not in tanker_to_peak and peaks == [])):
-            print('333333333333333333333333333333333333333')
             # Move tanker to the hub
             departure_coordinates = entities[ship]['coordinates']
             hub_coordinates = entities[hub]['coordinates']
             orders += get_adequate_movement_order(departure_coordinates, hub_coordinates, ship)
 
             # Transfer tanker's energy to the hub
-            orders += ' %s:>%s' % (ship, hub)
+            orders += ' %s:>hub' % ship
 
             # if the peak originally attributed to the tanker is dead and that all the other peaks are already dead or attributed to another ship
             if ship in tanker_to_peak and tanker_to_peak[ship]['peak_name'] not in entities and peaks == []:
@@ -726,8 +725,6 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 regeneration_tanker.remove(ship)
                 other_tankers.append(ship)
                 AI_data[ship]['function'] = 'refuel'
-        else :
-            print('rentre dans aucune condition')
             
 
     return orders, tanker_to_peak, peaks, other_tankers
@@ -862,7 +859,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     #Move the attack cruisers towards the enemy hub and attack it
     AI_attack_orders = AI_attack(entities, enemy_hub, cruiser_attack, fire_range)
     orders += AI_attack_orders
-    print('moving cost : %s' % moving_cost )
+    #print('moving cost : %s' % moving_cost )
     #print('tanker_to_cruiser : %s' % str(tanker_to_cruiser))
     #print('cruiser_attack : %s' % str(cruiser_attack))
     turn_AI += 1
@@ -1369,6 +1366,8 @@ def energy_giving (energy_giving_orders, entities, board):
         order = order.split(':>')
         vessel_giving = order[0]
         vessel_receiving = order[1]
+        if vessel_receiving == 'hub':
+            vessel_receiving += '_%s' % team
         if vessel_giving in entities and vessel_receiving in entities :
             #Checking what is on the coordinates
             coordinates_receiving = entities[vessel_receiving]['coordinates']
