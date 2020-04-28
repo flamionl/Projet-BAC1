@@ -1149,7 +1149,7 @@ def cruiser_attack (attack_orders, board, entities):
                 if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
                     print(222222222222222222222)
                     #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-                    if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
+                    if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) >= 0 and entities[vessel_name]['team'] == team :
                         print(33333333333333333)
                         #Remove the energy needed to attack to case
                         entities[vessel_name]['available_energy'] -= damages*10
@@ -1178,7 +1178,7 @@ def get_distance (coordinates_1, coordinates_2):
     specification : Mathis Huet (v.1 21/02/2020)
     implementation : Louis Flamion (v.1 11/03/2020)
     """
-    #Manthan's formule
+    #Manathan's formule
     distance = max(abs(coordinates_1[1]-coordinates_2[1]),abs(coordinates_1[0]-coordinates_2[0]))
 
     return distance
