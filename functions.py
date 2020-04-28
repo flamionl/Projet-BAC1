@@ -158,6 +158,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
 
         #Increment turn variable
         turn +=1
+        print(entities)
     
     if entities['hub_blue']['structure_points'] <= 0 and entities['hub_red']['structure_points'] <= 0:
         print('It\'s a draw !')
