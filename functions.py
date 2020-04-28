@@ -131,6 +131,8 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = create_vessel(creation_orders_blue, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
         entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = create_vessel(creation_orders_red, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
 
+
+        board = actualise_board(board,entities)
         #upgrade entities phase
         entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = upgrade(upgrade_orders_blue, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
         entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red = upgrade(upgrade_orders_red, entities, storage_capacity_blue, fire_range_blue, moving_cost_blue, storage_capacity_red, fire_range_red, moving_cost_red)
@@ -140,9 +142,13 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         entities = cruiser_attack(attack_orders_red,board,entities)
         entities = remove_destroyed_entities(entities)
 
+        board = actualise_board(board,entities)
+
         #move entities phase
         entities = movement(movement_orders_blue,board,entities, nb_columns, nb_lines)
         entities = movement(movement_orders_red,board,entities, nb_columns, nb_lines)
+
+        board = actualise_board(board,entities)
 
         #energy absorption pics for tankers
         entities = energy_absorption(energy_absorption_blue,entities,board)
@@ -1144,14 +1150,12 @@ def cruiser_attack (attack_orders, board, entities):
             if vessel_name in entities :
                 #Getting coordinates of the ship that attacks
                 vessel_coordinates = entities[vessel_name]['coordinates']
-                print(111111111111111111111111111111)
+
                 #Checking if there is an entity on the case
                 if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
-                    print(222222222222222222222)
                     print(get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] , entities[vessel_name]['available_energy'] - (damages*10) >= 0 , entities[vessel_name]['team'] == team)
                     #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
                     if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) >= 0 and entities[vessel_name]['team'] == team :
-                        print(33333333333333333)
                         #Remove the energy needed to attack to case
                         entities[vessel_name]['available_energy'] -= damages*10
 
