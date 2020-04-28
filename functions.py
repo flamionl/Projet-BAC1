@@ -1422,4 +1422,3 @@ def hubs_regeneration (entities):
 
     return entities
 
-game('./pourcent.equ', 'AI', 'AI')
