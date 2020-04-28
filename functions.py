@@ -1087,7 +1087,7 @@ def upgrade (upgrade_orders, entities, storage_capacity_blue, fire_range_blue, m
                         storage_capacity_blue += upgrade_step
                     elif characteristic == 'range' and fire_range_blue < upper_limit:
                         fire_range_blue += upgrade_step
-                elif team == 'red' and storage_capacity_red < upper_limit:
+                elif team == 'red' :
                     if characteristic == 'storage' and storage_capacity_red < upper_limit:
                         storage_capacity_red += upgrade_step
                     elif characteristic == 'range' and fire_range_red < upper_limit:
@@ -1149,9 +1149,6 @@ def cruiser_attack (attack_orders, board, entities):
                 if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
                     print(222222222222222222222)
                     #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
-                    print(get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'])
-                    print(entities[vessel_name]['available_energy'] - (damages*10) >= 0)
-                    print(entities[vessel_name]['team'] == team)
                     if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) >= 0 and entities[vessel_name]['team'] == team :
                         print(33333333333333333)
                         #Remove the energy needed to attack to case
