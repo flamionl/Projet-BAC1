@@ -1265,7 +1265,7 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
 
                             # * distance in order to fix the case in which the player wants to move
                             entities[vessel_name]['coordinates'] = coordinates
-                            entities[vessel_name]['available_energy'] -= 10 * distance
+                            entities[vessel_name]['available_energy'] -= entities[vessel_name]['moving_cost'] * distance
 
     return entities
 
