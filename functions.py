@@ -1261,7 +1261,7 @@ def movement (movement_orders, board, entities, nb_columns, nb_lines):
                         entities[vessel_name]['coordinates'] = coordinates
 
                     #If the vessel is a cruiser, remove the moving cost from his available energy
-                    elif entities[vessel_name]['type'] == 'cruiser' and distance <= 1 and entities[vessel_name]['team'] == team and entities[vessel_name]['available_energy'] - 10 * distance > 0:
+                    elif entities[vessel_name]['type'] == 'cruiser' and distance <= 1 and entities[vessel_name]['team'] == team and entities[vessel_name]['available_energy'] - entities[vessel_name]['moving_cost'] * distance >= 0:
 
                             # * distance in order to fix the case in which the player wants to move
                             entities[vessel_name]['coordinates'] = coordinates
