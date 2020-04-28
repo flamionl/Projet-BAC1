@@ -674,9 +674,10 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
             # Attributing a peak to the ship if is not already done
             peak_index = random.randint(0, len(peaks) - 1)
             peak_name = peaks[peak_index]
-            peak_coordinates = entities[peak_name]['coordinates']
-            tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
-            del peaks[peak_index]
+            if peak_name in entities :
+                peak_coordinates = entities[peak_name]['coordinates']
+                tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
+                del peaks[peak_index]
 
             # Transfer tanker's energy to the hub
             orders += ' %s:>hub' % ship
