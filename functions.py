@@ -93,7 +93,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         else :
             orders = remote_play.get_remote_orders(connection)
 
-        #print('orders player_1 : %s' % orders)
+        print('orders player_1 : %s' % orders)
 
         #Sending orders to the remote_player
         if player_2 == 'remote_player' :
@@ -115,7 +115,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         else :
             orders = remote_play.get_remote_orders(connection)
 
-        #print('orders player_2 : %s' % orders)
+        print('orders player_2 : %s' % orders)
 
         # Sending orders to the remote player
         if player_1 == 'remote_player':
@@ -1133,7 +1133,7 @@ def cruiser_attack (attack_orders, board, entities):
     if attack_orders != [] :
         team = attack_orders[-1]
         del attack_orders[-1]
-
+        print(attack_orders)
         #Getting info from the attack_orders
         for order in attack_orders :
             splited_order = order.split(':')
@@ -1144,13 +1144,13 @@ def cruiser_attack (attack_orders, board, entities):
             if vessel_name in entities :
                 #Getting coordinates of the ship that attacks
                 vessel_coordinates = entities[vessel_name]['coordinates']
-
+                print(111111111111111111111111111111)
                 #Checking if there is an entity on the case
                 if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
-
+                    print(222222222222222222222)
                     #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
                     if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) > 0 and entities[vessel_name]['team'] == team :
-
+                        print(33333333333333333)
                         #Remove the energy needed to attack to case
                         entities[vessel_name]['available_energy'] -= damages*10
 
