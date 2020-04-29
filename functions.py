@@ -641,7 +641,7 @@ def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
                 enemy_hub_x = entities[enemy_hub]['coordinates'][1]
 
                 #Generating attack order
-                orders += ' %s:*%d-%d=%d' % (ship, enemy_hub_y, enemy_hub_x, int(entities[ship]['available_energy']/10) - 1)
+                orders += ' %s:*%d-%d=%d' % (ship, enemy_hub_y, enemy_hub_x, int(entities[ship]['available_energy']/10))
 
             #If the ship is not in the fire range
             else :
