@@ -1453,6 +1453,3 @@ def hubs_regeneration (entities):
                 entities[entity]['available_energy'] = entities[entity]['storage_capacity']
 
     return entities
-
-print('')
-print('test')
