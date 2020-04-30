@@ -738,7 +738,10 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 # Tanker absorbs energy from the peak
                 y_coordinates = peak_coordinates[0]
                 x_coordinates = peak_coordinates[1]
-                orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
+
+                # If the ship is near enough to the peak
+                if get_distance(peak_coordinates, departure_coordinates) <= 1:
+                    orders += ' %s:<%d-%d' % (ship, y_coordinates, x_coordinates)
 
         # if the tanker is full or if the aren't any peaks left to absorb for the tanker
         elif ship in entities and ((entities[ship]['available_energy'] == entities[ship]['storage_capacity']) or (ship not in tanker_to_peak and peaks == [])):
@@ -793,6 +796,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
         if ship in entities and AI_data[ship]['type'] == 'cruiser' :
             moving_cost = entities[ship]['moving_cost']
             fire_range = entities[ship]['fire_range']
+ 
 
     #Getting the attacks cruisers
     cruiser_attack = []
@@ -823,7 +827,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
 
     ### Phase 1 ###
 
-    if not (len(regeneration_tankers) < 10 and not (len(regeneration_tankers) == 0 and storage_capacity == 900)):
+    if not (len(regeneration_tankers) < 7 and not (len(regeneration_tankers) == 0 and fire_range == 5)):
         state_phase_1 = 1
     
     if state_phase_1 == 0:
@@ -837,7 +841,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
 
-        elif entities[hub]['available_energy'] >= 1000 and (turn_AI % 2 == 0 or storage_capacity == 900):
+        elif entities[hub]['available_energy'] >= 1000 and (turn_AI % 2 == 0 or fire_range == 5):
             # create a regeneration tanker
             flag = 0
             while flag == 0:
@@ -847,9 +851,9 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
                     orders += ' %s:tanker' % ship_name
                     AI_data[ship_name] = {'type' : 'tanker', 'function' : 'regeneration'}
                     
-        elif entities[hub]['available_energy'] >= 600 and storage_capacity < 900 and turn_AI % 2 == 1:
+        elif entities[hub]['available_energy'] >= 600 and fire_range < 5 and turn_AI % 2 == 1:
             # Upgrade the storage capacity of the tankers
-            orders += ' upgrade:storage'
+            orders += ' upgrade:range'
     
     ### Phase 2 ###
 
@@ -868,7 +872,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     
     if state_phase_1 == 1 and state_phase_2 == 1 and len(other_tankers) >= 1:
     
-        if entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 5 and (turn_AI % 2 == 0 or moving_cost == 5):
+        if entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 5:
             #create a cruiser
             flag = 0
             while flag == 0:
@@ -878,8 +882,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
 
-        elif entities[hub]['available_energy'] >= 500 and turn_AI % 2 == 1 and moving_cost > 5:
-            orders += ' upgrade:move'
+        
         
     #send tankers towards peaks
     tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
