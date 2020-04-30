@@ -626,9 +626,8 @@ def refuel_cruisers(entities, fire_range, other_tankers, cruiser_attack, hub_y, 
 
             if get_distance(entities[tanker]['coordinates'], target_coordinates) > 1:
                 
-                # Move and give energy
+                # Move
                 orders += get_adequate_movement_order(entities[tanker]['coordinates'], target_coordinates, tanker)
-                orders += ' %s:>%s' % (tanker, tanker_to_cruiser[tanker]['associated_cruiser'])
             
             elif get_distance(entities[tanker]['coordinates'], target_coordinates) <= 1:
 
