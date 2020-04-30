@@ -700,16 +700,42 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
     for ship in regeneration_tanker:
 
             # If the ship has been crated this turn
-        if ship not in entities and ship not in tanker_to_peak and peaks != []:
+        if  ship not in tanker_to_peak and peaks != []:
 
 
-            # Attributing a peak to the ship if is not already done
-            peak_index = random.randint(0, len(peaks) - 1)
-            peak_name = peaks[peak_index]
-            if peak_name in entities :
-                peak_coordinates = entities[peak_name]['coordinates']
-                tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
-                del peaks[peak_index]
+            #Searching for the nearest energy peak
+            nearby_peak = peaks[0]
+
+            #Removing every peaks that are not in entities
+            while nearby_peak not in entities :
+                    del peaks[0]
+                    nearby_peak = peaks[0]
+            
+            if len(peaks) > 1 and ship in entities :
+
+                for index in range(0,(len(peaks)-1)) :
+                    if get_distance(entities[ship]['coordinates'],entities[peaks[index]]['coordinates']) < get_distance(entities[ship]['coordinates'],entities[nearby_peak]['coordinates']) :
+                        nearby_peak =  peaks[index]
+                
+                # Attributing a peak to the ship
+                tanker_to_peak[ship] = {'peak_name' : nearby_peak, 'peak_coordinates' : entities[nearby_peak]['coordinates']}
+                
+                #Removing the peak from the peak list
+                del peaks[index]
+            
+            elif len(peaks) == 1 and ship in entities and peaks[0] in entities : 
+
+                #Attributing the last peak to the tanker
+                tanker_to_peak[ship] = {'peak_name' : peaks[0], 'peak_coordinates' : entities[peaksþ[0]]['coordinates']}
+                
+                #Removing the peak from the peak list
+                del peaks[index]
+
+            elif len(peaks) == 1 and peaks[0] not in entities :
+                
+                del peaks[0]
+
+
 
             # Transfer tanker's energy to the hub
             orders += ' %s:>hub' % ship
@@ -718,13 +744,40 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
             
             # if the peak originally attributed to the tanker is dead and that there are some peaks left which are not already attributed to another ship
             if tanker_to_peak[ship]['peak_name'] not in entities and peaks != []:
+                
                 # Attribute a new peak to the ship
-                peak_index = random.randint(0, len(peaks) - 1)
-                peak_name = peaks[peak_index]
-                peak_coordinates = entities[peak_name]['coordinates']
-                tanker_to_peak[ship] = {'peak_name' : peak_name, 'peak_coordinates' : peak_coordinates}
-                del peaks[peak_index]
-            
+                nearby_peak = peaks[0]
+
+                #Removing peaks that are not in entities
+                while nearby_peak not in entities :
+                    del peaks[0]
+                    nearby_peak = peaks[0]
+                    
+                if len(peaks) > 1 and ship in entities :
+
+                    for index in range(0,len(peaks)-1) :
+                        
+                        if get_distance(entities[ship]['coordinates'],entities[peaks[index]]['coordinates']) < get_distance(entities[ship]['coordinates'],entities[nearby_peak]['coordinates']) :
+                            nearby_peak =  peaks[index]
+                
+                    # Attributing a peak to the ship
+                    tanker_to_peak[ship] = {'peak_name' : nearby_peak, 'peak_coordinates' : entities[nearby_peak]['coordinates']}
+                    
+                    #Removing the peak from the peak list
+                    del peaks[index]
+
+                elif len(peaks) == 1 and ship in entities and peaks[0] in entities : 
+
+                    #Attributing the last peak to the tanker
+                    tanker_to_peak[ship] = {'peak_name' : peaks[0], 'peak_coordinates' : entities[peaks[0]]['coordinates']}
+                    
+                    #Removing the peak from the peak list
+                    del peaks[index]
+                
+                elif len(peaks) == 1 and peaks[0] not in entities :
+                    del peaks[0]
+                
+                
             # if the peak originally attributed to the tanker is dead and that all the other peaks are already dead or attributed to another ship
             if tanker_to_peak[ship]['peak_name'] not in entities and peaks == []:
                 del tanker_to_peak[ship]
