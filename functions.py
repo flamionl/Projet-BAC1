@@ -161,10 +161,10 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         entities= hubs_regeneration(entities)
         board = actualise_board(board,entities)
         
+        display_information(entities)
 
         #Increment turn variable
         turn +=1
-        print(entities)
     
     if entities['hub_blue']['structure_points'] <= 0 and entities['hub_red']['structure_points'] <= 0:
         print('It\'s a draw !')
@@ -439,6 +439,31 @@ def display_board (board, entities, nb_columns, nb_lines):
     #Print the board
 
     print(plateau)
+
+def display_information(entities) :
+    """get entities information for debugging more easier
+    
+    parameters
+    ---------
+    entities : dictinnary of entities (dict)
+    """
+    print('Hubs')
+    print('----')
+    for hub in entities :
+        if entities[hub]['type'] == 'hub' :
+            print('%s : ENERGIE : %d VIE : %d COORDONNEES : %s' %(hub,entities[hub]['available_energy'], entities[hub]['structure_points'],str(entities[hub]['coordinates'])))
+
+    print('\nCruisers')
+    print('--------')
+    for cruiser in entities:
+        if entities[cruiser]['type'] == 'cruiser':
+            print('%s : ENERGIE : %d VIE : %d COORDONNEES : %s TEAM : %s MOVING COST : %d FIRE RANGE : %d' % (cruiser, entities[cruiser]['available_energy'], entities[cruiser]['structure_points'], str(entities[cruiser]['coordinates']), entities[cruiser]['team'], entities[cruiser]['moving_cost'], entities[cruiser]['fire_range']))
+    print('\nTankers')
+    print('-------')        
+    for tanker in entities:
+        if entities[tanker]['type'] =='tanker':
+            print('%s : ENERGIE : %d  VIE: %d  COORDONNEES: %s   TEAM : %s   STORAGE CAPACITY: %d' %(tanker, entities[tanker]['available_energy'], entities[tanker]['structure_points'],str(entities[tanker]['coordinates']),entities[tanker]['team'], entities[tanker]['storage_capacity'])) 
+
 
 ## ORDRES ##
 
@@ -871,6 +896,9 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     #print('tanker_to_cruiser : %s' % str(tanker_to_cruiser))
     #print('cruiser_attack : %s' % str(cruiser_attack))
     turn_AI += 1
+    
+    if orders != '':
+        orders = orders[1:]
 
     return orders, AI_data, turn_AI, peaks, tanker_to_peak, tanker_to_cruiser, state_phase_1, state_phase_2
     
@@ -1139,7 +1167,7 @@ def cruiser_attack (attack_orders, board, entities):
     if attack_orders != [] :
         team = attack_orders[-1]
         del attack_orders[-1]
-        print(attack_orders)
+
         #Getting info from the attack_orders
         for order in attack_orders :
             splited_order = order.split(':')
@@ -1153,7 +1181,6 @@ def cruiser_attack (attack_orders, board, entities):
 
                 #Checking if there is an entity on the case
                 if board[(line,column)] != [] and entities[vessel_name]['type'] == 'cruiser' :
-                    print(get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] , entities[vessel_name]['available_energy'] - (damages*10) >= 0 , entities[vessel_name]['team'] == team)
                     #Checking if the vessel is not too far from the case that he wants to attack and if the vessel has enough energy to attack
                     if get_distance(vessel_coordinates,(line,column)) <= entities[vessel_name]['fire_range'] and entities[vessel_name]['available_energy'] - (damages*10) >= 0 and entities[vessel_name]['team'] == team :
                         #Remove the energy needed to attack to case
