@@ -81,7 +81,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
         
-        # time.sleep(0.3)
+        time.sleep(0.3)
 
         ## Player_1 ##
 
@@ -795,9 +795,6 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 del tanker_to_peak[ship]
 
             if ship not in tanker_to_peak and peaks == []:
-                print('!!!!!!!!!!!!!!!!!!!!!!!!!')
-                print('ship : %s'% ship)
-                print(tanker_to_peak)
                 regeneration_tanker.remove(ship)
                 other_tankers.append(ship)
                 AI_data[ship]['function'] = 'refuel'
@@ -881,7 +878,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
 
-        elif entities[hub]['available_energy'] >= 1000 and (turn_AI % 2 == 0 or fire_range == 5):
+        elif entities[hub]['available_energy'] >= 1000 and (turn_AI % 2 == 0 or fire_range == 5 or len(regeneration_tankers) < 3):
             # create a regeneration tanker
             flag = 0
             while flag == 0:
