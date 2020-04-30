@@ -864,6 +864,16 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
 
     ### Phase 1 ###
 
+    if len(cruiser_attack) == 1 and entities[hub]['available_energy'] >= 1000 and other_tankers== []:
+        # create a refuel tanker
+        flag = 0
+        while flag == 0:
+            ship_name = 'refuel_tanker_%d' % random.randint(0, 1000000)
+            if ship_name not in AI_data and ship_name not in entities:
+                flag = 1
+                orders += ' %s:tanker' % ship_name
+                AI_data[ship_name] = {'type' : 'tanker', 'function' : 'refuel'}
+
     if not (len(regeneration_tankers) < 7 and not (len(regeneration_tankers) == 0 and fire_range == 5)):
         state_phase_1 = 1
     
