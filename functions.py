@@ -729,7 +729,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 tanker_to_peak[ship] = {'peak_name' : peaks[0], 'peak_coordinates' : entities[peaksþ[0]]['coordinates']}
                 
                 #Removing the peak from the peak list
-                del peaks[index]
+                del peaks[0]
 
             elif len(peaks) == 1 and peaks[0] not in entities :
                 
@@ -772,7 +772,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                     tanker_to_peak[ship] = {'peak_name' : peaks[0], 'peak_coordinates' : entities[peaks[0]]['coordinates']}
                     
                     #Removing the peak from the peak list
-                    del peaks[index]
+                    del peaks[0]
                 
                 elif len(peaks) == 1 and peaks[0] not in entities :
                     del peaks[0]
