@@ -81,6 +81,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
         
+        time.sleep(0.3)
 
         ## Player_1 ##
 
@@ -949,7 +950,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     
     if state_phase_1 == 1 and state_phase_2 == 1 and len(other_tankers) >= 1:
     
-        if entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 5:
+        if entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 7:
             #create a cruiser
             flag = 0
             while flag == 0:
@@ -1536,4 +1537,4 @@ def hubs_regeneration (entities):
 
     return entities
 
-game('./test.equ', 'AI', 'naive_AI')
+game('./pourcent.equ', 'AI', 'naive_AI')
