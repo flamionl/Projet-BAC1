@@ -81,7 +81,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
         
-        time.sleep(0.3)
+        time.sleep(0.2)
 
         ## Player_1 ##
 
@@ -611,7 +611,7 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
 
     return order, ship_list
 
-def attribute_peaks(entities,AI_data,tanker_to_peak,peaks) :
+def attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers, other_tankers) :
     """Attributes a tanker to the closest peak on the map"""
 
     # Removing the dead peaks from the peaks list
@@ -624,9 +624,10 @@ def attribute_peaks(entities,AI_data,tanker_to_peak,peaks) :
     for ship in AI_data :
         if ship in entities and entities[ship]['type'] == 'tanker' and ship in AI_data :
             tanker_list.append(ship)
+
     for ship in tanker_list :
         #If the tanker has not been attributed to a peak
-        if ship not in tanker_to_peak and peaks != [] :
+        if ship in entities and peaks != [] and ship not in tanker_to_peak and ((ship in other_tankers and entities[ship]['available_energy'] == 0) or ship in regeneration_tankers):
 
         #Searching for the closest energy peak
             nearby_peak = peaks[0]
@@ -694,11 +695,19 @@ def attribute_peaks(entities,AI_data,tanker_to_peak,peaks) :
 
 
 
-def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser,tanker_to_peak,peaks):
-
+def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser,tanker_to_peak,peaks, hub):
+    
     orders = ''
+
+    #Getting regeneration tankers
+    regeneration_tankers  = []
+    for ship in AI_data :
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
+            regeneration_tankers.append(ship)
+    
     #Updating tanker_to_peak
-    tanker_to_peak, peaks = attribute_peaks(entities,AI_data,tanker_to_peak,peaks)
+    tanker_to_peak, peaks = attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers, other_tankers)
+
     for tanker in other_tankers:
 
         if tanker not in tanker_to_cruiser and cruiser_attack != []:
@@ -718,7 +727,7 @@ def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack
                 # Give energy
                 orders += ' %s:>%s' % (tanker, tanker_to_cruiser[tanker]['associated_cruiser'])
         
-        elif tanker in tanker_to_cruiser and tanker in entities and entities[tanker]['available_energy'] == 0 and tanker in tanker_to_peak   :
+        elif tanker in tanker_to_cruiser and tanker_to_cruiser[tanker]['associated_cruiser'] in entities and tanker in entities and entities[tanker]['available_energy'] == 0:
             
             if get_distance(entities[tanker]['coordinates'],entities[tanker_to_peak[tanker]['peak_name']]['coordinates']) <= 1 :
                 
@@ -787,16 +796,16 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
     orders = ''
 
     #Getting regeneration tankers
-    regeneration_tanker  = []
+    regeneration_tankers  = []
     for ship in AI_data :
         if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
-            regeneration_tanker.append(ship)
+            regeneration_tankers.append(ship)
 
     #Updating tanker_to_peak and peaks
-    tanker_to_peak,peaks = attribute_peaks(entities,AI_data,tanker_to_peak,peaks)
+    tanker_to_peak,peaks = attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers, other_tankers)
 
             
-    for ship in regeneration_tanker:
+    for ship in regeneration_tankers:
 
         #If the tanker is full or if the aren't any peaks left to absorb for the tanker
         if ship in entities and ((entities[ship]['available_energy'] == entities[ship]['storage_capacity']) or (ship not in tanker_to_peak and peaks == [])):
@@ -811,7 +820,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 
             #Transforming regeneration tanker into refuel tankers
             if ship not in tanker_to_peak and peaks == []:
-                regeneration_tanker.remove(ship)
+                regeneration_tankers.remove(ship)
                 other_tankers.append(ship)
                 AI_data[ship]['function'] = 'refuel'
 
@@ -969,7 +978,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     orders += tanker_orders
 
     # Move the attack tankers to the hub, absorb its energy, and transfer it to the cruiser with the less energy
-    refuel_orders, tanker_to_cruiser, tanker_to_peak,peaks = refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak,peaks)
+    refuel_orders, tanker_to_cruiser, tanker_to_peak,peaks = refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak,peaks, hub)
     orders += refuel_orders
 
     #Move the attack cruisers towards the enemy hub and attack it
