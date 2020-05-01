@@ -81,7 +81,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
         
-        time.sleep(0.2)
+        #time.sleep(0.2)
 
         ## Player_1 ##
 
