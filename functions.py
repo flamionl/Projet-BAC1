@@ -893,7 +893,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
 
     ### Phase 1 ###
 
-    if len(cruiser_attack) == 1 and entities[hub]['available_energy'] >= 1000 and other_tankers== []:
+    if len(cruiser_attack) == 1 and entities[hub]['available_energy'] >= 1000 and len(other_tankers) < 2:
         # create a refuel tanker
         flag = 0
         while flag == 0:
