@@ -469,6 +469,7 @@ def display_information(entities) :
 
 ## ORDRES ##
 
+
 def sort_orders (orders, team):
     """ Sorts the orders of a player depending on the type of these orders
 
@@ -684,16 +685,7 @@ def attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers,
         if ship in tanker_to_peak and tanker_to_peak[ship]['peak_name'] not in entities and peaks == []:
             del tanker_to_peak[ship]
 
-
-        
-
-
     return tanker_to_peak, peaks
-
-
-
-
-
 
 def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser,tanker_to_peak,peaks, hub):
     
@@ -824,7 +816,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 other_tankers.append(ship)
                 AI_data[ship]['function'] = 'refuel'
 
-        elif ship in tanker_to_peak :
+        elif ship in tanker_to_peak and ship in entities:
             
             if get_distance(entities[ship]['coordinates'],tanker_to_peak[ship]['peak_coordinates']) <= 1 :  
 
@@ -836,9 +828,6 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
                 #Move the tanker to an energy peak
                 
                 orders += get_adequate_movement_order(entities[ship]['coordinates'],entities[tanker_to_peak[ship]['peak_name']]['coordinates'],ship)
-
-
-            
 
     return orders, tanker_to_peak, peaks, other_tankers
 
@@ -968,10 +957,6 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
                     flag = 1
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
-
-   
-
-        
         
     #send tankers towards peaks
     tanker_orders, tanker_to_peak, peaks, other_tankers = move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers)
@@ -984,8 +969,6 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     #Move the attack cruisers towards the enemy hub and attack it
     AI_attack_orders = AI_attack(entities, enemy_hub, cruiser_attack, fire_range)
     orders += AI_attack_orders
-    
-    
     
     turn_AI += 1
     
@@ -1546,4 +1529,4 @@ def hubs_regeneration (entities):
 
     return entities
 
-game('./pourcent.equ', 'AI', 'naive_AI')
+game('./test.equ', 'AI', 'AI')
