@@ -862,7 +862,15 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
         if ship in entities and AI_data[ship]['type'] == 'cruiser' :
             moving_cost = entities[ship]['moving_cost']
             fire_range = entities[ship]['fire_range']
- 
+
+    #Getting the defense cruisers
+    cruiser_defense = []
+    for ship in AI_data :
+        if ship in entities :
+            if AI_data[ship]['type'] == 'cruiser' and AI_data[ship]['function'] == 'defense' :
+                cruiser_defense.append(ship)
+
+
 
     #Getting the attacks cruisers
     cruiser_attack = []
@@ -894,66 +902,109 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     ### Phase 1 ###
 
     if len(cruiser_attack) == 1 and entities[hub]['available_energy'] >= 1000 and len(other_tankers) < 2:
+
         # create a refuel tanker
         flag = 0
+
         while flag == 0:
+
             ship_name = 'refuel_tanker_%d' % random.randint(0, 1000000)
+
             if ship_name not in AI_data and ship_name not in entities:
+
                 flag = 1
                 orders += ' %s:tanker' % ship_name
                 AI_data[ship_name] = {'type' : 'tanker', 'function' : 'refuel'}
 
     if not (len(regeneration_tankers) < 7 and not (len(regeneration_tankers) == 0 and fire_range == 5)):
+
         state_phase_1 = 1
     
     if state_phase_1 == 0:
+
         if len(regeneration_tankers) == 2 and entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 1:
+
             #create a cruiser
             flag = 0
+
             while flag == 0:
+
                 ship_name = str(random.randint(0, 1000000))
+
                 if ship_name not in AI_data and ship_name not in entities:
+
                     flag = 1
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
 
         elif entities[hub]['available_energy'] >= 1000 and (turn_AI % 2 == 0 or fire_range == 5 or len(regeneration_tankers) < 3):
+
             # create a regeneration tanker
             flag = 0
+            
             while flag == 0:
+                
                 ship_name = str(random.randint(0, 1000000))
+                
                 if ship_name not in AI_data and ship_name not in entities:
+                    
                     flag = 1
                     orders += ' %s:tanker' % ship_name
                     AI_data[ship_name] = {'type' : 'tanker', 'function' : 'regeneration'}
                     
         elif entities[hub]['available_energy'] >= 600 and fire_range < 5 and turn_AI % 2 == 1:
+            
             # Upgrade the storage capacity of the tankers
             orders += ' upgrade:range'
     
     ### Phase 2 ###
 
     if state_phase_1 == 1 and entities[hub]['available_energy'] >= 1000:
+        
     # Create a refuel tanker 
         flag = 0
         while flag == 0:
+            
             ship_name = str(random.randint(0, 1000000))
+            
             if ship_name not in AI_data and ship_name not in entities:
+                
                 flag = 1
                 orders += ' %s:tanker' % ship_name
                 AI_data[ship_name] = {'type' : 'tanker', 'function' : 'refuel'}
                 state_phase_2 = 1
+
+        if len(cruiser_defense) < 2 :
+
+            #Create a defense cruiser
+            flag = 0
+
+            while flag == 0:
+
+                ship_name = str(random.randint(0, 1000000))
+
+                if ship_name not in AI_data and ship_name not in entities:
+
+                    flag = 1
+                    orders += ' %s:cruiser' % ship_name
+                    AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'defense'}
+
     
     ### Phase 3 ###
     
     if state_phase_1 == 1 and state_phase_2 == 1 and len(other_tankers) >= 1:
     
         if entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 7:
+            
             #create a cruiser
             flag = 0
+
             while flag == 0:
+
                 ship_name = str(random.randint(0, 1000000))
+                
                 if ship_name not in AI_data and ship_name not in entities:
+                    
                     flag = 1
                     orders += ' %s:cruiser' % ship_name
                     AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
@@ -973,6 +1024,7 @@ def get_AI_orders(entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanke
     turn_AI += 1
     
     if orders != '':
+        
         orders = orders[1:]
 
     return orders, AI_data, turn_AI, peaks, tanker_to_peak, tanker_to_cruiser, state_phase_1, state_phase_2
