@@ -81,7 +81,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
         
-        #time.sleep(0.2)
+        time.sleep(0.3)
 
         ## Player_1 ##
 
@@ -161,7 +161,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         entities= hubs_regeneration(entities)
         board = actualise_board(board,entities)
         
-        display_information(entities)
+        #display_information(entities)
 
         #Increment turn variable
         turn +=1
