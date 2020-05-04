@@ -3,7 +3,6 @@
 import colored
 import random
 import remote_play
-import time
 
 ## MISE EN PLACE ##
 
@@ -80,8 +79,6 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         #Printing the board
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
-        
-        time.sleep(0.2)
 
         ## Player_1 ##
 
@@ -612,17 +609,17 @@ def get_naive_AI_orders (board, entities, turn, ship_list, nb_columns, nb_lines)
 
     return order, ship_list
 
-def attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers, other_tankers) :
+def attribute_peaks(entities, AI_data, tanker_to_peak, peaks, regeneration_tankers, other_tankers) :
     """Attributes a tanker to the closest peak on the map
     
     Parameters
     ----------
     entities : entities of the game (dict)
-    AI_data : dictionnary having the name of the ships as key, and a dictionary of its type and functions as a value (dict)
-    tanker_to_peaks : dictionnary having the name of the tanker as key  and a dictionnary containing the charactesristics of the peak that he has to absorb (dict)
+    AI_data : dictionnary having the name of the ships as key, and a dictionary of its type and its function as a value (dict)
+    tanker_to_peaks : dictionnary having the name of the tanker as key and a dictionnary containing the characteristics of the peak that he has to absorb as a value (dict)
     peaks : list containing the name of the peaks that are not attributed to a tanker (list)
-    regeneration_tankers : list where there's the regeneration tanker (list)
-    other_tanker : list that contains the name of the tanker that are not regeneration tankers (list)
+    regeneration_tankers : list containing the names of all the regeneration tankers (list)
+    other_tankers : list containing the names of the tankers that are not regeneration tankers (list)
     
     Returns
     -------
@@ -716,21 +713,21 @@ def attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers,
 
     return tanker_to_peak, peaks
 
-def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser,tanker_to_peak,peaks, hub, team):
-    """Move a tanker to its associated cruiser in order to refuel this cruiser
+def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak, peaks, hub, team, regeneration_tankers):
+    """Moves a tanker to its associated cruiser in order to refuel this cruiser
 
     Parameters
     ----------
     
     entities: dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     fire_range: the fire range of all the cruisers (int)
-    AI_data: AI_data : dictionnary having the name of the ships as key, and a dictionary of its type and functions as a value (dict)
+    AI_data: dictionary having the name of the ships as key, and a dictionary of its type and its function as a value (dict)
     other_tankers: list that contains the name of the tanker that are not regeneration tankers (list)
     cruiser_attack: contain a list of all cruiser who will attack the opposite hub (list)
-    hub_y: the "y" coordinates of the hub (int)
-    hub_x: the "x" coordinates of the hub (int)
+    hub_y: the "y" coordinate of the hub (int)
+    hub_x: the "x" coordinate of the hub (int)
     tanker_to_cruiser: dictionnary having the name of the tanker as key  and the name of the associated cruiser as value (dict)
-    tanker_to_peak: dictionnary having the name of the tanker as key  and a dictionnary containing the charactesristics of the peak that he has to absorb (dict)
+    tanker_to_peak: dictionnary having the name of the tanker as key and a dictionnary containing the characteristics of the peak that he has to absorb as a value (dict)
     peaks: list containing the name of the peaks that are not attributed to a tanker (list)
     hub: name of the hub's team of the IA (str)
 
@@ -750,20 +747,18 @@ def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack
     """
     
     orders = ''
-    # Getting other_tankers
-    other_tankers = []
+
+    # Updating other_tankers
     for ship in AI_data :
    
-        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] != 'regeneration' :
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] != 'regeneration' and ship not in other_tankers:
 
             other_tankers.append(ship)
 
-    #Getting regeneration tankers
-    regeneration_tankers  = []
-
+    # Updating regeneration tankers
     for ship in AI_data :
    
-        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' :
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] == 'regeneration' and ship not in regeneration_tankers :
 
             regeneration_tankers.append(ship)
 
@@ -788,6 +783,7 @@ def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack
 
     for tanker in other_tankers:
 
+        # if the tanker is a defense tanker which has been created this turn
         if tanker not in tanker_to_cruiser and 'defense_tanker' in tanker:
             tanker_to_cruiser[tanker] = {'associated_cruiser' : 'defense_cruiser_%s_%s' % (str(len(cruiser_defense)), team)}
         
@@ -846,18 +842,18 @@ def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack
     return orders, tanker_to_cruiser, tanker_to_peak, peaks
                        
 def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
-    """Move the cruisers towards the enemy hubs and attacks it if it is within the fire_range 
+    """Moves the cruisers towards the enemy hub and attacks it if it is within the fire range 
     
     Parameters
     ----------
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    enemy_hub : ennemy_hub coordinates (tuples)
-    cruiser_attack : contain a list of all cruiser who will attack the opposite hub (list)
-    fire_range : the fire range of all the cruisers (int)
+    enemy_hub : ennemy hub name (str)
+    cruiser_attack : list containing the names of all the attack cruisers (list)
+    fire_range : fire range of the cruisers (int)
 
     Returns
     -------
-    orders : order for making moving and attacking the cruiser (str)
+    orders : orders for making moving and attacking the cruiser (str)
 
     Version
     -------
@@ -874,7 +870,7 @@ def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
         if ship in entities:
 
             #Checking if the ship is in fire range
-            if get_distance(entities[ship]['coordinates'],entities[enemy_hub]['coordinates']) - fire_range <= 0 :
+            if get_distance(entities[ship]['coordinates'],entities[enemy_hub]['coordinates']) - fire_range <= 0 and entities[ship]['available_energy'] >= 10:
 
                 enemy_hub_y = entities[enemy_hub]['coordinates'][0]
                 enemy_hub_x = entities[enemy_hub]['coordinates'][1]
@@ -889,12 +885,12 @@ def AI_attack (entities, enemy_hub, cruiser_attack,fire_range):
     return orders
     
 def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, other_tankers):
-    """Move the regeneration tanker to an energy peak, absorb the energy peak and move the tanker to the hub
+    """Moves the regeneration tankers to an energy peak, absorb the energy peak and move the tanker to the hub
     
     Parameters
     ----------
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    AI_data : dictionnary having the name of the ships as key, and a dictionary of its type and functions as a value (dict)
+    AI_data : dictionnary having the name of the ships as key, and a dictionary of its type and its function as a value (dict)
     tanker_to_peak : dictionnary having the name of the tanker as key  and a dictionnary containing the charactesristics of the peak that he has to absorb (dict)
     peaks : list containing the name of the peaks that are not attributed to a tanker (list)
     hub : name of the hub's team of the IA (str)
@@ -965,25 +961,25 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
     return orders, tanker_to_peak, peaks, other_tankers
 
 def AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates, AI_data):
-    """Make defence order for the AI
+    """Gives the defense orders of the defense cruisers of the AI
 
     Parameters
     ----------
     board : dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities : dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
-    cruiser_defense : list where there are the defense cruisers names (list)
-    fire_range : fire_range of cruiser (int)
-    team : the team of the player (str)
-    hub : name of the hub's team of the IA (str)
+    cruiser_defense : list containing the name of all the defense cruisers (list)
+    fire_range : fire range of the cruisers (int)
+    team : name of the team (str)
+    hub : name of the team's hub (str)
     enemy_hub_coordinates : ennemy hub coordinates (tuples)
+    AI_data: dictionnary having the name of the ships as key, and a dictionary containing its type and its function as a value (dict)
     
     Returns
     -------
-    orders : orders for the defense of the team (str)
+    orders : defense orders of the AI (str)
 
     Version
     -------
-
     specification : Mathis Huet (v.1 02/05/2020)
     implementation: Louis Flamion, Mathis Huet, Gerry Longfils, Amaury Van Pevenaeyge (v.1 02/05/2020)
     """
@@ -996,24 +992,25 @@ def AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coor
 
         if ship in entities :
 
-            #moving defense cruiser to the good position
             hub_y = entities[hub]['coordinates'][0]
             hub_x = entities[hub]['coordinates'][1]
 
+            # Moving the defense cruisers to their good position
             if get_distance(entities[ship]['coordinates'], (hub_y, hub_x)) < 2:
                 orders += get_adequate_movement_order(entities[ship]['coordinates'], enemy_hub_coordinates, ship)
                 moving_flag = 1
-            
+
+            # If there's another cruiser on the same coordinates, move one of them
             if moving_flag == 0 and other_cruiser_flag == 0:
                 entities_on_case = board[entities[ship]['coordinates']]
                 if ship in entities_on_case:
                     entities_on_case.remove(ship)
-                    if entities_on_case != []:
-                        for entity in entities_on_case : 
-                            if entity in AI_data and AI_data[entity]['type'] == 'cruiser' and AI_data[entity]['function'] == 'defense':
-                                other_cruiser_flag += 1
-                                if other_cruiser_flag == 1:
-                                    orders += get_adequate_movement_order(entities[ship]['coordinates'], enemy_hub_coordinates, ship)
+                if entities_on_case != []:
+                    for entity in entities_on_case : 
+                        if entity in AI_data and AI_data[entity]['type'] == 'cruiser' and AI_data[entity]['function'] == 'defense':
+                            other_cruiser_flag += 1
+                            if other_cruiser_flag >= 1:
+                                orders += get_adequate_movement_order(entities[ship]['coordinates'], enemy_hub_coordinates, ship)
 
             #Attacking every enemy in the fire range
             for coord in board :
@@ -1024,20 +1021,19 @@ def AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coor
                     flag = 0
                     for entity in board[coord] :
 
-                        if entities[entity]['type']=='cruiser' and entities[entity]['team']!=team:
+                        if entities[entity]['type']=='cruiser' and entities[entity]['team'] != team:
 
                             flag = 1
-                    #Attack the case if there is an enemy on the case
-                    if flag == 1 and moving_flag == 0 :
 
-                        orders += ' %s:*%d-%d=%d' %(ship, coord[0],coord[1],entities[ship]['available_energy']//10)   
+                    #Attack the case if there is an enemy on the case
+                    if flag == 1 and moving_flag == 0 and entities[ship]['available_energy'] >= 10:
+
+                        orders += ' %s:*%d-%d=%d' %(ship, coord[0],coord[1],entities[ship]['available_energy'] // 10)   
         
     return orders
-    
-
 
 def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak, tanker_to_cruiser, state_phase_1, state_phase_2):
-    """Getting all the orders of the AI
+    """Gives all the orders of the AI
 
     Parameters
     ----------
@@ -1045,11 +1041,11 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     board: dictionary of the board having coordinates as a key, and all the entities on these coordinates as a value (dict)
     entities: dictionnary having the name of entities as key, and a dictionary of its characteristics as a value (dict)
     turn_AI: the number of AI's turns (int)
-    AI_data: dictionnary having the name of the ships as key, and a dictionary of its type and functions as a value (dict)
+    AI_data: dictionnary having the name of the ships as key, and a dictionary containing its type and its function as a value (dict)
     peaks: list containing the name of the peaks that are not attributed to a tanker (list) 
     team : name of the team (str)
-    tanker_to_peak: dictionnary having the name of the tanker as key  and a dictionnary containing the charactesristics of the peak that he has to absorb (dict)
-    tanker_to_cruiser: dictionnary having the name of the tanker as key  and the name of the associated cruiser as value (dict)
+    tanker_to_peak: dictionnary having the name of the tanker as key and a dictionnary containing the characteriistics of the peak that it has to absorb as a value (dict)
+    tanker_to_cruiser: dictionnary having the name of the tanker as key and the name of the associated cruiser as value (dict)
     state_phase_1: the state of the phase 1 (int)
     state_phase_2: the state of the phase 2 (int)
 
@@ -1065,25 +1061,21 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     state_phase_1:the state of the phase 1 (int)
     state_phase_2:the state of the phase 2 (int)
     
-    Specification : Mathis Huet, Louis Flamion, Gerry Longfils, Amaury Van Pevenaeyge (v1.10/04/2020)
-    implementation : Mathis Huet, Louis Flamion, Gerry Longfils, Amaury Van Pevenaeyge(v1 02/05/2020)
+    Specification : Mathis Huet, Louis Flamion, Gerry Longfils, Amaury Van Pevenaeyge (v.2 02/05/2020)
+    implementation : Mathis Huet, Louis Flamion, Gerry Longfils, Amaury Van Pevenaeyge(v.2 02/05/2020)
     """
     orders = ''
     fire_range = 1
-    moving_cost = 10
-    storage_capacity = 600
 
     #Getting the hub name of the AI
     if team == 'blue' :
         hub = 'hub_blue'
         enemy_hub = 'hub_red'
-        enemy_team = 'red'
 
     else :
 
         hub = 'hub_red'
         enemy_hub = 'hub_blue'
-        enemy_team = 'blue'
 
     # Getting the coordinates of the hubs
     hub_coordinates = entities[hub]['coordinates']
@@ -1091,15 +1083,11 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     hub_x = hub_coordinates[1]
 
     enemy_hub_coordinates = entities[enemy_hub]['coordinates']
-    enemy_hub_y = enemy_hub_coordinates[0]
-    enemy_hub_x = enemy_hub_coordinates[1]
 
-    #Getting fire range value and moving cost value
+    #Getting fire range value
     for ship in AI_data :
 
         if ship in entities and AI_data[ship]['type'] == 'cruiser' :
-
-            moving_cost = entities[ship]['moving_cost']
             fire_range = entities[ship]['fire_range']
 
     #Getting the defense cruisers
@@ -1146,17 +1134,9 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
                 regeneration_tankers.append(ship)
 
-
-    #Getting the storage capacity
-    for ship in AI_data:
-
-        if ship in entities and entities[ship]['type'] == 'tanker' :
-
-            storage_capacity = entities[ship]['storage_capacity']
-
     ### Phase 1 ###
 
-    if peaks == [] and entities[hub]['available_energy'] >= 1000:
+    if peaks == [] and entities[hub]['available_energy'] >= 750:
         # create an attack_cruiser
         flag = 0
 
@@ -1296,7 +1276,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     orders += tanker_orders
 
     # Move the attack tankers to the hub, absorb its energy, and transfer it to the cruiser with the less energy
-    refuel_orders, tanker_to_cruiser, tanker_to_peak,peaks = refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak,peaks, hub, team)
+    refuel_orders, tanker_to_cruiser, tanker_to_peak, peaks = refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak,peaks, hub, team, regeneration_tankers)
     orders += refuel_orders
 
     #Move the attack cruisers towards the enemy hub and attack it
@@ -1315,11 +1295,11 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     return orders, AI_data, turn_AI, peaks, tanker_to_peak, tanker_to_cruiser, state_phase_1, state_phase_2
     
 def get_adequate_movement_order(departure_coordinates, arrival_coordinates, ship_name):
-    """ Gives the adequate movement order (1 case range) in deplace an entity to the arrival_coordinates
+    """ Gives the adequate movement order (1 case range) in order to deplace an entity to the arrival_coordinates
 
     Parameters
     ----------
-    departure-coordinates : current coordinates of the entity (tuple of integers)
+    departure_coordinates : current coordinates of the entity (tuple of integers)
     arrival_coordinates : coordinates where the entity has to go, on a long term (tuple of integers)
     ship_name : name of the ship (int)
 
