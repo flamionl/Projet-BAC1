@@ -163,7 +163,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         entities= hubs_regeneration(entities)
         board = actualise_board(board,entities)
         
-        display_information(entities)
+        #display_information(entities)
 
         #Increment turn variable
         turn +=1
@@ -1305,8 +1305,6 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
     AI_defense_orders = AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates, AI_data)
     orders+=AI_defense_orders
-
-    print(tanker_to_cruiser)
 
     turn_AI += 1
     
