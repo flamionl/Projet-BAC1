@@ -81,7 +81,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         display_board(board,entities,nb_columns,nb_lines)
         print('turn : %d' % turn)
         
-        time.sleep(0.3)
+        time.sleep(0.2)
 
         ## Player_1 ##
 
@@ -714,7 +714,7 @@ def attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers,
 
     return tanker_to_peak, peaks
 
-def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser,tanker_to_peak,peaks, hub):
+def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser,tanker_to_peak,peaks, hub, team):
     """Move a tanker to its associated cruiser in order to refuel this cruiser
 
     Parameters
@@ -748,6 +748,13 @@ def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack
     """
     
     orders = ''
+    # Getting other_tankers
+    other_tankers = []
+    for ship in AI_data :
+   
+        if AI_data[ship]['type'] == 'tanker' and AI_data[ship]['function'] != 'regeneration' :
+
+            other_tankers.append(ship)
 
     #Getting regeneration tankers
     regeneration_tankers  = []
@@ -766,14 +773,24 @@ def refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack
         if ship in entities and AI_data[ship]['type'] == 'cruiser' :
 
             cruisers.append(ship) 
+    
+    # Getting defense cruisers
+    cruiser_defense = []
+
+    for ship in AI_data:
+        if ship in entities and AI_data[ship]['type'] == 'cruiser' and AI_data[ship]['function'] == 'defense':
+            cruiser_defense.append(ship)
                
     #Updating tanker_to_peak
     tanker_to_peak, peaks = attribute_peaks(entities,AI_data,tanker_to_peak,peaks, regeneration_tankers, other_tankers)
 
     for tanker in other_tankers:
+
+        if tanker not in tanker_to_cruiser and 'defense_tanker' in tanker:
+            tanker_to_cruiser[tanker] = {'associated_cruiser' : 'defense_cruiser_%s_%s' % (str(len(cruiser_defense)), team)}
         
         #Associate a cruiser to a tanker
-        if tanker not in tanker_to_cruiser and cruiser_attack != []:
+        elif tanker not in tanker_to_cruiser and cruisers != []:
 
             index = random.randint(0, len(cruisers) - 1)
             tanker_to_cruiser[tanker] = {'associated_cruiser' : cruisers[index]}
@@ -1028,6 +1045,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     turn_AI: the number of AI's turns (int)
     AI_data: dictionnary having the name of the ships as key, and a dictionary of its type and functions as a value (dict)
     peaks: list containing the name of the peaks that are not attributed to a tanker (list) 
+    team : name of the team (str)
     tanker_to_peak: dictionnary having the name of the tanker as key  and a dictionnary containing the charactesristics of the peak that he has to absorb (dict)
     tanker_to_cruiser: dictionnary having the name of the tanker as key  and the name of the associated cruiser as value (dict)
     state_phase_1: the state of the phase 1 (int)
@@ -1093,8 +1111,6 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
                 cruiser_defense.append(ship)
 
-
-
     #Getting the attacks cruisers
     cruiser_attack = []
 
@@ -1138,6 +1154,35 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
     ### Phase 1 ###
 
+    if peaks == [] and entities[hub]['available_energy'] >= 1000:
+        # create an attack_cruiser
+        flag = 0
+
+        while flag == 0:
+
+            ship_name = str(random.randint(0, 1000000))
+
+            if ship_name not in AI_data and ship_name not in entities:
+
+                flag = 1
+                orders += ' %s:cruiser' % ship_name
+                AI_data[ship_name] = {'type' : 'cruiser', 'function' : 'attack'}
+
+    if len(cruiser_defense) == 2 and entities[hub]['available_energy'] >= 1000:
+        if len(other_tankers) < 2:
+            # create a refuel tanker
+            flag = 0
+
+            while flag == 0:
+
+                ship_name = 'defense_tanker_%d' % random.randint(0, 1000000)
+
+                if ship_name not in AI_data and ship_name not in entities:
+
+                    flag = 1
+                    orders += ' %s:tanker' % ship_name
+                    AI_data[ship_name] = {'type' : 'tanker', 'function' : 'refuel'}
+
     if len(cruiser_attack) == 1 and entities[hub]['available_energy'] >= 1000 and len(other_tankers) < 2:
 
         # create a refuel tanker
@@ -1164,7 +1209,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
             while flag == 0:
 
-                ship_name = str(random.randint(0, 1000000))
+                ship_name = 'defense_cruiser_%s_%s' % (str(len(cruiser_defense)), team)
 
                 if ship_name not in AI_data and ship_name not in entities:
 
@@ -1174,7 +1219,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
        
         if len(regeneration_tankers) == 2 and entities[hub]['available_energy'] >= 750 and len(cruiser_attack) < 1:
 
-            #create a cruiser
+            #create an attack cruiser
             flag = 0
 
             while flag == 0:
@@ -1249,7 +1294,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     orders += tanker_orders
 
     # Move the attack tankers to the hub, absorb its energy, and transfer it to the cruiser with the less energy
-    refuel_orders, tanker_to_cruiser, tanker_to_peak,peaks = refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak,peaks, hub)
+    refuel_orders, tanker_to_cruiser, tanker_to_peak,peaks = refuel_cruisers(entities, fire_range, AI_data, other_tankers, cruiser_attack, hub_y, hub_x, tanker_to_cruiser, tanker_to_peak,peaks, hub, team)
     orders += refuel_orders
 
     #Move the attack cruisers towards the enemy hub and attack it
