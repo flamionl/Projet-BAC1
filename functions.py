@@ -1211,7 +1211,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
             while flag == 0:
 
-                ship_name = 'defense_cruiser_%s_%s' % (str(len(cruiser_defense)), team)
+                ship_name = 'defense_cruiser_%s_%s' % (str(len(cruiser_defense) + 1), team)
 
                 if ship_name not in AI_data and ship_name not in entities:
 
@@ -1305,6 +1305,8 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
     AI_defense_orders = AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates, AI_data)
     orders+=AI_defense_orders
+
+    print(tanker_to_cruiser)
 
     turn_AI += 1
     
