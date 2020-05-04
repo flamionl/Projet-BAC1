@@ -102,7 +102,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         #player_1's orders sorting
         creation_orders_blue, upgrade_orders_blue, attack_orders_blue, movement_orders_blue, energy_absorption_blue, energy_giving_blue = sort_orders(orders,'blue')
 
-        
+        print('orders player 1 : %s' % orders)
 
         ## Player 2 ##
 
@@ -124,6 +124,8 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
 
         #player_2's orders sorting
         creation_orders_red, upgrade_orders_red, attack_orders_red, movement_orders_red, energy_absorption_red, energy_giving_red = sort_orders(orders,'red')
+
+        print('orders_player 2 : %s' % orders)
 
         ## Orders execution ##
 
