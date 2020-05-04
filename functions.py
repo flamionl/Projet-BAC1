@@ -945,7 +945,7 @@ def move_regeneration_tankers(entities, AI_data, tanker_to_peak, peaks, hub, oth
 
     return orders, tanker_to_peak, peaks, other_tankers
 
-def AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates):
+def AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates, AI_data):
     """Make defence order for the AI
 
     Parameters
@@ -969,35 +969,32 @@ def AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coor
     implementation: Louis Flamion, Mathis Huet, Gerry Longfils, Amaury Van Pevenaeyge (v.1 02/05/2020)
     """
     orders = ''
-    moving_flag = 0
+    other_cruiser_flag = 0
     
     #For every defense cruiser
     for ship in cruiser_defense :
+        moving_flag = 0
 
         if ship in entities :
+
             #moving defense cruiser to the good position
-            
             hub_y = entities[hub]['coordinates'][0]
             hub_x = entities[hub]['coordinates'][1]
-            
-            enemy_hub_y = enemy_hub_coordinates[0]
-            enemy_hub_x = enemy_hub_coordinates[1]
-            
-            #Computing the case were the cruisers defense are gonna be positionned
-            if (hub_y,hub_x+1) in board and (hub_y,hub_x-1) :
-                
-                if get_distance((enemy_hub_y,enemy_hub_x),(hub_y,hub_x+1)) < get_distance((enemy_hub_y,enemy_hub_x),(hub_y,hub_x-1)) :
 
-                    arrival_coord = (hub_y,hub_x+1)
-
-                else :
-
-                    arrival_coord = (hub_y,hub_x-1)
-
-            if entities[ship]['coordinates'] != arrival_coord :
-
-                orders+=' %s:@%d-%d' %(ship,arrival_coord[0],arrival_coord[1])
+            if get_distance(entities[ship]['coordinates'], (hub_y, hub_x)) < 2:
+                orders += get_adequate_movement_order(entities[ship]['coordinates'], enemy_hub_coordinates, ship)
                 moving_flag = 1
+            
+            if moving_flag == 0 and other_cruiser_flag == 0:
+                entities_on_case = board[entities[ship]['coordinates']]
+                if ship in entities_on_case:
+                    entities_on_case.remove(ship)
+                    if entities_on_case != []:
+                        for entity in entities_on_case : 
+                            if entity in AI_data and AI_data[entity]['type'] == 'cruiser' and AI_data[entity]['function'] == 'defense':
+                                other_cruiser_flag += 1
+                                if other_cruiser_flag == 1:
+                                    orders += get_adequate_movement_order(entities[ship]['coordinates'], enemy_hub_coordinates, ship)
 
             #Attacking every enemy in the fire range
             for coord in board :
@@ -1259,7 +1256,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
     AI_attack_orders = AI_attack(entities, enemy_hub, cruiser_attack, fire_range)
     orders += AI_attack_orders
 
-    AI_defense_orders = AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates)
+    AI_defense_orders = AI_defense(board,entities,cruiser_defense,fire_range,team,hub,enemy_hub_coordinates, AI_data)
     orders+=AI_defense_orders
 
     turn_AI += 1
