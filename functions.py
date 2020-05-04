@@ -160,7 +160,7 @@ def game(file_path, player_1, player_2, your_id=0, remote_id=0):
         entities= hubs_regeneration(entities)
         board = actualise_board(board,entities)
         
-        #display_information(entities)
+        display_information(entities)
 
         #Increment turn variable
         turn +=1
