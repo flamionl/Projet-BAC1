@@ -1172,7 +1172,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
     if len(cruiser_defense) == 2 and entities[hub]['available_energy'] >= 1000:
         if len(other_tankers) < 2:
-            # create a refuel tanker
+            # create a defense tanker
             flag = 0
 
             while flag == 0:
@@ -1183,7 +1183,7 @@ def get_AI_orders(board,entities, turn_AI, AI_data, peaks, team, tanker_to_peak,
 
                     flag = 1
                     orders += ' %s:tanker' % ship_name
-                    AI_data[ship_name] = {'type' : 'tanker', 'function' : 'refuel'}
+                    AI_data[ship_name] = {'type' : 'tanker', 'function' : 'defense'}
 
     if len(cruiser_attack) == 1 and entities[hub]['available_energy'] >= 1000 and len(other_tankers) < 2:
 
