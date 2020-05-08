@@ -6,7 +6,7 @@ import remote_play
 
 ## MISE EN PLACE ##
 
-def game(file_path, player_1, player_2, your_id=0, remote_id=0):
+def game(file_path, player_1, player_2, id_player_1=0,id_player_2=0):
     """ General function which calls all the other sub-functions in order to run the game
 
     Parameters
